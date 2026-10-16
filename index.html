@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сучасний Веб-Сайт</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome для іконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Шапка / Навігація -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">PORTFOLIO<span>.PRO</span></a>
+            <nav class="nav-menu" id="nav-menu">
+                <a href="#hero" class="nav-link active">Головна</a>
+                <a href="#about" class="nav-link">Про мене</a>
+                <a href="#services" class="nav-link">Послуги</a>
+                <a href="#portfolio" class="nav-link">Портфоліо</a>
+                <a href="#contact" class="nav-link">Контакти</a>
+            </nav>
+            <div class="nav-actions">
+                <button id="theme-toggle" class="btn-icon" aria-label="Змінити тему">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Головна секція (Hero) -->
+    <section id="hero" class="hero-section">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <span class="badge">Ласкаво просимо</span>
+                <h1>Якісні веб-рішення для вашого успіху</h1>
+                <p>Створюємо сучасні, швидкі та надійні веб-сайти, які працюють 24/7 без збоїв та обмежень за часом.</p>
+                <div class="hero-btns">
+                    <a href="#portfolio" class="btn btn-primary">Мої роботи</a>
+                    <a href="#contact" class="btn btn-secondary">Зв'язатися</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="img-wrapper">
+                    <i class="fa-solid fa-laptop-code hero-icon"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Про мене -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">Про проєкт</h2>
+            <div class="about-grid">
+                <div class="about-card">
+                    <i class="fa-solid fa-bolt card-icon"></i>
+                    <h3>Висока швидкість</h3>
+                    <p>Оптимізований чистий код забезпечує миттєве завантаження сторінок на будь-яких пристроях.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fa-solid fa-shield-halved card-icon"></i>
+                    <h3>Надійність 24/7</h3>
+                    <p>Сайт розміщується на надійних хмарних платформах, що гарантує 100% аптайм без ризику закриття.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fa-solid fa-mobile-screen-button card-icon"></i>
+                    <h3>Адаптивність</h3>
+                    <p>Ідеальне відображення на смартфонах, планшетах та настільних комп'ютерах.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Послуги -->
+    <section id="services" class="section bg-alt">
+        <div class="container">
+            <h2 class="section-title">Що ми пропонуємо</h2>
+            <div class="services-grid">
+                <div class="service-box">
+                    <i class="fa-solid fa-code"></i>
+                    <h3>Веб-розробка</h3>
+                    <p>Створення сайтів-візиток, лендингів та веб-додатків з нуля.</p>
+                </div>
+                <div class="service-box">
+                    <i class="fa-solid fa-paint-brush"></i>
+                    <h3>UI/UX Дизайн</h3>
+                    <p>Сучасні та зручні інтерфейси з урахуванням потреб користувачів.</p>
+                </div>
+                <div class="service-box">
+                    <i class="fa-solid fa-rocket"></i>
+                    <h3>Оптимізація</h3>
+                    <p>Покращення швидкості роботи та SEO-оптимізація для пошуковиків.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Портфоліо / Інтерактивна галерея -->
+    <section id="portfolio" class="section">
+        <div class="container">
+            <h2 class="section-title">Портфоліо</h2>
+            <div class="portfolio-filter">
+                <button class="filter-btn active" data-filter="all">Усі</button>
+                <button class="filter-btn" data-filter="web">Веб-сайти</button>
+                <button class="filter-btn" data-filter="app">Додатки</button>
+            </div>
+            <div class="portfolio-grid">
+                <div class="portfolio-card" data-category="web">
+                    <div class="portfolio-img"><i class="fa-solid fa-globe"></i></div>
+                    <div class="portfolio-info">
+                        <h3>Корпоративний сайт</h3>
+                        <p>Веб-розробка</p>
+                    </div>
+                </div>
+                <div class="portfolio-card" data-category="app">
+                    <div class="portfolio-img"><i class="fa-solid fa-mobile-retro"></i></div>
+                    <div class="portfolio-info">
+                        <h3>Мобільний додаток</h3>
+                        <p>UI/UX & Розробка</p>
+                    </div>
+                </div>
+                <div class="portfolio-card" data-category="web">
+                    <div class="portfolio-img"><i class="fa-solid fa-store"></i></div>
+                    <div class="portfolio-info">
+                        <h3>Інтернет-магазин</h3>
+                        <p>E-Commerce</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Форма зворотного зв'язку -->
+    <section id="contact" class="section bg-alt">
+        <div class="container">
+            <h2 class="section-title">Напишіть нам</h2>
+            <div class="contact-wrapper">
+                <form id="contact-form" class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Ваше ім'я</label>
+                        <input type="text" id="name" required placeholder="Олександр">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="example@mail.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Повідомлення</label>
+                        <textarea id="message" rows="5" required placeholder="Ваше повідомлення..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Надіслати</button>
+                    <div id="form-status" class="form-status"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Підвал (Footer) -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <p>&copy; 2026 PORTFOLIO.PRO. Усі права захищено.</p>
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fa-brands fa-telegram"></i></a>
+                <a href="#" class="social-link"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="social-link"><i class="fa-brands fa-github"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
