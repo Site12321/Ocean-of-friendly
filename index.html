@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Океан Дружніх — Платформа взаємодопомоги</title>
+  <title>Океан Дружніх — Платформа взаємодопомоги та підтримки</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -63,13 +63,12 @@
           <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Реєстрація
         </button>
 
-        <!-- Кнопка админ-панели (скрыта для гостей, видна после авторизации) -->
+        <!-- Кнопка админ-панели (скрыта для гостей, видна только авторизованным админам) -->
         <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Адмін Панель</span>
         </button>
 
-        <!-- Кнопка входа -->
         <button id="nav-login-btn" onclick="showPage('admin')" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="user" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Вхід</span>
@@ -187,7 +186,7 @@
     <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950">
       <div class="max-w-6xl mx-auto px-4">
         
-        <!-- ЧИСТОЕ ОКНО ВХОДА (БЕЗ УПОМИНАНИЯ ПОЧТЫ И СПЕЦ АДМИНА) -->
+        <!-- ЧИСТОЕ ОКНО ВХОДА КАК НА ФОТО (БЕЗ ПОДСКАЗОК ПОЧТ) -->
         <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-8 rounded-3xl shadow-2xl relative">
           <div class="text-center mb-6">
             <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
@@ -200,7 +199,7 @@
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email / Логін</label>
-              <input type="text" id="admin-username" required placeholder="Введіть ваш email" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
+              <input type="text" id="admin-username" required placeholder="admin@ocean.org або superadmin" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
@@ -219,7 +218,7 @@
           </div>
         </div>
 
-        <!-- ДЭШБОРД С СИСТЕМОЙ ВЫДАЧИ ПРАВ -->
+        <!-- ДЭШБОРД С СИСТЕМОЙ ВЫДАЧИ ПРАВ АДМИНАМ -->
         <div id="admin-dashboard" class="hidden space-y-6">
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-3">
