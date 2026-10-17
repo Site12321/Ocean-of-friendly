@@ -9,7 +9,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -31,12 +31,34 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .msg-animate { animation: fadeIn 0.25s ease-out forwards; }
     .slider-transition { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
+    #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans flex flex-col min-h-screen">
+<body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen relative selection:bg-sky-500 selection:text-slate-950">
+
+  <!-- АНИМИРОВАННЫЙ КАНВАС ФОНА (ОКЕАН -> КОСМОС) -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ПАНЕЛЬ УПРАВЛЕНИЯ АНИМАЦИЕЙ ФОНА -->
+  <div class="fixed top-24 right-4 z-30 bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-3 rounded-2xl shadow-xl flex flex-col gap-2 text-xs">
+    <div class="font-bold text-sky-400 flex items-center justify-between gap-2">
+      <span><i data-lucide="sparkles" class="w-3.5 h-3.5 inline"></i> Режим фону</span>
+      <span id="bg-mode-label" class="text-[10px] text-slate-400 font-mono">Гібрид</span>
+    </div>
+    <div class="flex gap-1">
+      <button onclick="setBgMode('ocean')" class="px-2 py-1 bg-slate-800 hover:bg-sky-600 rounded text-[10px] font-semibold transition-colors">Море</button>
+      <button onclick="setBgMode('hybrid')" class="px-2 py-1 bg-sky-500/20 text-sky-300 hover:bg-sky-500/40 rounded text-[10px] font-semibold transition-colors">Гібрид</button>
+      <button onclick="setBgMode('space')" class="px-2 py-1 bg-slate-800 hover:bg-indigo-600 rounded text-[10px] font-semibold transition-colors">Космос</button>
+    </div>
+    <div class="flex items-center gap-2 mt-1">
+      <span class="text-[9px] text-slate-400">Море</span>
+      <input type="range" id="spaceBlendSlider" min="0" max="1" step="0.05" value="0.5" oninput="updateSpaceBlend(this.value)" class="w-20 accent-sky-400 cursor-pointer">
+      <span class="text-[9px] text-slate-400">Космос</span>
+    </div>
+  </div>
 
   <!-- NAVIGATION BAR -->
-  <header class="bg-[#071630]/90 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
+  <header class="bg-[#071630]/80 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
       <a href="#" onclick="showPage('home')" class="flex items-center gap-3 group">
@@ -47,7 +69,7 @@
         </svg>
         <div class="flex flex-col">
           <span class="text-xl font-bold tracking-tight text-white leading-none">Океан Дружніх</span>
-          <span class="text-[11px] font-medium text-sky-400 mt-1">Центр взаємодопомоги та підтримки</span>
+          <span class="text-[11px] font-medium text-sky-400 mt-1">Платформа взаємодопомоги</span>
         </div>
       </a>
 
@@ -55,14 +77,15 @@
         <a href="#projects" onclick="scrollToSection('projects')" class="hover:text-sky-400 transition-colors">Проєкти</a>
         <a href="#catalog" onclick="scrollToSection('catalog')" class="hover:text-sky-400 transition-colors">Каталог</a>
         <a href="#communities" onclick="scrollToSection('communities')" class="hover:text-sky-400 transition-colors">Спільноти</a>
-        <a href="#media" onclick="alert('Медіацентр: нові матеріали та події скоро!')" class="hover:text-sky-400 transition-colors">Медіацентр</a>
+        <button onclick="openMentorSelector()" class="hover:text-sky-400 transition-colors flex items-center gap-1.5 text-amber-300 font-bold">
+          <i data-lucide="crown" class="w-4 h-4"></i> Наставник
+        </button>
+        <button onclick="openTelegramModal()" class="hover:text-sky-400 transition-colors flex items-center gap-1.5 text-sky-400 font-bold">
+          <i data-lucide="send" class="w-4 h-4"></i> Telegram Бот
+        </button>
       </nav>
 
       <div class="flex items-center gap-3">
-        <button onclick="openRegisterModal()" class="hidden sm:flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
-          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Реєстрація
-        </button>
-
         <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Адмін Панель</span>
@@ -76,14 +99,40 @@
     </div>
   </header>
 
-  <main class="flex-grow">
+  <main class="flex-grow relative z-10">
 
     <!-- HOME PAGE -->
     <div id="page-home">
       
+      <!-- ПОЛОСА АКТИВНОГО НАСТАВНИКА -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div id="mentor-active-banner" class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur-md">
+          <div class="flex items-center gap-3">
+            <div id="mentor-banner-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl">
+              🌺
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ваш обраний наставник:</span>
+                <span id="mentor-banner-name" class="text-sm font-black text-amber-400">Лада</span>
+              </div>
+              <p id="mentor-banner-desc" class="text-xs text-slate-300 mt-0.5">Лагідна берегиня, світла душевна підтримка та тепло серця</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="speakMentorGreeting()" class="px-3.5 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+              <i data-lucide="volume-2" class="w-4 h-4"></i> Озвучити привітання
+            </button>
+            <button onclick="openMentorSelector()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-xl text-xs font-bold transition-all">
+              Змінити
+            </button>
+          </div>
+        </div>
+      </section>
+
       <!-- ИГРОВОЙ АНИМИРОВАННЫЙ СЛАЙДЕР-БАННЕР -->
-      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-950 via-[#0a1931] to-slate-950 border border-blue-900/40 shadow-2xl min-h-[320px] sm:min-h-[380px] flex items-center">
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-950/90 via-[#0a1931]/80 to-slate-950/90 border border-blue-900/40 shadow-2xl min-h-[320px] sm:min-h-[360px] flex items-center backdrop-blur-md">
           
           <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#0284c7_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
 
@@ -102,7 +151,7 @@
       <section class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
-            <button onclick="openChatWithPrompt('Мені потрібна допомога. Як я можу її отримати?')" class="p-6 bg-slate-800/90 hover:bg-slate-800 border-2 border-emerald-500/40 hover:border-emerald-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1">
+            <button onclick="openChatWithPrompt('Мені потрібна допомога. Як я можу її отримати?')" class="p-6 bg-slate-900/80 hover:bg-slate-800 border-2 border-emerald-500/40 hover:border-emerald-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1 backdrop-blur-md">
               <div>
                 <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <i data-lucide="heart-handshake" class="w-6 h-6"></i>
@@ -113,7 +162,7 @@
               <span class="mt-6 text-xs font-bold text-emerald-400 flex items-center gap-1">Звернутися <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
 
-            <button onclick="scrollToSection('communities')" class="p-6 bg-slate-800/90 hover:bg-slate-800 border-2 border-sky-500/40 hover:border-sky-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1">
+            <button onclick="scrollToSection('communities')" class="p-6 bg-slate-900/80 hover:bg-slate-800 border-2 border-sky-500/40 hover:border-sky-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1 backdrop-blur-md">
               <div>
                 <div class="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <i data-lucide="users" class="w-6 h-6"></i>
@@ -124,22 +173,22 @@
               <span class="mt-6 text-xs font-bold text-sky-400 flex items-center gap-1">Знайти спільноту <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
 
-            <button onclick="openChatWithPrompt('Я хочу стати волонтером або підтримати проєкт')" class="p-6 bg-slate-800/90 hover:bg-slate-800 border-2 border-amber-500/40 hover:border-amber-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1">
+            <button onclick="openTelegramModal()" class="p-6 bg-slate-900/80 hover:bg-slate-800 border-2 border-amber-500/40 hover:border-amber-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1 backdrop-blur-md">
               <div>
                 <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <i data-lucide="sparkles" class="w-6 h-6"></i>
+                  <i data-lucide="send" class="w-6 h-6"></i>
                 </div>
-                <h3 class="font-bold text-white text-lg">Хочу допомогти</h3>
-                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Волонтерство, партнерство, донати та спільні ініціативи</p>
+                <h3 class="font-bold text-white text-lg">Telegram Бот</h3>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Миттєве перенаправлення, бот підтримки та сповіщення</p>
               </div>
-              <span class="mt-6 text-xs font-bold text-amber-400 flex items-center gap-1">Долучитися <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+              <span class="mt-6 text-xs font-bold text-amber-400 flex items-center gap-1">Перейти в бот <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
           </div>
         </div>
       </section>
 
       <!-- PROJECTS SECTION -->
-      <section id="projects" class="py-16 bg-slate-900 border-t border-slate-800">
+      <section id="projects" class="py-16 bg-slate-900/60 border-t border-slate-800/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="mb-8">
             <h2 class="text-3xl font-extrabold text-white">Наші ключові проєкти</h2>
@@ -163,7 +212,7 @@
       </section>
 
       <!-- CATALOG SECTION -->
-      <section id="catalog" class="py-16 bg-[#071630]/30 border-t border-slate-800">
+      <section id="catalog" class="py-16 bg-[#071630]/30 border-t border-slate-800/80">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="mb-8">
             <h2 class="text-3xl font-extrabold text-white">Каталог можливостей</h2>
@@ -174,7 +223,7 @@
       </section>
 
       <!-- COMMUNITIES SECTION -->
-      <section id="communities" class="py-16 bg-slate-900 border-t border-slate-800">
+      <section id="communities" class="py-16 bg-slate-900/60 border-t border-slate-800/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 class="text-3xl font-extrabold text-white mb-4">Спільноти за інтересами</h2>
           <p class="text-slate-400 mb-8">Обирайте свій напрямок та долучайтеся до команди</p>
@@ -191,7 +240,7 @@
     </div>
 
     <!-- ADMIN PANEL -->
-    <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950">
+    <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950/90">
       <div class="max-w-6xl mx-auto px-4">
         
         <!-- ВХОД В АДМИНКУ -->
@@ -295,7 +344,7 @@
             </div>
           </div>
 
-          <!-- ВКЛАДКА УПРАВЛЕНИЯ АДМИНАМИ, ДОГАНАМИ И ПРАВАМИ -->
+          <!-- ВКЛАДКА УПРАВЛЕНИЯ АДМИНАМИ -->
           <div id="admin-tab-admins" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
               <h3 class="text-sm font-bold text-white mb-4">Видати посаду та створити адміністратора</h3>
@@ -342,65 +391,170 @@
 
   </main>
 
-  <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
-  <div id="register-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
-      <button onclick="closeRegisterModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+  <!-- ПОЛНОЭКРАННЫЙ ВЫБОР НАСТАВНИКА (ОБЕРИ ХТО ТЕБЕ БУДЕ ВЕСТИ) -->
+  <div id="mentor-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-6 sm:p-10 overflow-y-auto">
+    <div class="max-w-6xl mx-auto w-full text-center mt-4">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold mb-3">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> Офіційний цифровий голос платформи
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight">ОБЕРИ, ХТО ТЕБЕ БУДЕ ВЕСТИ</h1>
+      <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mt-2">
+        Оберіть наставника, чий характер, голос та мудрість будуть супроводжувати вас на сайті та в аудіо-повідомленнях ШІ.
+      </p>
+    </div>
 
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center mx-auto mb-3">
-          <i data-lucide="user-plus" class="w-6 h-6"></i>
+    <!-- КАРТОЧКИ 4 НАСТАВНИКОВ -->
+    <div class="max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-8">
+      
+      <!-- 1. ЛАДА -->
+      <div onclick="selectMentor('lada')" id="card-mentor-lada" class="bg-slate-900/80 border-2 border-slate-800 hover:border-amber-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20"></div>
+        <div>
+          <div class="w-20 h-20 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            🌺
+          </div>
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">1. Берегиня</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Лада</h3>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Я поруч, щоб обійняти теплом, вислухати та дати душевне затишне пораду. Ти не один у цьому океані.»
+          </p>
         </div>
-        <h2 class="text-2xl font-black text-white">Реєстрація акаунта</h2>
-        <p class="text-xs text-slate-400 mt-1">Вже є акаунт? <button onclick="closeRegisterModal(); showPage('admin');" class="text-sky-400 font-bold hover:underline">Увійти</button></p>
+        <div class="mt-6 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('lada')" class="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+          </button>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Теплий & Лагідний</div>
+        </div>
       </div>
 
-      <div class="space-y-3">
-        <button onclick="socialRegister('Google')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm">
-          <i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span>Продолжить с Google</span>
-        </button>
-        <button onclick="socialRegister('Facebook')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm">
-          <i data-lucide="facebook" class="w-4 h-4 text-blue-400"></i><span>Продолжить с Facebook</span>
-        </button>
-        <button onclick="socialRegister('Apple')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm">
-          <i data-lucide="apple" class="w-4 h-4 text-white"></i><span>Продолжить с Apple</span>
-        </button>
+      <!-- 2. КНЯГИНЯ ОЛЬГА -->
+      <div onclick="selectMentor('olga')" id="card-mentor-olga" class="bg-slate-900/80 border-2 border-slate-800 hover:border-sky-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20"></div>
+        <div>
+          <div class="w-20 h-20 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            👑
+          </div>
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">2. Державність</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Княгиня Ольга</h3>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Мудрість, стратегія та непохитна воля. Ми знайдемо правильне рішення для будь-якого виклику.»
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('olga')" class="w-full py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+          </button>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Мудрий & Впевнений</div>
+        </div>
       </div>
 
-      <div class="relative my-6 text-center">
-        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
-        <span class="relative px-3 bg-slate-900 text-xs text-slate-500 uppercase font-medium">або через пошту</span>
+      <!-- 3. КОЗАЦЬКИЙ -->
+      <div onclick="selectMentor('kozak')" id="card-mentor-kozak" class="bg-slate-900/80 border-2 border-slate-800 hover:border-emerald-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20"></div>
+        <div>
+          <div class="w-20 h-20 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            ⚔️
+          </div>
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">3. Побратим</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Козацький</h3>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Брате, тримаймо стрій! Козацький дух, віра в перемогу та пліч-о-пліч у кожній справі!»
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('kozak')" class="w-full py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+          </button>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Чоловічий • Енергійний & Сміливий</div>
+        </div>
       </div>
 
-      <form onsubmit="handleEmailRegister(event)" class="space-y-3">
-        <input type="email" id="reg-email" required placeholder="Ел. пошта (наприклад: name@gmail.com)" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder-slate-500">
-        <button type="submit" class="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-lg shadow-sky-500/20">
-          Створити акаунт
-        </button>
-      </form>
+      <!-- 4. СТАРЕЦЬ / МУДРЕЦЬ -->
+      <div onclick="selectMentor('starets')" id="card-mentor-starets" class="bg-slate-900/80 border-2 border-slate-800 hover:border-purple-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20"></div>
+        <div>
+          <div class="w-20 h-20 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+            🧙‍♂️
+          </div>
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">4. Мудрець</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Старець / Мудрець</h3>
+          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Все минає, а істина залишається. Глибоке розуміння життя, спокій та вікова мудрість предків.»
+          </p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('starets')" class="w-full py-2.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+          </button>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Чоловічий • Глибокий & Спокійний</div>
+        </div>
+      </div>
 
-      <p class="text-[10px] text-slate-500 text-center mt-6">
-        * Реєструючись, ви приймаєте умови використання та підтверджуєте згоду на обробку персональних даних.
+    </div>
+
+    <div class="max-w-md mx-auto w-full text-center pb-6">
+      <button onclick="confirmMentorChoice()" class="w-full py-4 bg-gradient-to-r from-sky-400 via-emerald-400 to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl shadow-2xl transition-all hover:opacity-90 transform active:scale-95">
+        Підтвердити вибір та увійти на сайт
+      </button>
+      <p class="text-[11px] text-slate-500 mt-3">
+        * Реєстрація не потрібна. Вибір можна змінити в будь-який момент у шапці сайту.
       </p>
     </div>
   </div>
 
-  <!-- AI CHAT WIDGET -->
+  <!-- МОДАЛЬНОЕ ОКНО TELEGRAM БОТА И ПЕРЕНАПРАВЛЕНИЯ -->
+  <div id="telegram-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-lg p-8 rounded-3xl shadow-2xl relative">
+      <button onclick="closeTelegramModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 rounded-3xl bg-sky-500/20 border border-sky-400/40 text-sky-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <i data-lucide="send" class="w-8 h-8"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white">Telegram Бот «Океан Дружніх»</h2>
+        <p class="text-xs text-sky-400 mt-1 font-semibold">@OkeanDruzhnikhBot</p>
+      </div>
+
+      <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl text-xs space-y-3 mb-6">
+        <h4 class="font-bold text-white flex items-center gap-2">
+          <i data-lucide="bot" class="w-4 h-4 text-sky-400"></i> Можливості нашого бота:
+        </h4>
+        <ul class="space-y-2 text-slate-300">
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/start</span> — Активація та вибір персонального наставника</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/rehab</span> — Запит на реабілітацію та медичні центри</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/volunteer</span> — Подати заявку на волонтерство</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/communities</span> — Пошук побратимів у вашому місті</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/ticket</span> — Створення тикету підтримки без реєстрації</li>
+        </ul>
+      </div>
+
+      <div class="space-y-3">
+        <a href="https://t.me/OkeanDruzhnikhBot" target="_blank" onclick="closeTelegramModal()" class="w-full py-4 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-sky-500/20">
+          <i data-lucide="external-link" class="w-4 h-4"></i> Перейти в Telegram Бот зараз
+        </a>
+        <button onclick="closeTelegramModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-2xl text-xs transition-colors">
+          Залишитися на сайті
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI CHAT WIDGET C ГОЛОСОВЫМ ВВОДОМ И ОЗВУЧКОЙ НАСТАВНИКА -->
   <div id="chat-widget" class="fixed bottom-4 right-4 z-50 flex flex-col items-end">
-    <div id="chat-window" class="hidden w-[90vw] sm:w-[410px] h-[580px] bg-[#070d1e] text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
+    <div id="chat-window" class="hidden w-[90vw] sm:w-[420px] h-[600px] bg-[#070d1e]/95 backdrop-blur-xl text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
       <div class="bg-[#0b1633]/90 backdrop-blur-md p-4 border-b border-blue-900/50 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center shadow-inner">
-            <i data-lucide="bot" class="w-6 h-6 text-sky-400"></i>
+          <div id="chat-mentor-avatar" class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl shadow-inner">
+            🌺
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h4 class="font-bold text-sm tracking-wide text-white">AI-Координатор</h4>
+              <h4 id="chat-mentor-title" class="font-bold text-sm tracking-wide text-white">Лада (ШІ Наставник)</h4>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Онлайн</span>
             </div>
-            <span class="text-[11px] text-slate-400">Офіційний цифровий помічник «Океан дружніх»</span>
+            <span class="text-[11px] text-slate-400">Цифровий помічник «Океан дружніх»</span>
           </div>
         </div>
         <button onclick="toggleChat()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors">
@@ -410,22 +564,25 @@
 
       <div id="chat-body" class="p-4 flex-grow overflow-y-auto chat-scroll space-y-4 bg-gradient-to-b from-[#070d1e] to-[#040814] text-xs">
         <div class="flex gap-2.5 items-start msg-animate">
-          <div class="w-7 h-7 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 mt-0.5">
-            <i data-lucide="bot" class="w-4 h-4 text-sky-400"></i>
+          <div id="msg-mentor-icon" class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+            🌺
           </div>
-          <div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">
-            Вітаю! Я цифровий координатор платформи. Я допоможу вам знайти підтримку, долучитися до спільнот або стати волонтером. Опишіть вашу потребу!
+          <div id="chat-welcome-text" class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">
+            Вітаю тебе! Я Лада. Я допоможу знайти реабілітацію, підтримку або відповіді на всі запитання. Поділися зі мною, що тебе турбує?
           </div>
         </div>
       </div>
 
       <div class="px-3 py-2 bg-[#060c1b] border-t border-blue-900/40 flex gap-2 overflow-x-auto no-scrollbar text-[11px]">
         <button onclick="sendQuickChip('Потрібна реабілітація')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Потрібна реабілітація</button>
-        <button onclick="sendQuickChip('Шукаю волонтерство')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Шукаю волонтерство</button>
+        <button onclick="sendQuickChip('Перейти в Телеграм бот')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот</button>
       </div>
 
       <form onsubmit="handleSendMessage(event)" class="p-3 bg-[#060b18] border-t border-blue-900/60 flex items-center gap-2">
-        <input type="text" id="chat-input" placeholder="Опишіть вашу потребу..." required class="flex-grow bg-white text-slate-900 px-4 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400">
+        <button type="button" onclick="toggleVoiceInput()" id="mic-btn" title="Голосове звернення" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl transition-all">
+          <i data-lucide="mic" class="w-4 h-4"></i>
+        </button>
+        <input type="text" id="chat-input" placeholder="Запитайте щось або скажіть голосом..." required class="flex-grow bg-white text-slate-900 px-4 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400">
         <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl transition-all shadow-lg flex items-center gap-1 shrink-0">
           <span>Надіслати</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>
         </button>
@@ -436,13 +593,278 @@
       <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
         <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
       </div>
-      <span class="text-xs font-bold pr-1 hidden sm:inline">AI Координатор</span>
+      <span class="text-xs font-bold pr-1 hidden sm:inline">ШІ Наставник</span>
     </button>
   </div>
 
   <script>
     lucide.createIcons();
 
+    // ==========================================
+    // 1. АНИМАЦИЯ ФОНА КАНВАСА (ОКЕАН -> КОСМОС)
+    // ==========================================
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initStars();
+    });
+
+    let spaceBlend = 0.5; // 0 = только море, 1 = только космос, 0.5 = гибрид
+    let waveOffset = 0;
+
+    // Звезды
+    const stars = [];
+    function initStars() {
+      stars.length = 0;
+      for (let i = 0; i < 180; i++) {
+        stars.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 2,
+          alpha: Math.random(),
+          speed: 0.005 + Math.random() * 0.015
+        });
+      }
+    }
+    initStars();
+
+    function setBgMode(mode) {
+      const slider = document.getElementById('spaceBlendSlider');
+      const label = document.getElementById('bg-mode-label');
+      if (mode === 'ocean') { spaceBlend = 0; label.textContent = 'Море'; }
+      else if (mode === 'space') { spaceBlend = 1; label.textContent = 'Космос'; }
+      else { spaceBlend = 0.5; label.textContent = 'Гібрид'; }
+      slider.value = spaceBlend;
+    }
+
+    function updateSpaceBlend(val) {
+      spaceBlend = parseFloat(val);
+      document.getElementById('bg-mode-label').textContent = spaceBlend < 0.3 ? 'Море' : spaceBlend > 0.7 ? 'Космос' : 'Гібрид';
+    }
+
+    function animateBg() {
+      ctx.clearRect(0, 0, width, height);
+
+      // 1. Космический фон
+      const spaceGrad = ctx.createLinearGradient(0, 0, width, height);
+      spaceGrad.addColorStop(0, '#030712');
+      spaceGrad.addColorStop(0.5, '#090d26');
+      spaceGrad.addColorStop(1, '#1e0b36');
+
+      // 2. Океанический фон
+      const oceanGrad = ctx.createLinearGradient(0, 0, 0, height);
+      oceanGrad.addColorStop(0, '#021027');
+      oceanGrad.addColorStop(0.5, '#03254c');
+      oceanGrad.addColorStop(1, '#0284c7');
+
+      // Отрисовка подложки
+      ctx.fillStyle = spaceGrad;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.globalAlpha = 1 - spaceBlend;
+      ctx.fillStyle = oceanGrad;
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+
+      // Отрисовка звезд (Космос)
+      if (spaceBlend > 0.05) {
+        ctx.save();
+        ctx.globalAlpha = spaceBlend;
+        for (let s of stars) {
+          s.alpha += s.speed;
+          if (s.alpha > 1 || s.alpha < 0) s.speed = -s.speed;
+          ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(s.alpha)})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // Отрисовка морских волн (Океан)
+      if (spaceBlend < 0.95) {
+        ctx.save();
+        ctx.globalAlpha = (1 - spaceBlend) * 0.6;
+        waveOffset += 0.02;
+
+        for (let i = 0; i < 3; i++) {
+          ctx.fillStyle = i === 0 ? 'rgba(2, 132, 199, 0.3)' : i === 1 ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.15)';
+          ctx.beginPath();
+          ctx.moveTo(0, height);
+          for (let x = 0; x <= width; x += 20) {
+            let y = Math.sin(x * 0.005 + waveOffset + i) * 25 + (height * 0.65 + i * 40);
+            ctx.lineTo(x, y);
+          }
+          ctx.lineTo(width, height);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      requestAnimationFrame(animateBg);
+    }
+    animateBg();
+
+    // ==========================================
+    // 2. ДАТА НАСТАВНИКОВ И ГОЛОСОВОЙ ДВИЖОК
+    // ==========================================
+    const mentors = {
+      lada: {
+        name: "Лада",
+        role: "Лагідна берегиня",
+        emoji: "🌺",
+        desc: "Турботлива берегиня, світла душевна підтримка та тепло серця",
+        greeting: "Вітаю тебе, серденько! Я Лада. Я поруч, щоб зігріти теплом, вислухати та допомогти тобі у будь-якій ситуації.",
+        pitch: 1.2, rate: 0.95, lang: 'uk-UA'
+      },
+      olga: {
+        name: "Княгиня Ольга",
+        role: "Мудра та рішуча",
+        emoji: "👑",
+        desc: "Державна мудрість, стратегічний розум та непохитна підтримка",
+        greeting: "Вітаю тебе! Я Княгиня Ольга. Пам'ятай: немає таких труднощів, які не можна подолати розумом та стійкістю духу.",
+        pitch: 1.0, rate: 1.0, lang: 'uk-UA'
+      },
+      kozak: {
+        name: "Козацький",
+        role: "Сміливий побратим",
+        emoji: "⚔️",
+        desc: "Енергійний козацький дух, підтримка побратимів та бойова наснага",
+        greeting: "Здоров був, побратиме! Я Козацький. Тримаймо стрій та йдемо вперед, разом ми здолаємо все!",
+        pitch: 0.8, rate: 1.05, lang: 'uk-UA'
+      },
+      starets: {
+        name: "Старець / Мудрець",
+        role: "Глибока мудрість",
+        emoji: "🧙‍♂️",
+        desc: "Спокій, вікова мудрість предків та глибоке розуміння життя",
+        greeting: "Мир тобі, добрий чоловіче. Я Мудрець. Поважно та виважено ми знайдемо істинний шлях у цьому океані життя.",
+        pitch: 0.6, rate: 0.85, lang: 'uk-UA'
+      }
+    };
+
+    let selectedMentorKey = localStorage.getItem('okean_mentor') || 'lada';
+
+    function openMentorSelector() {
+      document.getElementById('mentor-selector-modal').classList.remove('hidden');
+    }
+
+    function selectMentor(key) {
+      selectedMentorKey = key;
+      document.querySelectorAll('[id^="card-mentor-"]').forEach(el => {
+        el.classList.remove('border-amber-400', 'border-sky-400', 'border-emerald-400', 'border-purple-400', 'ring-4', 'ring-sky-500/50');
+      });
+      const activeCard = document.getElementById(`card-mentor-${key}`);
+      if (activeCard) activeCard.classList.add('ring-4', 'ring-sky-500/50');
+    }
+
+    function confirmMentorChoice() {
+      localStorage.setItem('okean_mentor', selectedMentorKey);
+      document.getElementById('mentor-selector-modal').classList.add('hidden');
+      updateMentorUI();
+      speakMentorGreeting();
+    }
+
+    function updateMentorUI() {
+      const m = mentors[selectedMentorKey];
+      document.getElementById('mentor-banner-avatar').textContent = m.emoji;
+      document.getElementById('mentor-banner-name').textContent = m.name;
+      document.getElementById('mentor-banner-desc').textContent = m.desc;
+
+      document.getElementById('chat-mentor-avatar').textContent = m.emoji;
+      document.getElementById('chat-mentor-title').textContent = `${m.name} (ШІ Наставник)`;
+      document.getElementById('msg-mentor-icon').textContent = m.emoji;
+      document.getElementById('chat-welcome-text').textContent = m.greeting;
+    }
+
+    function previewVoice(key) {
+      const m = mentors[key];
+      speakText(m.greeting, m);
+    }
+
+    function speakMentorGreeting() {
+      const m = mentors[selectedMentorKey];
+      speakText(m.greeting, m);
+    }
+
+    function speakText(text, mentorObj) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const m = mentorObj || mentors[selectedMentorKey];
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = m.lang;
+      utter.pitch = m.pitch;
+      utter.rate = m.rate;
+
+      const voices = window.speechSynthesis.getVoices();
+      const ukVoice = voices.find(v => v.lang.includes('uk') || v.lang.includes('UA'));
+      if (ukVoice) utter.voice = ukVoice;
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    // ==========================================
+    // 3. ГОЛОСОВОЙ ВВОД (SPEECH RECOGNITION)
+    // ==========================================
+    let isListening = false;
+    function toggleVoiceInput() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("На жаль, ваш браузер не підтримує розпізнавання голосу.");
+        return;
+      }
+
+      const micBtn = document.getElementById('mic-btn');
+      if (isListening) {
+        isListening = false;
+        micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'uk-UA';
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add('bg-rose-500', 'text-white', 'animate-pulse');
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('chat-input').value = transcript;
+        isListening = false;
+        micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
+      };
+
+      recognition.onerror = () => {
+        isListening = false;
+        micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
+      };
+
+      recognition.start();
+    }
+
+    // ==========================================
+    // 4. TELEGRAM MODAL
+    // ==========================================
+    function openTelegramModal() {
+      document.getElementById('telegram-modal').classList.remove('hidden');
+    }
+    function closeTelegramModal() {
+      document.getElementById('telegram-modal').classList.add('hidden');
+    }
+
+    // ==========================================
+    // 5. ОСНОВНОЙ ФУНКЦИОНАЛ СЛАЙДЕРА И КАТАЛОГА
+    // ==========================================
     const banners = [
       {
         tag: "Спільнота & Підтримка",
@@ -452,11 +874,11 @@
         action: "scrollToSection('projects')"
       },
       {
-        tag: "Офіційний канал Discord",
-        title: "Стань частиною нашої спільноти, дізнавайся про нові події одразу!",
-        desc: "Пройди верифікацію в нашому Discord каналі та отримай бонуси на платформі.",
-        btnText: "Приєднатися до спільноти",
-        action: "alert('Перехід до офіційного Discord каналу «Океан Дружніх»')"
+        tag: "Telegram Бот",
+        title: "Миттєвий зв'язок та допомога у вашому смартфоні",
+        desc: "Пройди швидке опитування та отримай персонального координатора без реєстрації.",
+        btnText: "Перейти до Telegram",
+        action: "openTelegramModal()"
       },
       {
         tag: "Проєкт «Морські леви»",
@@ -484,19 +906,13 @@
       lucide.createIcons();
     }
 
-    function nextSlide() {
-      currentSlide = (currentSlide + 1) % banners.length;
-      renderBanner();
-    }
-
-    function prevSlide() {
-      currentSlide = (currentSlide - 1 + banners.length) % banners.length;
-      renderBanner();
-    }
-
+    function nextSlide() { currentSlide = (currentSlide + 1) % banners.length; renderBanner(); }
+    function prevSlide() { currentSlide = (currentSlide - 1 + banners.length) % banners.length; renderBanner(); }
     setInterval(nextSlide, 5000);
 
-    // Инициализация базы администраторов с гарантированным возвратом Андрея Романова (Super Admin)[cite: 2]
+    // ==========================================
+    // 6. АДМИН-ПАНЕЛЬ И БАЗА
+    // ==========================================
     let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || [];
     const superAdminEmail = "andreyromanov245@gmail.com";
     
@@ -522,7 +938,7 @@
     function renderCatalog() {
       const container = document.getElementById('catalog-grid');
       container.innerHTML = state.organizations.map(org => `
-        <div class="bg-slate-800/80 border border-slate-700 p-5 rounded-3xl shadow-sm flex flex-col justify-between">
+        <div class="bg-slate-900/80 border border-slate-700 p-5 rounded-3xl shadow-sm flex flex-col justify-between backdrop-blur-md">
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">${org.category}</span>
@@ -531,7 +947,7 @@
             <h4 class="font-bold text-white text-base">${org.name}</h4>
             <p class="text-xs text-slate-400 mt-1">Локація: ${org.city}</p>
           </div>
-          <button onclick="openChatWithPrompt('Хочу отримати контакти організації: ${org.name}')" class="mt-5 w-full py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs rounded-2xl transition-colors">
+          <button onclick="openChatWithPrompt('Хочу отримати контакти організації: ${org.name}')" class="mt-5 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs rounded-2xl transition-colors border border-slate-700">
             Зв'язатися через координатора
           </button>
         </div>
@@ -563,43 +979,22 @@
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
-    function openRegisterModal() { document.getElementById('register-modal').classList.remove('hidden'); }
-    function closeRegisterModal() { document.getElementById('register-modal').classList.add('hidden'); }
-    
-    function socialRegister(provider) {
-      alert(`Успішна реєстрація через ${provider}!`);
-      closeRegisterModal();
-      showPage('home');
-    }
-
-    function handleEmailRegister(e) {
-      e.preventDefault();
-      const email = document.getElementById('reg-email').value;
-      alert(`Реєстрація на ${email} успішно завершена!`);
-      closeRegisterModal();
-    }
-
-    // ИСПРАВЛЕННАЯ АВТОРИЗАЦИЯ (с trim, toLowerCase и подтягиванием свежей базы)[cite: 2]
     function handleAdminLogin(e) {
       e.preventDefault();
       const username = document.getElementById('admin-username').value.trim().toLowerCase();
       const password = document.getElementById('admin-password').value.trim();
       const errorMsg = document.getElementById('admin-login-error');
 
-      // Подтягиваем актуальную базу из localStorage перед проверкой
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-
       const foundAdmin = state.admins.find(a => a.email.trim().toLowerCase() === username && a.pass.trim() === password);
 
       if (foundAdmin) {
         state.currentUser = foundAdmin;
         localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
         errorMsg.classList.add('hidden');
-        
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
         updateHeaderAuthUI();
-
         renderAdminDashboard();
       } else {
         errorMsg.classList.remove('hidden');
@@ -611,7 +1006,6 @@
       localStorage.removeItem('okean_current_admin');
       document.getElementById('admin-login-box').classList.remove('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
-      document.getElementById('admin-password').value = '';
       updateHeaderAuthUI();
       showPage('home');
     }
@@ -639,7 +1033,6 @@
       document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all";
     }
 
-    // ИСПРАВЛЕННОЕ ДОБАВЛЕНИЕ АДМИНА С СИНХРОНИЗАЦИЕЙ ХРАНИЛИЩА[cite: 2]
     function handleAddAdmin(e) {
       e.preventDefault();
       const name = document.getElementById('new-admin-name').value.trim();
@@ -648,7 +1041,6 @@
       const role = document.getElementById('new-admin-role').value;
 
       let currentAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-
       if (currentAdmins.some(a => a.email.toLowerCase() === email)) {
         alert("Користувач з таким email вже існує в системі!");
         return;
@@ -666,67 +1058,39 @@
       alert(`Співробітнику успішно призначено посаду: "${role}"!`);
     }
 
-    // Системные функции управления санкциями и правами
     function addWarn(id) {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const admin = state.admins.find(a => a.id === id);
-      if (admin) {
-        admin.warns = (admin.warns || 0) + 1;
-        localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
-        renderAdminAdminsList();
-      }
+      if (admin) { admin.warns = (admin.warns || 0) + 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
     }
-
     function removeWarn(id) {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const admin = state.admins.find(a => a.id === id);
-      if (admin && admin.warns > 0) {
-        admin.warns -= 1;
-        localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
-        renderAdminAdminsList();
-      }
+      if (admin && admin.warns > 0) { admin.warns -= 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
     }
-
     function addBan(id) {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const admin = state.admins.find(a => a.id === id);
-      if (admin) {
-        admin.bans = (admin.bans || 0) + 1;
-        localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
-        renderAdminAdminsList();
-      }
+      if (admin) { admin.bans = (admin.bans || 0) + 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
     }
-
     function removeBan(id) {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const admin = state.admins.find(a => a.id === id);
-      if (admin && admin.bans > 0) {
-        admin.bans -= 1;
-        localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
-        renderAdminAdminsList();
-      }
+      if (admin && admin.bans > 0) { admin.bans -= 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
     }
-
     function clearSanctions(id) {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const admin = state.admins.find(a => a.id === id);
-      if (admin) {
-        admin.warns = 0;
-        admin.bans = 0;
-        localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
-        renderAdminAdminsList();
-      }
+      if (admin) { admin.warns = 0; admin.bans = 0; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
     }
-
     function removeAdmin(id) {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const admin = state.admins.find(a => a.id === id);
       if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-        alert("Неможливо забрати права адміністратора у головного власника (Андрій Романов)!");
+        alert("Неможливо забрати права у головного власника (Андрій Романов)!");
         return;
       }
-
-      if (confirm(`Ви дійсно хочете забрати права адміністратора у користувача "${admin ? admin.name : ''}"?`)) {
+      if (confirm(`Ви дійсно хочете забрати права адміністратора у "${admin ? admin.name : ''}"?`)) {
         state.admins = state.admins.filter(a => a.id !== id);
         localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
         renderAdminAdminsList();
@@ -738,13 +1102,8 @@
       const list = document.getElementById('admin-team-list');
       list.innerHTML = state.admins.map(a => `
         <tr class="hover:bg-slate-800/40 transition-colors">
-          <td class="p-3">
-            <span class="font-bold text-white block">${a.name}</span>
-            <span class="text-[11px] text-sky-400">${a.email}</span>
-          </td>
-          <td class="p-3">
-            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/30">${a.role}</span>
-          </td>
+          <td class="p-3"><span class="font-bold text-white block">${a.name}</span><span class="text-[11px] text-sky-400">${a.email}</span></td>
+          <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/30">${a.role}</span></td>
           <td class="p-3">
             <div class="flex items-center gap-2 flex-wrap">
               <span class="px-2 py-1 rounded bg-amber-500/10 text-amber-400 font-bold text-[11px]">Попереджень: ${a.warns || 0}</span>
@@ -753,16 +1112,14 @@
           </td>
           <td class="p-3 text-right">
             <div class="flex items-center justify-end gap-1.5 flex-wrap">
-              <button onclick="addWarn(${a.id})" title="Видати попередження" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[10px]">+ Попер.</button>
-              <button onclick="addBan(${a.id})" title="Видати догану" class="px-2 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 font-semibold rounded-lg text-[10px]">+ Догана</button>
-              
-              <button onclick="removeWarn(${a.id})" title="Зняти 1 попередження" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Попер.</button>
-              <button onclick="removeBan(${a.id})" title="Зняти 1 догану" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Догана</button>
-              <button onclick="clearSanctions(${a.id})" title="Повністю очистити всі санкції" class="px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-semibold rounded-lg text-[10px]">Очистити</button>
-
+              <button onclick="addWarn(${a.id})" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[10px]">+ Попер.</button>
+              <button onclick="addBan(${a.id})" class="px-2 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 font-semibold rounded-lg text-[10px]">+ Догана</button>
+              <button onclick="removeWarn(${a.id})" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Попер.</button>
+              <button onclick="removeBan(${a.id})" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Догана</button>
+              <button onclick="clearSanctions(${a.id})" class="px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-semibold rounded-lg text-[10px]">Очистити</button>
               ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
                 `<span class="px-2 py-1 bg-slate-800 text-slate-500 font-bold rounded-lg text-[10px] cursor-not-allowed">Захищено</span>` :
-                `<button onclick="removeAdmin(${a.id})" title="Забрати повноваження" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold rounded-lg text-[10px]">Зняти адмінку</button>`
+                `<button onclick="removeAdmin(${a.id})" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold rounded-lg text-[10px]">Зняти</button>`
               }
             </div>
           </td>
@@ -773,15 +1130,9 @@
     function renderAdminDashboard() {
       if (!state.currentUser) return;
       document.getElementById('admin-role-badge').textContent = state.currentUser.role;
-
-      const total = state.tickets.length;
-      const newCount = state.tickets.filter(t => t.status === 'Новий').length;
-      const inProgress = state.tickets.filter(t => t.status === 'В роботі').length;
-
-      document.getElementById('stat-total').textContent = total;
-      document.getElementById('stat-new').textContent = newCount;
-      document.getElementById('stat-in-progress').textContent = inProgress;
-
+      document.getElementById('stat-total').textContent = state.tickets.length;
+      document.getElementById('stat-new').textContent = state.tickets.filter(t => t.status === 'Новий').length;
+      document.getElementById('stat-in-progress').textContent = state.tickets.filter(t => t.status === 'В роботі').length;
       filterTickets();
       renderAdminAdminsList();
     }
@@ -817,6 +1168,9 @@
       }
     }
 
+    // ==========================================
+    // 7. ШІ ДИАЛОГ И ЧАТ
+    // ==========================================
     function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
     function openChatWithPrompt(text) {
       document.getElementById('chat-window').classList.remove('hidden');
@@ -825,6 +1179,10 @@
       input.focus();
     }
     function sendQuickChip(text) {
+      if (text.includes('Телеграм')) {
+        openTelegramModal();
+        return;
+      }
       const input = document.getElementById('chat-input');
       input.value = text;
       handleSendMessage(new Event('submit'));
@@ -841,27 +1199,44 @@
       input.value = '';
       chatBody.scrollTop = chatBody.scrollHeight;
 
+      const currentMentor = mentors[selectedMentorKey];
+
       setTimeout(() => {
-        chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="bot" class="w-4 h-4 text-sky-400"></i></div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">Дякую за звернення! Запит зафіксовано в системі.</div></div>`;
+        let aiReply = `${currentMentor.name}: Дякую за звернення! Запит зафіксовано в системі. Наш координатор зв'яжеться з вами найближчим часом.`;
+        if (message.toLowerCase().includes('реабілітаці')) {
+          aiReply = `${currentMentor.name}: Для отримання реабілітації ми радимо звернутися до нашого проєкту «Морські леви» або переглянути партнерські центри в Каталозі. Також ви можете перейти в наш Telegram-бот @OkeanDruzhnikhBot для швидкої подачі заявки.`;
+        }
+
+        chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
         lucide.createIcons();
         chatBody.scrollTop = chatBody.scrollHeight;
+
+        speakText(aiReply, currentMentor);
 
         state.tickets.unshift({
           id: `ТК-108${state.tickets.length + 1}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
-          name: "Громадянин",
-          contact: "+380 99 *** ** **",
-          category: "Консультація",
-          project: "Оберіг",
+          name: "Звернення через ШІ",
+          contact: "Telegram / Сайт",
+          category: "ШІ Запит",
+          project: "Загальний",
           status: "Новий"
         });
         if (state.currentUser) renderAdminDashboard();
       }, 750);
     }
 
+    // Инициализация стартовых настроек
     renderBanner();
     updateHeaderAuthUI();
     renderCatalog();
+    updateMentorUI();
+
+    // Открываем полноэкранный выбор наставника при первом входе
+    if (!localStorage.getItem('okean_mentor_chosen')) {
+      openMentorSelector();
+      localStorage.setItem('okean_mentor_chosen', 'true');
+    }
   </script>
 </body>
 </html>
