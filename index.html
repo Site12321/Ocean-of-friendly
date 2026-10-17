@@ -484,7 +484,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЕ ОКНО TELEGRAM БОТА (ІНТЕГРОВАНО З bot.py) -->
+  <!-- МОДАЛЬНЕ ОКНО TELEGRAM БОТА -->
   <div id="telegram-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-sky-500/30 w-full max-w-lg p-8 rounded-3xl shadow-2xl relative">
       <button onclick="closeTelegramModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
@@ -501,13 +501,14 @@
 
       <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl text-xs space-y-3 mb-6">
         <h4 class="font-bold text-white flex items-center gap-2">
-          <i data-lucide="bot" class="w-4 h-4 text-sky-400"></i> Команди та можливості бота:
+          <i data-lucide="bot" class="w-4 h-4 text-sky-400"></i> Можливості нашого бота:
         </h4>
         <ul class="space-y-2 text-slate-300">
-          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/start</span> — Активація та головне меню бота</li>
-          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/support</span> — Запит на підтримку та зв'язок із ШІ</li>
-          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/projects</span> — Проєкти (Морські леви, Upgradeus, Оберіг)</li>
-          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">👨‍💻 Анонімний чат</span> — З'єднання з реальним оператором без розкриття даних</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/start</span> — Активація та вибір супровідника</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/rehab</span> — Запит на реабілітацію та медичні центри</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/volunteer</span> — Подати заявку на волонтерство</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/communities</span> — Пошук побратимів у вашому місті</li>
+          <li class="flex items-start gap-2"><span class="text-sky-400 font-bold">/ticket</span> — Створення тикету підтримки без реєстрації</li>
         </ul>
       </div>
 
@@ -549,21 +550,21 @@
             🌺
           </div>
           <div id="chat-welcome-text" class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">
-            Вітаю! Я твій супровідник. Обери тему або перейди в наш @OkeanDruzhnikhBot для анонімного зв'язку!
+            Вітаю! Я твій супровідник. Обери тему або запитай мене голосом — я відповім наживо!
           </div>
         </div>
       </div>
 
       <div class="px-3 py-2 bg-[#060c1b] border-t border-blue-900/40 flex gap-2 overflow-x-auto no-scrollbar text-[11px]">
         <button onclick="sendQuickChip('Потрібна реабілітація')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Потрібна реабілітація</button>
-        <button onclick="openTelegramModal()" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот (@OkeanDruzhnikhBot)</button>
+        <button onclick="sendQuickChip('Перейти в Телеграм бот')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот</button>
       </div>
 
       <form onsubmit="handleSendMessage(event)" class="p-3 bg-[#060b18] border-t border-blue-900/60 flex items-center gap-2">
         <button type="button" onclick="toggleVoiceInput()" id="mic-btn" title="Голосовий ввід" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl transition-all">
           <i data-lucide="mic" class="w-4 h-4"></i>
         </button>
-        <input type="text" id="chat-input" placeholder="Напишіть запит або відкрийте бот..." required class="flex-grow bg-white text-slate-900 px-4 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400">
+        <input type="text" id="chat-input" placeholder="Напишіть запит або говоріть голосом..." required class="flex-grow bg-white text-slate-900 px-4 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400">
         <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl transition-all shadow-lg flex items-center gap-1 shrink-0">
           <span>Надіслати</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>
         </button>
@@ -617,9 +618,11 @@
     function animateBg() {
       ctx.clearRect(0, 0, width, height);
 
+      // Автоматический плавный переход от моря к космосу и обратно
       animTime += 0.003;
-      spaceBlend = (Math.sin(animTime) + 1) / 2;
+      spaceBlend = (Math.sin(animTime) + 1) / 2; // Синусоидальное колебание от 0 до 1
 
+      // Дополнительный переход при скролле страницы
       let scrollFactor = window.scrollY / (document.body.scrollHeight - window.innerHeight || 1);
       let effectiveBlend = Math.min(1, Math.max(0, spaceBlend + scrollFactor * 0.3));
 
@@ -642,6 +645,7 @@
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
 
+      // Отрисовка звезд космоса
       if (effectiveBlend > 0.05) {
         ctx.save();
         ctx.globalAlpha = effectiveBlend;
@@ -656,6 +660,7 @@
         ctx.restore();
       }
 
+      // Отрисовка морских волн
       if (effectiveBlend < 0.95) {
         ctx.save();
         ctx.globalAlpha = (1 - effectiveBlend) * 0.7;
@@ -689,7 +694,7 @@
         role: "Берегиня",
         emoji: "🌺",
         desc: "Турботлива берегиня, світла душевна підтримка",
-        greeting: "Вітаю тебе, серденько! Я Лада. Звертайся до @OkeanDruzhnikhBot для анонімного зв'язку.",
+        greeting: "Вітаю тебе, серденько! Я Лада. Я тут, щоб обійняти теплом, вислухати та допомогти тобі у будь-якій справі.",
         pitch: 1.25, rate: 0.95
       },
       olga: {
@@ -697,7 +702,7 @@
         role: "Мудра та рішуча",
         emoji: "👑",
         desc: "Державна мудрість, стратегічний розум та непохитна воля",
-        greeting: "Вітаю тебе! Я Княгиня Ольга. Пам'ятай про наш бот @OkeanDruzhnikhBot.",
+        greeting: "Вітаю тебе! Я Княгиня Ольга. Пам'ятай: справжня сила полягає в мудрості та рішучості.",
         pitch: 1.05, rate: 1.0
       },
       kozak: {
@@ -705,7 +710,7 @@
         role: "Побратим",
         emoji: "⚔️",
         desc: "Енергійний козацький дух, підтримка побратимів",
-        greeting: "Здоров був, побратиме! Заходь у @OkeanDruzhnikhBot, тримаймо стрій!",
+        greeting: "Здоров був, побратиме! Я Козацький. Тримаймо стрій, куди б не йшли, разом ми непереможні!",
         pitch: 0.75, rate: 1.08
       },
       starets: {
@@ -713,7 +718,7 @@
         role: "Мудрець",
         emoji: "🧙‍♂️",
         desc: "Спокій, вікова мудрість предків та глибокий спокій",
-        greeting: "Мир тобі, добрий чоловіче. Бот @OkeanDruzhnikhBot допоможе знайти шлях.",
+        greeting: "Мир тобі, добрий чоловіче. Я Мудрець. Виважено та спокійно ми знайдемо істинний шлях.",
         pitch: 0.55, rate: 0.85
       }
     };
@@ -762,6 +767,7 @@
       speakText(m.greeting, m);
     }
 
+    // Синтез людських голосів із налаштуванням тональності
     function speakText(text, mentorObj) {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
@@ -828,12 +834,9 @@
     }
 
     // ==========================================
-    // 4. TELEGRAM MODAL (ПЕРЕНАПРАВЛЕННЯ В БОТ)
+    // 4. TELEGRAM MODAL
     // ==========================================
-    function openTelegramModal() {
-      // Прямое открытие модального окна или автоматический редирект в бот
-      document.getElementById('telegram-modal').classList.remove('hidden');
-    }
+    function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
     function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
 
     // ==========================================
@@ -848,10 +851,10 @@
         action: "scrollToSection('projects')"
       },
       {
-        tag: "Telegram Бот @OkeanDruzhnikhBot",
+        tag: "Telegram Бот",
         title: "Миттєвий зв'язок та допомога у вашому смартфоні",
-        desc: "Пройди швидке опитування та з'єднайся з анонімним координатором через Telegram.",
-        btnText: "Перейти до Telegram Бот",
+        desc: "Пройди швидке опитування та отримай персонального координатора без реєстрації.",
+        btnText: "Перейти до Telegram",
         action: "openTelegramModal()"
       },
       {
@@ -978,7 +981,7 @@
     function handleAdminLogout() {
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
-      document.getElementById('admin-login-box').classList.add('hidden');
+      document.getElementById('admin-login-box').classList.remove('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
       updateHeaderAuthUI();
       showPage('home');
@@ -1176,22 +1179,23 @@
       const currentMentor = mentors[selectedMentorKey];
 
       setTimeout(() => {
-        let aiReply = `${currentMentor.name}: Дякую за звернення! Запит успішно опрацьовано. Скористайтеся нашим Telegram-ботом @OkeanDruzhnikhBot для анонімного зв'язку з адміністратором.`;
+        let aiReply = `${currentMentor.name}: Дякую за звернення! Запит успішно опрацьовано. Ми завжди готові підтримати тебе.`;
         if (message.toLowerCase().includes('реабілітаці')) {
-          aiReply = `${currentMentor.name}: Для реабілітації радимо проєкт «Морські леви». Перейдіть у Telegram-бот @OkeanDruzhnikhBot через команду /support для зв'язку з координатором.`;
+          aiReply = `${currentMentor.name}: Для реабілітації радимо проєкт «Морські леви» або контакти в каталозі. Також перейди в Telegram-бот @OkeanDruzhnikhBot для швидкого запису.`;
         }
 
         chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
         lucide.createIcons();
         chatBody.scrollTop = chatBody.scrollHeight;
 
+        // Озвучка живим голосом супровідника
         speakText(aiReply, currentMentor);
 
         state.tickets.unshift({
           id: `ТК-108${state.tickets.length + 1}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
           name: "Запит через ШІ",
-          contact: "Сайт / @OkeanDruzhnikhBot",
+          contact: "Сайт / Бот",
           category: "Консультація",
           project: "Загальний",
           status: "Новий"
@@ -1200,6 +1204,7 @@
       }, 750);
     }
 
+    // Ініціалізація при завантаженні
     renderBanner();
     updateHeaderAuthUI();
     renderCatalog();
