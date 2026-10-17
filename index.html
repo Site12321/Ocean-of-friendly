@@ -39,24 +39,6 @@
   <!-- АНІМОВАНИЙ КАНВАС ФОНУ (САМОСТІЙНИЙ ПЕРЕХІД: МОРЕ -> КОСМОС -> МОРЕ) -->
   <canvas id="bg-canvas"></canvas>
 
-  <!-- ПАНЕЛЬ УПРАВЛІННЯ ТА ІНДИКАЦІЇ ФОНУ -->
-  <div class="fixed top-24 right-4 z-30 bg-slate-900/80 backdrop-blur-md border border-slate-700/60 p-3 rounded-2xl shadow-xl flex flex-col gap-2 text-xs">
-    <div class="font-bold text-sky-400 flex items-center justify-between gap-2">
-      <span><i data-lucide="sparkles" class="w-3.5 h-3.5 inline"></i> Режим фону</span>
-      <span id="bg-mode-label" class="text-[10px] text-slate-400 font-mono">Авто-анімація</span>
-    </div>
-    <div class="flex gap-1">
-      <button onclick="setBgMode('auto')" class="px-2 py-1 bg-sky-500/20 text-sky-300 hover:bg-sky-500/40 rounded text-[10px] font-semibold transition-colors">Авто</button>
-      <button onclick="setBgMode('ocean')" class="px-2 py-1 bg-slate-800 hover:bg-sky-600 rounded text-[10px] font-semibold transition-colors">Море</button>
-      <button onclick="setBgMode('space')" class="px-2 py-1 bg-slate-800 hover:bg-indigo-600 rounded text-[10px] font-semibold transition-colors">Космос</button>
-    </div>
-    <div class="flex items-center gap-2 mt-1">
-      <span class="text-[9px] text-slate-400">Море</span>
-      <input type="range" id="spaceBlendSlider" min="0" max="1" step="0.01" value="0.5" oninput="manualBlendChange(this.value)" class="w-20 accent-sky-400 cursor-pointer">
-      <span class="text-[9px] text-slate-400">Космос</span>
-    </div>
-  </div>
-
   <!-- NAVIGATION BAR -->
   <header class="bg-[#071630]/80 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -615,7 +597,6 @@
     });
 
     let spaceBlend = 0.5;
-    let autoAnimateBg = true;
     let waveOffset = 0;
     let animTime = 0;
     const stars = [];
@@ -634,30 +615,12 @@
     }
     initStars();
 
-    function setBgMode(mode) {
-      const slider = document.getElementById('spaceBlendSlider');
-      const label = document.getElementById('bg-mode-label');
-      if (mode === 'ocean') { autoAnimateBg = false; spaceBlend = 0; label.textContent = 'Море'; }
-      else if (mode === 'space') { autoAnimateBg = false; spaceBlend = 1; label.textContent = 'Космос'; }
-      else { autoAnimateBg = true; label.textContent = 'Авто-анімація'; }
-      slider.value = spaceBlend;
-    }
-
-    function manualBlendChange(val) {
-      autoAnimateBg = false;
-      spaceBlend = parseFloat(val);
-      document.getElementById('bg-mode-label').textContent = spaceBlend < 0.3 ? 'Море' : spaceBlend > 0.7 ? 'Космос' : 'Гібрид';
-    }
-
     function animateBg() {
       ctx.clearRect(0, 0, width, height);
 
       // Автоматический плавный переход от моря к космосу и обратно
-      if (autoAnimateBg) {
-        animTime += 0.003;
-        spaceBlend = (Math.sin(animTime) + 1) / 2; // Синусоидальное колебание от 0 до 1
-        document.getElementById('spaceBlendSlider').value = spaceBlend;
-      }
+      animTime += 0.003;
+      spaceBlend = (Math.sin(animTime) + 1) / 2; // Синусоидальное колебание от 0 до 1
 
       // Дополнительный переход при скролле страницы
       let scrollFactor = window.scrollY / (document.body.scrollHeight - window.innerHeight || 1);
