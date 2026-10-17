@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Океан дружніх — Платформа взаємодопомоги</title>
+  <title>Океан Дружніх — Платформа взаємодопомоги</title>
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Google Fonts (Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -37,11 +34,10 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans flex flex-col min-h-screen">
 
-  <!-- NAVIGATION BAR WITH FULL MENU -->
+  <!-- NAVIGATION BAR WITH MENU -->
   <header class="bg-[#071630]/90 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
-      <!-- Logo & Title -->
       <a href="#" onclick="showPage('home')" class="flex items-center gap-3 group">
         <svg class="w-10 h-10 text-sky-400 transition-transform group-hover:scale-105" viewBox="0 0 100 50" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
           <path d="M 25 25 C 10 25, 10 5, 25 5 C 40 5, 60 45, 75 45 C 90 45, 90 25, 75 25 C 60 25, 40 5, 25 5" />
@@ -54,25 +50,26 @@
         </div>
       </a>
 
-      <!-- Menu Navigation Sections -->
+      <!-- MENU SECTIONS -->
       <nav class="hidden md:flex items-center gap-6 font-medium text-sm text-slate-300">
         <a href="#projects" onclick="scrollToSection('projects')" class="hover:text-sky-400 transition-colors">Проєкти</a>
         <a href="#catalog" onclick="scrollToSection('catalog')" class="hover:text-sky-400 transition-colors">Каталог</a>
         <a href="#communities" onclick="scrollToSection('communities')" class="hover:text-sky-400 transition-colors">Спільноти</a>
-        <a href="#media" onclick="alert('Медіацентр: матеріали в розробці')" class="hover:text-sky-400 transition-colors">Медіацентр</a>
+        <a href="#media" onclick="alert('Медіацентр: нові матеріали та події скоро!')" class="hover:text-sky-400 transition-colors">Медіацентр</a>
       </nav>
 
-      <!-- Action Buttons -->
       <div class="flex items-center gap-3">
         <button onclick="openRegisterModal()" class="hidden sm:flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
           <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Реєстрація
         </button>
 
+        <!-- Кнопка админ-панели (скрыта для гостей, видна после авторизации) -->
         <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Адмін Панель</span>
         </button>
 
+        <!-- Кнопка входа -->
         <button id="nav-login-btn" onclick="showPage('admin')" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="user" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Вхід</span>
@@ -81,7 +78,6 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT CONTAINER -->
   <main class="flex-grow">
 
     <!-- HOME PAGE -->
@@ -140,7 +136,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="mb-8">
             <h2 class="text-3xl font-extrabold text-white">Наші ключові проєкти</h2>
-            <p class="text-slate-400 mt-1">Ініціативи платформи</p>
+            <p class="text-slate-400 mt-1">Ініціативи, які створюють реальні зміни</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
@@ -149,11 +145,11 @@
             </div>
             <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
               <h3 class="text-lg font-bold text-white mb-2">Upgradeus Mechanicus</h3>
-              <p class="text-xs text-slate-300">Інженерно-технічний хаб.</p>
+              <p class="text-xs text-slate-300">Інженерно-технічний хаб та розробки.</p>
             </div>
             <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
               <h3 class="text-lg font-bold text-white mb-2">Оберіг</h3>
-              <p class="text-xs text-slate-300">Соціальна підтримка родин.</p>
+              <p class="text-xs text-slate-300">Соціальна та психологічна підтримка родин.</p>
             </div>
           </div>
         </div>
@@ -164,7 +160,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="mb-8">
             <h2 class="text-3xl font-extrabold text-white">Каталог можливостей</h2>
-            <p class="text-slate-400 mt-1">Перевірені організації, заклади та фахівці</p>
+            <p class="text-slate-400 mt-1">Перевірені організації, заклади та фахівці платформи</p>
           </div>
           <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
@@ -187,11 +183,11 @@
       </section>
     </div>
 
-    <!-- ZAKRYTAYA ADMIN PANEL -->
+    <!-- ADMIN PANEL -->
     <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950">
       <div class="max-w-6xl mx-auto px-4">
         
-        <!-- МОДАЛЬНОЕ ОКНО ВХОДА (Строго чистое, без подсказок почт) -->
+        <!-- ЧИСТОЕ ОКНО ВХОДА (БЕЗ УПОМИНАНИЯ ПОЧТЫ И СПЕЦ АДМИНА) -->
         <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-8 rounded-3xl shadow-2xl relative">
           <div class="text-center mb-6">
             <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
@@ -223,7 +219,7 @@
           </div>
         </div>
 
-        <!-- ДЭШБОРД АДМИНИСТРАТОРА (С системой выдачи прав) -->
+        <!-- ДЭШБОРД С СИСТЕМОЙ ВЫДАЧИ ПРАВ -->
         <div id="admin-dashboard" class="hidden space-y-6">
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-3">
@@ -248,7 +244,7 @@
             <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all">Керування адмінами (Видача прав)</button>
           </div>
 
-          <!-- ТИКЕТЫ -->
+          <!-- ВКЛАДКА ТИКЕТОВ -->
           <div id="admin-tab-tickets" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
@@ -292,7 +288,7 @@
             </div>
           </div>
 
-          <!-- СИСТЕМА ВЫДАЧИ ПРАВ АДМИНАМ -->
+          <!-- ВКЛАДКА ВЫДАЧИ ПРАВ АДМИНАМ -->
           <div id="admin-tab-admins" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
               <h3 class="text-sm font-bold text-white mb-4">Видати права адміністратора / куратора</h3>
@@ -330,7 +326,7 @@
 
   </main>
 
-  <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ (Точно как на вашем фото) -->
+  <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ (ТОЧНО КАК НА ФОТО) -->
   <div id="register-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
       <button onclick="closeRegisterModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
@@ -372,7 +368,7 @@
     </div>
   </div>
 
-  <!-- AI ASSISTANT CHAT WIDGET -->
+  <!-- AI CHAT WIDGET -->
   <div id="chat-widget" class="fixed bottom-4 right-4 z-50 flex flex-col items-end">
     <div id="chat-window" class="hidden w-[90vw] sm:w-[410px] h-[580px] bg-[#070d1e] text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
       <div class="bg-[#0b1633]/90 backdrop-blur-md p-4 border-b border-blue-900/50 flex items-center justify-between">
@@ -425,7 +421,6 @@
     </button>
   </div>
 
-  <!-- SCRIPT LOGIC -->
   <script>
     lucide.createIcons();
 
@@ -490,7 +485,6 @@
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Регистрация
     function openRegisterModal() { document.getElementById('register-modal').classList.remove('hidden'); }
     function closeRegisterModal() { document.getElementById('register-modal').classList.add('hidden'); }
     function socialRegister(provider) {
@@ -505,7 +499,6 @@
       closeRegisterModal();
     }
 
-    // Авторизация
     function handleAdminLogin(e) {
       e.preventDefault();
       const username = document.getElementById('admin-username').value.trim().toLowerCase();
@@ -637,7 +630,6 @@
       }
     }
 
-    // Чат AI
     function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
     function openChatWithPrompt(text) {
       document.getElementById('chat-window').classList.remove('hidden');
