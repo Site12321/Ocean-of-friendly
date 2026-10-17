@@ -37,10 +37,11 @@
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans flex flex-col min-h-screen">
 
-  <!-- NAVIGATION BAR -->
+  <!-- NAVIGATION BAR WITH FULL MENU -->
   <header class="bg-[#071630]/90 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
+      <!-- Logo & Title -->
       <a href="#" onclick="showPage('home')" class="flex items-center gap-3 group">
         <svg class="w-10 h-10 text-sky-400 transition-transform group-hover:scale-105" viewBox="0 0 100 50" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
           <path d="M 25 25 C 10 25, 10 5, 25 5 C 40 5, 60 45, 75 45 C 90 45, 90 25, 75 25 C 60 25, 40 5, 25 5" />
@@ -53,14 +54,28 @@
         </div>
       </a>
 
-      <!-- Admin Status / Access Button -->
+      <!-- Menu Navigation Sections -->
+      <nav class="hidden md:flex items-center gap-6 font-medium text-sm text-slate-300">
+        <a href="#projects" onclick="scrollToSection('projects')" class="hover:text-sky-400 transition-colors">Проєкти</a>
+        <a href="#catalog" onclick="scrollToSection('catalog')" class="hover:text-sky-400 transition-colors">Каталог</a>
+        <a href="#communities" onclick="scrollToSection('communities')" class="hover:text-sky-400 transition-colors">Спільноти</a>
+        <a href="#media" onclick="alert('Медіацентр: матеріали в розробці')" class="hover:text-sky-400 transition-colors">Медіацентр</a>
+      </nav>
+
+      <!-- Action Buttons -->
       <div class="flex items-center gap-3">
-        <div id="nav-admin-badge" class="hidden items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Super Admin
-        </div>
-        <button onclick="showPage('admin')" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
+        <button onclick="openRegisterModal()" class="hidden sm:flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Реєстрація
+        </button>
+
+        <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span id="nav-admin-btn-text">Адмін Панель</span>
+          <span>Адмін Панель</span>
+        </button>
+
+        <button id="nav-login-btn" onclick="showPage('admin')" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
+          <i data-lucide="user" class="w-3.5 h-3.5 text-sky-400"></i>
+          <span>Вхід</span>
         </button>
       </div>
     </div>
@@ -120,19 +135,43 @@
         </div>
       </section>
 
+      <!-- PROJECTS SECTION -->
+      <section id="projects" class="py-16 bg-slate-900 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-8">
+            <h2 class="text-3xl font-extrabold text-white">Наші ключові проєкти</h2>
+            <p class="text-slate-400 mt-1">Ініціативи платформи</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
+              <h3 class="text-lg font-bold text-white mb-2">Морські леви</h3>
+              <p class="text-xs text-slate-300">Програми реабілітації та водного спорту.</p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
+              <h3 class="text-lg font-bold text-white mb-2">Upgradeus Mechanicus</h3>
+              <p class="text-xs text-slate-300">Інженерно-технічний хаб.</p>
+            </div>
+            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
+              <h3 class="text-lg font-bold text-white mb-2">Оберіг</h3>
+              <p class="text-xs text-slate-300">Соціальна підтримка родин.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- CATALOG SECTION -->
-      <section id="catalog" class="py-16 bg-slate-900 border-t border-slate-800">
+      <section id="catalog" class="py-16 bg-[#071630]/30 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="mb-8">
             <h2 class="text-3xl font-extrabold text-white">Каталог можливостей</h2>
-            <p class="text-slate-400 mt-1">Перевірені організації, заклади та фахівці платформи</p>
+            <p class="text-slate-400 mt-1">Перевірені організації, заклади та фахівці</p>
           </div>
           <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
       </section>
 
       <!-- COMMUNITIES SECTION -->
-      <section id="communities" class="py-16 bg-[#071630]/50 border-t border-slate-800">
+      <section id="communities" class="py-16 bg-slate-900 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 class="text-3xl font-extrabold text-white mb-4">Спільноти за інтересами</h2>
           <p class="text-slate-400 mb-8">Обирайте свій напрямок та долучайтеся до команди</p>
@@ -148,14 +187,14 @@
       </section>
     </div>
 
-    <!-- ZAKRYTAYA ADMIN PANEL (Скрыта от обычных пользователей полностью) -->
+    <!-- ZAKRYTAYA ADMIN PANEL -->
     <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950">
       <div class="max-w-6xl mx-auto px-4">
         
-        <!-- МОДАЛЬНОЕ ОКНО ВХОДА (Точно по макету image_4.png) -->
-        <div id="admin-login-box" class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
+        <!-- МОДАЛЬНОЕ ОКНО ВХОДА (Строго чистое, без подсказок почт) -->
+        <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-8 rounded-3xl shadow-2xl relative">
           <div class="text-center mb-6">
-            <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
               <i data-lucide="shield-alert" class="w-7 h-7"></i>
             </div>
             <h2 class="text-2xl font-bold text-white tracking-tight">Вхід в Адмін-Панель</h2>
@@ -165,30 +204,27 @@
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email / Логін</label>
-              <input type="text" id="admin-username" required placeholder="admin@ocean.org або superadmin" class="w-full px-4 py-3 text-sm bg-slate-800 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
-              <p class="text-[11px] text-sky-400/80 mt-1.5">Спеціальний Супер Адмін: andreyromanov245@gmail.com</p>
+              <input type="text" id="admin-username" required placeholder="Введіть ваш email" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
-              <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-3 text-sm bg-slate-800 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
+              <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
             </div>
             <div id="admin-login-error" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
-              Помилка авторизації! Перевірте правильність введених даних.
+              Помилка авторизації! Невірний логін або пароль.
             </div>
-            <button type="submit" class="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-sky-500/20">
+            <button type="submit" class="w-full py-3.5 bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-sky-400/20">
               Увійти до панелі
             </button>
           </form>
 
-          <div class="mt-6 pt-4 border-t border-slate-800 text-center">
+          <div class="mt-6 pt-4 border-t border-slate-800/80 text-center">
             <button onclick="showPage('home')" class="text-xs text-slate-400 hover:text-white font-medium transition-colors">← Повернутися на головну сайту</button>
           </div>
         </div>
 
-        <!-- ДЭШБОРД АДМИНИСТРАТОРА (Точно по макету image_3.png) -->
+        <!-- ДЭШБОРД АДМИНИСТРАТОРА (С системой выдачи прав) -->
         <div id="admin-dashboard" class="hidden space-y-6">
-          
-          <!-- Шапка дэшборда -->
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center font-bold text-slate-950 text-lg shadow-md">
@@ -197,75 +233,94 @@
               <div>
                 <div class="flex items-center gap-2">
                   <h2 class="text-xl font-bold text-white">Океан Дружніх</h2>
-                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/40">Super Admin</span>
+                  <span id="admin-role-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/40">Admin</span>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">Центр взаємодопомоги та підтримки</p>
+                <p class="text-xs text-slate-400 mt-0.5">Керування платформою та правами доступу</p>
               </div>
             </div>
-            <div class="flex items-center gap-3">
-              <button onclick="handleAdminLogout()" class="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-2">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Вийти
-              </button>
-            </div>
+            <button onclick="handleAdminLogout()" class="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="log-out" class="w-4 h-4"></i> Вийти
+            </button>
           </div>
 
-          <!-- СТАТИСТИКА (4 плашки по макету image_3.png) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Всього тикетів</span>
-              <div id="stat-total" class="text-3xl font-black text-white mt-2">2</div>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-              <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider">Нові / В очікуванні</span>
-              <div id="stat-new" class="text-3xl font-black text-amber-400 mt-2">1</div>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-              <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">В роботі / Оброблені</span>
-              <div id="stat-in-progress" class="text-3xl font-black text-emerald-400 mt-2">1</div>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-              <span class="text-xs font-semibold text-purple-400 uppercase tracking-wider">Проєкт з найбільшим запитом</span>
-              <div class="text-2xl font-black text-purple-400 mt-2 truncate">Оберіг</div>
-            </div>
+          <div class="flex gap-2 border-b border-slate-800 pb-2">
+            <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all">Вхідні тикети</button>
+            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all">Керування адмінами (Видача прав)</button>
           </div>
 
-          <!-- ТАБЛИЦЯ ТИКЕТОВ И ПОИСК (По макету image_3.png) -->
-          <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-            
-            <!-- Панель фильтрации -->
-            <div class="p-5 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div class="relative w-full sm:w-80">
-                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5"></i>
-                <input type="text" id="ticket-search" oninput="filterTickets()" placeholder="Пошук за ім'ям, контактом..." class="w-full pl-10 pr-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder-slate-400">
+          <!-- ТИКЕТЫ -->
+          <div id="admin-tab-tickets" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Всього тикетів</span>
+                <div id="stat-total" class="text-3xl font-black text-white mt-2">2</div>
               </div>
-              <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                <select id="status-filter" onchange="filterTickets()" class="px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none font-semibold">
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
+                <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider">Нові / В очікуванні</span>
+                <div id="stat-new" class="text-3xl font-black text-amber-400 mt-2">1</div>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
+                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Оброблені</span>
+                <div id="stat-in-progress" class="text-3xl font-black text-emerald-400 mt-2">1</div>
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+              <div class="p-5 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <input type="text" id="ticket-search" oninput="filterTickets()" placeholder="Пошук за ім'ям, контактом..." class="w-full sm:w-80 px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <select id="status-filter" onchange="filterTickets()" class="px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold">
                   <option value="all">Всі статуси</option>
                   <option value="Новий">Новий</option>
                   <option value="В роботі">В роботі</option>
                 </select>
-                <button onclick="exportTickets()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
-                  <i data-lucide="download" class="w-4 h-4"></i> Експорт
-                </button>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 tracking-wider border-b border-slate-800">
+                      <th class="p-4">ID / Дата</th>
+                      <th class="p-4">Контактні дані</th>
+                      <th class="p-4">Категорія / Проєкт</th>
+                      <th class="p-4">Статус</th>
+                      <th class="p-4 text-right">Дії</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-tickets-list" class="divide-y divide-slate-800 text-xs"></tbody>
+                </table>
               </div>
             </div>
+          </div>
 
-            <!-- Сама таблица по макету -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 tracking-wider border-b border-slate-800">
-                    <th class="p-4">ID / Дата</th>
-                    <th class="p-4">Контактні дані</th>
-                    <th class="p-4">Категорія / Проєкт</th>
-                    <th class="p-4">Статус</th>
-                    <th class="p-4 text-right">Дії</th>
-                  </tr>
-                </thead>
-                <tbody id="admin-tickets-list" class="divide-y divide-slate-800 text-xs"></tbody>
-              </table>
+          <!-- СИСТЕМА ВЫДАЧИ ПРАВ АДМИНАМ -->
+          <div id="admin-tab-admins" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
+              <h3 class="text-sm font-bold text-white mb-4">Видати права адміністратора / куратора</h3>
+              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <input type="text" id="new-admin-name" required placeholder="Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
+                <input type="email" id="new-admin-email" required placeholder="Email (логін)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
+                <input type="password" id="new-admin-pass" required placeholder="Пароль" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
+                <button type="submit" class="sm:col-span-3 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
+                  Створити нового адміністратора
+                </button>
+              </form>
             </div>
 
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+              <h3 class="text-sm font-bold text-white mb-4">Список діючих адміністраторів системи</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
+                      <th class="p-3">Ім'я</th>
+                      <th class="p-3">Email</th>
+                      <th class="p-3">Статус доступу</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-team-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -275,12 +330,51 @@
 
   </main>
 
+  <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ (Точно как на вашем фото) -->
+  <div id="register-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
+      <button onclick="closeRegisterModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <h2 class="text-2xl font-black text-white text-center mb-6">Зарегистрироваться</h2>
+      <div class="text-center text-xs text-slate-400 mb-6">
+        Уже есть аккаунт? <button onclick="closeRegisterModal(); showPage('admin');" class="text-sky-400 font-bold hover:underline">Войти</button>
+      </div>
+
+      <div class="space-y-3">
+        <button onclick="socialRegister('Google')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+          <i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span>Продолжить с Google</span>
+        </button>
+        <button onclick="socialRegister('Facebook')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+          <i data-lucide="facebook" class="w-4 h-4 text-blue-400"></i><span>Продолжить с Facebook</span>
+        </button>
+        <button onclick="socialRegister('Apple')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+          <i data-lucide="apple" class="w-4 h-4 text-white"></i><span>Продолжить с Apple</span>
+        </button>
+      </div>
+
+      <div class="relative my-6 text-center">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+        <span class="relative px-3 bg-slate-900 text-xs text-slate-500 uppercase">или</span>
+      </div>
+
+      <form onsubmit="handleEmailRegister(event)" class="space-y-3">
+        <input type="email" id="reg-email" required placeholder="Эл. почта" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+        <button type="submit" class="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all">
+          Продолжить с эл. почтой
+        </button>
+      </form>
+
+      <p class="text-[10px] text-slate-500 text-center mt-6">
+        * Регистрируясь, вы принимаете условия использования и подтверждаете, что ознакомились с политикой конфиденциальности.
+      </p>
+    </div>
+  </div>
+
   <!-- AI ASSISTANT CHAT WIDGET -->
   <div id="chat-widget" class="fixed bottom-4 right-4 z-50 flex flex-col items-end">
-    
-    <!-- Чат-окно -->
     <div id="chat-window" class="hidden w-[90vw] sm:w-[410px] h-[580px] bg-[#070d1e] text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
-      
       <div class="bg-[#0b1633]/90 backdrop-blur-md p-4 border-b border-blue-900/50 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center shadow-inner">
@@ -310,29 +404,19 @@
         </div>
       </div>
 
-      <!-- Quick Chips -->
       <div class="px-3 py-2 bg-[#060c1b] border-t border-blue-900/40 flex gap-2 overflow-x-auto no-scrollbar text-[11px]">
-        <button onclick="sendQuickChip('Потрібна реабілітація')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">
-          Потрібна реабілітація
-        </button>
-        <button onclick="sendQuickChip('Шукаю волонтерство')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">
-          Шукаю волонтерство
-        </button>
-        <button onclick="sendQuickChip('Проєкти')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">
-          Проєкти
-        </button>
+        <button onclick="sendQuickChip('Потрібна реабілітація')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Потрібна реабілітація</button>
+        <button onclick="sendQuickChip('Шукаю волонтерство')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Шукаю волонтерство</button>
       </div>
 
       <form onsubmit="handleSendMessage(event)" class="p-3 bg-[#060b18] border-t border-blue-900/60 flex items-center gap-2">
         <input type="text" id="chat-input" placeholder="Опишіть вашу потребу..." required class="flex-grow bg-white text-slate-900 px-4 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400">
         <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl transition-all shadow-lg flex items-center gap-1 shrink-0">
-          <span>Надіслати</span>
-          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          <span>Надіслати</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>
         </button>
       </form>
     </div>
 
-    <!-- Кнопка вызова чата -->
     <button onclick="toggleChat()" class="p-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white rounded-full shadow-2xl transition-all transform active:scale-95 flex items-center gap-2 border border-sky-300/40">
       <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
         <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
@@ -345,9 +429,12 @@
   <script>
     lucide.createIcons();
 
-    // База данных приложения
     const state = {
       currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
+      admins: JSON.parse(localStorage.getItem('okean_admins_db')) || [
+        { name: "Андрій Романов", email: "andreyromanov245@gmail.com", pass: "pass123", role: "Super Admin" },
+        { name: "Адміністратор", email: "admin@ocean.org", pass: "admin123", role: "Admin" }
+      ],
       organizations: [
         { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
         { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
@@ -403,6 +490,21 @@
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
+    // Регистрация
+    function openRegisterModal() { document.getElementById('register-modal').classList.remove('hidden'); }
+    function closeRegisterModal() { document.getElementById('register-modal').classList.add('hidden'); }
+    function socialRegister(provider) {
+      alert(`Успішна реєстрація через ${provider}!`);
+      closeRegisterModal();
+      showPage('home');
+    }
+    function handleEmailRegister(e) {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      alert(`Реєстрація на ${email} успішно завершена!`);
+      closeRegisterModal();
+    }
+
     // Авторизация
     function handleAdminLogin(e) {
       e.preventDefault();
@@ -410,17 +512,16 @@
       const password = document.getElementById('admin-password').value;
       const errorMsg = document.getElementById('admin-login-error');
 
-      if ((username === 'andreyromanov245@gmail.com' || username === 'superadmin' || username === 'admin@ocean.org') && password.length > 0) {
-        const adminData = { name: "Андрій Романов", email: "andreyromanov245@gmail.com", role: "Super Admin" };
-        state.currentUser = adminData;
-        localStorage.setItem('okean_current_admin', JSON.stringify(adminData));
+      const foundAdmin = state.admins.find(a => a.email.toLowerCase() === username && a.pass === password);
+
+      if (foundAdmin) {
+        state.currentUser = foundAdmin;
+        localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
         errorMsg.classList.add('hidden');
         
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
-        document.getElementById('nav-admin-badge').classList.remove('hidden');
-        document.getElementById('nav-admin-badge').classList.add('flex');
-        document.getElementById('nav-admin-btn-text').textContent = 'Адмін Панель';
+        updateHeaderAuthUI();
 
         renderAdminDashboard();
       } else {
@@ -433,14 +534,65 @@
       localStorage.removeItem('okean_current_admin');
       document.getElementById('admin-login-box').classList.remove('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
-      document.getElementById('nav-admin-badge').classList.remove('flex');
-      document.getElementById('nav-admin-badge').classList.add('hidden');
       document.getElementById('admin-password').value = '';
+      updateHeaderAuthUI();
+      showPage('home');
     }
 
-    // Отрисовка дэшборда администратора
+    function updateHeaderAuthUI() {
+      const adminBtn = document.getElementById('nav-admin-btn');
+      const loginBtn = document.getElementById('nav-login-btn');
+      if (state.currentUser) {
+        adminBtn.classList.remove('hidden');
+        adminBtn.classList.add('flex');
+        loginBtn.classList.add('hidden');
+      } else {
+        adminBtn.classList.add('hidden');
+        loginBtn.classList.remove('hidden');
+      }
+    }
+
+    function switchAdminTab(tabName) {
+      document.getElementById('admin-tab-tickets').classList.add('hidden');
+      document.getElementById('admin-tab-admins').classList.add('hidden');
+      document.getElementById('tab-btn-tickets').className = "px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all";
+      document.getElementById('tab-btn-admins').className = "px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all";
+
+      document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all";
+    }
+
+    function handleAddAdmin(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-admin-name').value;
+      const email = document.getElementById('new-admin-email').value;
+      const pass = document.getElementById('new-admin-pass').value;
+
+      state.admins.push({ name, email, pass, role: "Admin" });
+      localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+
+      document.getElementById('new-admin-name').value = '';
+      document.getElementById('new-admin-email').value = '';
+      document.getElementById('new-admin-pass').value = '';
+
+      renderAdminAdminsList();
+      alert("Новый администратор успешно добавлен!");
+    }
+
+    function renderAdminAdminsList() {
+      const list = document.getElementById('admin-team-list');
+      list.innerHTML = state.admins.map(a => `
+        <tr>
+          <td class="p-3 font-bold text-white">${a.name}</td>
+          <td class="p-3 text-sky-400">${a.email}</td>
+          <td class="p-3 text-emerald-400 font-semibold">${a.role}</td>
+        </tr>
+      `).join('');
+    }
+
     function renderAdminDashboard() {
       if (!state.currentUser) return;
+      document.getElementById('admin-role-badge').textContent = state.currentUser.role;
 
       const total = state.tickets.length;
       const newCount = state.tickets.filter(t => t.status === 'Новий').length;
@@ -451,6 +603,7 @@
       document.getElementById('stat-in-progress').textContent = inProgress;
 
       filterTickets();
+      renderAdminAdminsList();
     }
 
     function filterTickets() {
@@ -466,26 +619,11 @@
 
       list.innerHTML = filtered.map(t => `
         <tr class="hover:bg-slate-800/50 transition-colors">
-          <td class="p-4">
-            <span class="font-bold text-white">${t.id}</span>
-            <div class="text-[11px] text-slate-400 mt-0.5">${t.date}</div>
-          </td>
-          <td class="p-4">
-            <span class="font-bold text-slate-200">${t.name}</span>
-            <div class="text-[11px] text-sky-400 mt-0.5">${t.contact}</div>
-          </td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-semibold text-[11px]">${t.category}</span>
-            <div class="text-[11px] text-purple-400 mt-1 font-medium">${t.project}</div>
-          </td>
-          <td class="p-4">
-            <span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${t.status === 'Новий' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">${t.status}</span>
-          </td>
-          <td class="p-4 text-right">
-            <button onclick="toggleTicketStatus('${t.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-400 font-semibold rounded-xl text-xs transition-colors">
-              Змінити статус
-            </button>
-          </td>
+          <td class="p-4"><span class="font-bold text-white">${t.id}</span><div class="text-[11px] text-slate-400 mt-0.5">${t.date}</div></td>
+          <td class="p-4"><span class="font-bold text-slate-200">${t.name}</span><div class="text-[11px] text-sky-400 mt-0.5">${t.contact}</div></td>
+          <td class="p-4"><span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-semibold text-[11px]">${t.category}</span><div class="text-[11px] text-purple-400 mt-1 font-medium">${t.project}</div></td>
+          <td class="p-4"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${t.status === 'Новий' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">${t.status}</span></td>
+          <td class="p-4 text-right"><button onclick="toggleTicketStatus('${t.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-400 font-semibold rounded-xl text-xs transition-colors">Змінити статус</button></td>
         </tr>
       `).join('');
       lucide.createIcons();
@@ -499,22 +637,14 @@
       }
     }
 
-    function exportTickets() {
-      alert("Експорт тикетів у форматі CSV успішно згенеровано!");
-    }
-
     // Чат AI
-    function toggleChat() {
-      document.getElementById('chat-window').classList.toggle('hidden');
-    }
-
+    function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
     function openChatWithPrompt(text) {
       document.getElementById('chat-window').classList.remove('hidden');
       const input = document.getElementById('chat-input');
       input.value = text;
       input.focus();
     }
-
     function sendQuickChip(text) {
       const input = document.getElementById('chat-input');
       input.value = text;
@@ -528,69 +658,29 @@
       if (!message) return;
 
       const chatBody = document.getElementById('chat-body');
-      chatBody.innerHTML += `
-        <div class="flex justify-end msg-animate">
-          <div class="bg-gradient-to-r from-sky-500 to-sky-600 text-white p-3.5 rounded-2xl rounded-tr-xs max-w-[85%] shadow-md leading-relaxed font-medium">
-            ${escapeHtml(message)}
-          </div>
-        </div>
-      `;
-
+      chatBody.innerHTML += `<div class="flex justify-end msg-animate"><div class="bg-gradient-to-r from-sky-500 to-sky-600 text-white p-3.5 rounded-2xl rounded-tr-xs max-w-[85%] shadow-md leading-relaxed font-medium">${message}</div></div>`;
       input.value = '';
       chatBody.scrollTop = chatBody.scrollHeight;
 
       setTimeout(() => {
-        let aiResponse = "Дякую за звернення! Ваш запит успішно зареєстровано в системі та передано координаторам платформи «Океан дружніх».";
-        let assignedProject = "Оберіг";
-
-        const msgLower = message.toLowerCase();
-        if (msgLower.includes("волонтер") || msgLower.includes("допомогти")) {
-          aiResponse = "Чудово! Нам потрібні люди в напрямку волонтерства та медіа. Якою експертизою ви володієте?";
-          assignedProject = "WOW Production";
-        } else if (msgLower.includes("реабілітація") || msgLower.includes("допомога")) {
-          aiResponse = "Ми співпрацюємо з центрами та проєктом «Морські леви». Передаю ваш запит профільному куратору.";
-          assignedProject = "Морські леви";
-        }
-
-        chatBody.innerHTML += `
-          <div class="flex gap-2.5 items-start msg-animate">
-            <div class="w-7 h-7 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 mt-0.5">
-              <i data-lucide="bot" class="w-4 h-4 text-sky-400"></i>
-            </div>
-            <div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">
-              ${aiResponse}
-            </div>
-          </div>
-        `;
-
+        chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-sky-500/20 border border-sky-400/30 flex items-center justify-center shrink-0 mt-0.5"><i data-lucide="bot" class="w-4 h-4 text-sky-400"></i></div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">Дякую за звернення! Запит зафіксовано в системі.</div></div>`;
         lucide.createIcons();
         chatBody.scrollTop = chatBody.scrollHeight;
 
-        // Автоматическое добавление тикета в реальном времени
-        const newId = `ТК-108${state.tickets.length + 1}`;
         state.tickets.unshift({
-          id: newId,
+          id: `ТК-108${state.tickets.length + 1}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
           name: "Громадянин",
           contact: "+380 99 *** ** **",
-          category: msgLower.includes("реабілітація") ? "Реабілітація" : "Загальний запит",
-          project: assignedProject,
+          category: "Консультація",
+          project: "Оберіг",
           status: "Новий"
         });
-
         if (state.currentUser) renderAdminDashboard();
       }, 750);
     }
 
-    function escapeHtml(text) {
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    if (state.currentUser) {
-      document.getElementById('nav-admin-badge').classList.remove('hidden');
-      document.getElementById('nav-admin-badge').classList.add('flex');
-    }
-
+    updateHeaderAuthUI();
     renderCatalog();
   </script>
 </body>
