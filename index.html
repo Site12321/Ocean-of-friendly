@@ -29,12 +29,14 @@
     .chat-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
     .chat-scroll::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatBanner { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     .msg-animate { animation: fadeIn 0.25s ease-out forwards; }
+    .banner-float { animation: floatBanner 4s ease-in-out infinite; }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans flex flex-col min-h-screen">
 
-  <!-- NAVIGATION BAR WITH MENU -->
+  <!-- NAVIGATION BAR -->
   <header class="bg-[#071630]/90 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
@@ -50,7 +52,6 @@
         </div>
       </a>
 
-      <!-- MENU SECTIONS -->
       <nav class="hidden md:flex items-center gap-6 font-medium text-sm text-slate-300">
         <a href="#projects" onclick="scrollToSection('projects')" class="hover:text-sky-400 transition-colors">Проєкти</a>
         <a href="#catalog" onclick="scrollToSection('catalog')" class="hover:text-sky-400 transition-colors">Каталог</a>
@@ -80,50 +81,59 @@
 
     <!-- HOME PAGE -->
     <div id="page-home">
-      <section class="relative bg-gradient-to-b from-[#071630] to-slate-900 py-16 lg:py-24 overflow-hidden border-b border-blue-900/30">
+      <!-- АНИМИРОВАННЫЙ БАННЕР -->
+      <section class="relative bg-gradient-to-b from-[#071630] via-[#091f42] to-slate-900 py-20 lg:py-28 overflow-hidden border-b border-blue-900/30">
+        <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-500/10 via-transparent to-transparent pointer-events-none"></div>
+        
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/30 mb-6">
-            <i data-lucide="shield-check" class="w-4 h-4"></i> Територія дружніх, де є свої
-          </span>
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight max-w-4xl mx-auto">
-            Знайди своїх, отримай підтримку та втілюй ідеї
+          
+          <div class="banner-float inline-block mb-6">
+            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/40 shadow-lg shadow-sky-500/10">
+              <i data-lucide="sparkles" class="w-4 h-4 text-sky-400 animate-spin" style="animation-duration: 6s;"></i> 
+              Територія дружніх, де є свої
+            </span>
+          </div>
+
+          <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight max-w-5xl mx-auto drop-shadow-md">
+            Знайди своїх, отримай <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-cyan-300">підтримку</span> та втілюй ідеї
           </h1>
-          <p class="mt-6 text-lg text-slate-300 max-w-2xl mx-auto font-normal">
-            Платформа взаємодопомоги та розвитку людей і громад в Україні та за кордоном.
+          
+          <p class="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
+            Платформа взаємодопомоги та розвитку людей і громад в Україні та за кордоном. Об'єднуємо зусилля заради спільної мети.
           </p>
 
-          <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            <button onclick="openChatWithPrompt('Мені потрібна допомога. Як я можу її отримати?')" class="p-5 bg-slate-800/80 border-2 border-emerald-500/50 hover:bg-emerald-950/30 rounded-2xl shadow-md text-left transition-all group flex flex-col justify-between">
+          <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
+            <button onclick="openChatWithPrompt('Мені потрібна допомога. Як я можу її отримати?')" class="p-6 bg-slate-800/90 hover:bg-slate-800 border-2 border-emerald-500/40 hover:border-emerald-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <i data-lucide="heart-handshake" class="w-5 h-5"></i>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <i data-lucide="heart-handshake" class="w-6 h-6"></i>
                 </div>
-                <h3 class="font-bold text-white text-base">Мені потрібна допомога</h3>
-                <p class="text-xs text-slate-400 mt-1">Реабілітація, фахівці, консультації</p>
+                <h3 class="font-bold text-white text-lg">Мені потрібна допомога</h3>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Реабілітація, фахівці, консультації та підтримка родин</p>
               </div>
-              <span class="mt-4 text-xs font-bold text-emerald-400 flex items-center gap-1">Звернутися <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+              <span class="mt-6 text-xs font-bold text-emerald-400 flex items-center gap-1">Звернутися <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
 
-            <button onclick="scrollToSection('communities')" class="p-5 bg-slate-800/80 border-2 border-sky-500/50 hover:bg-sky-950/30 rounded-2xl shadow-md text-left transition-all group flex flex-col justify-between">
+            <button onclick="scrollToSection('communities')" class="p-6 bg-slate-800/90 hover:bg-slate-800 border-2 border-sky-500/40 hover:border-sky-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <i data-lucide="users" class="w-5 h-5"></i>
+                <div class="w-12 h-12 rounded-2xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <i data-lucide="users" class="w-6 h-6"></i>
                 </div>
-                <h3 class="font-bold text-white text-base">Шукаю своїх</h3>
-                <p class="text-xs text-slate-400 mt-1">Спільноти, заклади, однодумці</p>
+                <h3 class="font-bold text-white text-lg">Шукаю своїх</h3>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Спільноти, заклади, хаби та однодумці у вашому регіоні</p>
               </div>
-              <span class="mt-4 text-xs font-bold text-sky-400 flex items-center gap-1">Знайти спільноту <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+              <span class="mt-6 text-xs font-bold text-sky-400 flex items-center gap-1">Знайти спільноту <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
 
-            <button onclick="openChatWithPrompt('Я хочу стати волонтером або підтримати проєкт')" class="p-5 bg-slate-800/80 border-2 border-amber-500/50 hover:bg-amber-950/30 rounded-2xl shadow-md text-left transition-all group flex flex-col justify-between">
+            <button onclick="openChatWithPrompt('Я хочу стати волонтером або підтримати проєкт')" class="p-6 bg-slate-800/90 hover:bg-slate-800 border-2 border-amber-500/40 hover:border-amber-400 rounded-3xl shadow-xl text-left transition-all group flex flex-col justify-between transform hover:-translate-y-1">
               <div>
-                <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                  <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <i data-lucide="sparkles" class="w-6 h-6"></i>
                 </div>
-                <h3 class="font-bold text-white text-base">Хочу допомогти</h3>
-                <p class="text-xs text-slate-400 mt-1">Волонтерство, донати, партнери</p>
+                <h3 class="font-bold text-white text-lg">Хочу допомогти</h3>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Волонтерство, партнерство, донати та спільні ініціативи</p>
               </div>
-              <span class="mt-4 text-xs font-bold text-amber-400 flex items-center gap-1">Долучитися <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+              <span class="mt-6 text-xs font-bold text-amber-400 flex items-center gap-1">Долучитися <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
           </div>
         </div>
@@ -185,7 +195,7 @@
     <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950">
       <div class="max-w-6xl mx-auto px-4">
         
-        <!-- ЧИСТОЕ ОКНО ВХОДА КАК НА ФОТО (БЕЗ ПОДСКАЗОК ПОЧТ) -->
+        <!-- ВХОД В АДМИНКУ -->
         <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-8 rounded-3xl shadow-2xl relative">
           <div class="text-center mb-6">
             <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
@@ -198,7 +208,7 @@
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email / Логін</label>
-              <input type="text" id="admin-username" required placeholder="admin@ocean.org або superadmin" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
+              <input type="text" id="admin-username" required placeholder="Введіть ваш email" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
@@ -217,7 +227,7 @@
           </div>
         </div>
 
-        <!-- ДЭШБОРД С СИСТЕМОЙ ВЫДАЧИ ПРАВ АДМИНАМ -->
+        <!-- ДЭШБОРД С СИСТЕМОЙ ВЫДАЧИ ДОЛЖНОСТЕЙ -->
         <div id="admin-dashboard" class="hidden space-y-6">
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-3">
@@ -229,7 +239,7 @@
                   <h2 class="text-xl font-bold text-white">Океан Дружніх</h2>
                   <span id="admin-role-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/40">Admin</span>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">Керування платформою та правами доступу</p>
+                <p class="text-xs text-slate-400 mt-0.5">Керування платформою та призначення ролей</p>
               </div>
             </div>
             <button onclick="handleAdminLogout()" class="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-2">
@@ -239,7 +249,7 @@
 
           <div class="flex gap-2 border-b border-slate-800 pb-2">
             <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all">Вхідні тикети</button>
-            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all">Керування адмінами (Видача прав)</button>
+            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all">Керування правами та посадами</button>
           </div>
 
           <!-- ВКЛАДКА ТИКЕТОВ -->
@@ -286,29 +296,38 @@
             </div>
           </div>
 
-          <!-- ВКЛАДКА ВЫДАЧИ ПРАВ АДМИНАМ -->
+          <!-- ВКЛАДКА ВЫДАЧИ ПОСАД И ПРАВ -->
           <div id="admin-tab-admins" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
-              <h3 class="text-sm font-bold text-white mb-4">Видати права адміністратора / куратора</h3>
-              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <h3 class="text-sm font-bold text-white mb-4">Створити акаунт та призначити посаду</h3>
+              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input type="text" id="new-admin-name" required placeholder="Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
                 <input type="email" id="new-admin-email" required placeholder="Email (логін)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
                 <input type="password" id="new-admin-pass" required placeholder="Пароль" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
-                <button type="submit" class="sm:col-span-3 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
-                  Створити нового адміністратора
+                
+                <!-- ВЫБОР ДОЛЖНОСТИ -->
+                <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none">
+                  <option value="Super Admin">Super Admin (Повний доступ)</option>
+                  <option value="Адміністратор">Адміністратор</option>
+                  <option value="Куратор проєктів">Куратор проєктів</option>
+                  <option value="Волонтер-координатор">Волонтер-координатор</option>
+                </select>
+
+                <button type="submit" class="sm:col-span-2 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
+                  Призначити посаду та створити адміністратора
                 </button>
               </form>
             </div>
 
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-              <h3 class="text-sm font-bold text-white mb-4">Список діючих адміністраторів системи</h3>
+              <h3 class="text-sm font-bold text-white mb-4">Список діючих співробітників та їх посади</h3>
               <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
                       <th class="p-3">Ім'я</th>
                       <th class="p-3">Email</th>
-                      <th class="p-3">Статус доступу</th>
+                      <th class="p-3">Призначена посада</th>
                     </tr>
                   </thead>
                   <tbody id="admin-team-list" class="divide-y divide-slate-800"></tbody>
@@ -324,44 +343,47 @@
 
   </main>
 
-  <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ (ТОЧНО КАК НА ФОТО) -->
-  <div id="register-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <!-- КАЧЕСТВЕННОЕ МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
+  <div id="register-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
       <button onclick="closeRegisterModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
-      <h2 class="text-2xl font-black text-white text-center mb-6">Зарегистрироваться</h2>
-      <div class="text-center text-xs text-slate-400 mb-6">
-        Уже есть аккаунт? <button onclick="closeRegisterModal(); showPage('admin');" class="text-sky-400 font-bold hover:underline">Войти</button>
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 flex items-center justify-center mx-auto mb-3">
+          <i data-lucide="user-plus" class="w-6 h-6"></i>
+        </div>
+        <h2 class="text-2xl font-black text-white">Реєстрація акаунта</h2>
+        <p class="text-xs text-slate-400 mt-1">Вже є акаунт? <button onclick="closeRegisterModal(); showPage('admin');" class="text-sky-400 font-bold hover:underline">Увійти</button></p>
       </div>
 
       <div class="space-y-3">
-        <button onclick="socialRegister('Google')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+        <button onclick="socialRegister('Google')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm">
           <i data-lucide="globe" class="w-4 h-4 text-sky-400"></i><span>Продолжить с Google</span>
         </button>
-        <button onclick="socialRegister('Facebook')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+        <button onclick="socialRegister('Facebook')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm">
           <i data-lucide="facebook" class="w-4 h-4 text-blue-400"></i><span>Продолжить с Facebook</span>
         </button>
-        <button onclick="socialRegister('Apple')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+        <button onclick="socialRegister('Apple')" class="w-full py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-2xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-sm">
           <i data-lucide="apple" class="w-4 h-4 text-white"></i><span>Продолжить с Apple</span>
         </button>
       </div>
 
       <div class="relative my-6 text-center">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
-        <span class="relative px-3 bg-slate-900 text-xs text-slate-500 uppercase">или</span>
+        <span class="relative px-3 bg-slate-900 text-xs text-slate-500 uppercase font-medium">або через пошту</span>
       </div>
 
       <form onsubmit="handleEmailRegister(event)" class="space-y-3">
-        <input type="email" id="reg-email" required placeholder="Эл. почта" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
-        <button type="submit" class="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all">
-          Продолжить с эл. почтой
+        <input type="email" id="reg-email" required placeholder="Ел. пошта (наприклад: name@gmail.com)" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500 placeholder-slate-500">
+        <button type="submit" class="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-lg shadow-sky-500/20">
+          Створити акаунт
         </button>
       </form>
 
       <p class="text-[10px] text-slate-500 text-center mt-6">
-        * Регистрируясь, вы принимаете условия использования и подтверждаете, что ознакомились с политикой конфиденциальности.
+        * Реєструючись, ви приймаєте умови використання та підтверджуєте згоду на обробку персональних даних.
       </p>
     </div>
   </div>
@@ -426,7 +448,7 @@
       currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
       admins: JSON.parse(localStorage.getItem('okean_admins_db')) || [
         { name: "Андрій Романов", email: "andreyromanov245@gmail.com", pass: "pass123", role: "Super Admin" },
-        { name: "Адміністратор", email: "admin@ocean.org", pass: "admin123", role: "Admin" }
+        { name: "Адміністратор", email: "admin@ocean.org", pass: "admin123", role: "Адміністратор" }
       ],
       organizations: [
         { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
@@ -485,15 +507,17 @@
 
     function openRegisterModal() { document.getElementById('register-modal').classList.remove('hidden'); }
     function closeRegisterModal() { document.getElementById('register-modal').classList.add('hidden'); }
+    
     function socialRegister(provider) {
       alert(`Успішна реєстрація через ${provider}!`);
       closeRegisterModal();
       showPage('home');
     }
+
     function handleEmailRegister(e) {
       e.preventDefault();
       const email = document.getElementById('reg-email').value;
-      alert(`Реєстрація на ${email} успішно завершена!`);
+      alert(`Реєстрація на ${email} успішно завершена! Посилання на підтвердження надіслано.`);
       closeRegisterModal();
     }
 
@@ -558,8 +582,9 @@
       const name = document.getElementById('new-admin-name').value;
       const email = document.getElementById('new-admin-email').value;
       const pass = document.getElementById('new-admin-pass').value;
+      const role = document.getElementById('new-admin-role').value;
 
-      state.admins.push({ name, email, pass, role: "Admin" });
+      state.admins.push({ name, email, pass, role });
       localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
 
       document.getElementById('new-admin-name').value = '';
@@ -567,7 +592,7 @@
       document.getElementById('new-admin-pass').value = '';
 
       renderAdminAdminsList();
-      alert("Новый администратор успешно добавлен!");
+      alert(`Співробітнику успішно призначено посаду: "${role}"!`);
     }
 
     function renderAdminAdminsList() {
@@ -576,7 +601,7 @@
         <tr>
           <td class="p-3 font-bold text-white">${a.name}</td>
           <td class="p-3 text-sky-400">${a.email}</td>
-          <td class="p-3 text-emerald-400 font-semibold">${a.role}</td>
+          <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/30">${a.role}</span></td>
         </tr>
       `).join('');
     }
