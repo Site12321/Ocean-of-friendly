@@ -496,12 +496,17 @@
 
     setInterval(nextSlide, 5000);
 
+    // Инициализация базы администраторов с гарантированным возвратом Андрея Романова (Super Admin)
+    let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || [];
+    const superAdminEmail = "andreyromanov245@gmail.com";
+    
+    if (!savedAdmins.some(a => a.email.toLowerCase() === superAdminEmail.toLowerCase())) {
+      savedAdmins.unshift({ id: 1, name: "Андрій Романов", email: superAdminEmail, pass: "pass123", role: "Super Admin", warns: 0, bans: 0 });
+    }
+
     const state = {
       currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
-      admins: JSON.parse(localStorage.getItem('okean_admins_db')) || [
-        { id: 1, name: "Андрій Романов", email: "andreyromanov245@gmail.com", pass: "pass123", role: "Super Admin", warns: 0, bans: 0 },
-        { id: 2, name: "Адміністратор", email: "admin@ocean.org", pass: "admin123", role: "Адміністратор", warns: 0, bans: 0 }
-      ],
+      admins: savedAdmins,
       organizations: [
         { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
         { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
@@ -647,7 +652,7 @@
       alert(`Співробітнику успішно призначено посаду: "${role}"!`);
     }
 
-    // Системные функции выдачи и СНЯТИЯ санкций
+    // Системные функции управления санкциями и правами
     function addWarn(id) {
       const admin = state.admins.find(a => a.id === id);
       if (admin) {
@@ -695,7 +700,15 @@
     }
 
     function removeAdmin(id) {
-      if (confirm("Ви дійсно хочете забрати права адміністратора у цього користувача?")) {
+      const admin = state.admins.find(a => a.id === id);
+      // Защита от удаления вашей админки
+      if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
+        alert("Неможливо забрати права адміністратора у головного власника (Андрій Романов)!");
+        return;
+      }
+
+      if (confirm(`Ви дійсно хочете забрати права адміністратора у користувача "${admin ? admin.name : ''}"?`)) {
+        // Фильтруем массив, оставляя всех, кроме выбранного по уникальному id
         state.admins = state.admins.filter(a => a.id !== id);
         localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
         renderAdminAdminsList();
@@ -721,16 +734,17 @@
           </td>
           <td class="p-3 text-right">
             <div class="flex items-center justify-end gap-1.5 flex-wrap">
-              <!-- Кнопки выдачи -->
               <button onclick="addWarn(${a.id})" title="Видати попередження" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[10px]">+ Попер.</button>
               <button onclick="addBan(${a.id})" title="Видати догану" class="px-2 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 font-semibold rounded-lg text-[10px]">+ Догана</button>
               
-              <!-- Кнопки СНЯТИЯ санкций -->
               <button onclick="removeWarn(${a.id})" title="Зняти 1 попередження" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Попер.</button>
               <button onclick="removeBan(${a.id})" title="Зняти 1 догану" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Догана</button>
               <button onclick="clearSanctions(${a.id})" title="Повністю очистити всі санкції" class="px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-semibold rounded-lg text-[10px]">Очистити</button>
 
-              <button onclick="removeAdmin(${a.id})" title="Забрати повноваження" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold rounded-lg text-[10px]">Зняти адмінку</button>
+              ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
+                `<span class="px-2 py-1 bg-slate-800 text-slate-500 font-bold rounded-lg text-[10px] cursor-not-allowed">Захищено</span>` :
+                `<button onclick="removeAdmin(${a.id})" title="Забрати повноваження" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold rounded-lg text-[10px]">Зняти адмінку</button>`
+              }
             </div>
           </td>
         </tr>
