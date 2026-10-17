@@ -502,6 +502,7 @@
     
     if (!savedAdmins.some(a => a.email.toLowerCase() === superAdminEmail.toLowerCase())) {
       savedAdmins.unshift({ id: 1, name: "Андрій Романов", email: superAdminEmail, pass: "pass123", role: "Super Admin", warns: 0, bans: 0 });
+      localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
     }
 
     const state = {
@@ -578,13 +579,14 @@
       closeRegisterModal();
     }
 
+    // ИСПРАВЛЕННАЯ АВТОРИЗАЦИЯ (с trim и toLowerCase)
     function handleAdminLogin(e) {
       e.preventDefault();
       const username = document.getElementById('admin-username').value.trim().toLowerCase();
-      const password = document.getElementById('admin-password').value;
+      const password = document.getElementById('admin-password').value.trim();
       const errorMsg = document.getElementById('admin-login-error');
 
-      const foundAdmin = state.admins.find(a => a.email.toLowerCase() === username && a.pass === password);
+      const foundAdmin = state.admins.find(a => a.email.trim().toLowerCase() === username && a.pass.trim() === password);
 
       if (foundAdmin) {
         state.currentUser = foundAdmin;
@@ -604,7 +606,7 @@
     function handleAdminLogout() {
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
-      document.getElementById('admin-login-box').classList.remove('hidden');
+      document.getElementById('admin-login-box').classList.add('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
       document.getElementById('admin-password').value = '';
       updateHeaderAuthUI();
@@ -634,12 +636,18 @@
       document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all";
     }
 
+    // ИСПРАВЛЕННОЕ ДОБАВЛЕНИЕ АДМИНА
     function handleAddAdmin(e) {
       e.preventDefault();
-      const name = document.getElementById('new-admin-name').value;
-      const email = document.getElementById('new-admin-email').value;
-      const pass = document.getElementById('new-admin-pass').value;
+      const name = document.getElementById('new-admin-name').value.trim();
+      const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
+      const pass = document.getElementById('new-admin-pass').value.trim();
       const role = document.getElementById('new-admin-role').value;
+
+      if (state.admins.some(a => a.email.toLowerCase() === email)) {
+        alert("Користувач з таким email вже існує в системі!");
+        return;
+      }
 
       state.admins.push({ id: Date.now(), name, email, pass, role, warns: 0, bans: 0 });
       localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
@@ -701,14 +709,12 @@
 
     function removeAdmin(id) {
       const admin = state.admins.find(a => a.id === id);
-      // Защита от удаления вашей админки
       if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
         alert("Неможливо забрати права адміністратора у головного власника (Андрій Романов)!");
         return;
       }
 
       if (confirm(`Ви дійсно хочете забрати права адміністратора у користувача "${admin ? admin.name : ''}"?`)) {
-        // Фильтруем массив, оставляя всех, кроме выбранного по уникальному id
         state.admins = state.admins.filter(a => a.id !== id);
         localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
         renderAdminAdminsList();
