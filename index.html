@@ -43,22 +43,23 @@
   <canvas id="bg-canvas"></canvas>
 
   <!-- NAVIGATION BAR -->
-  <header class="bg-[#071630]/80 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
+  <header class="bg-[#071630]/90 backdrop-blur-md border-b border-blue-900/40 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       
       <a href="#" onclick="showPage('home')" class="flex items-center gap-3 group">
-        <svg class="w-10 h-10 text-sky-400 transition-transform group-hover:scale-105" viewBox="0 0 100 50" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
+        <svg class="w-9 h-9 sm:w-10 sm:h-10 text-sky-400 transition-transform group-hover:scale-105" viewBox="0 0 100 50" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
           <path d="M 25 25 C 10 25, 10 5, 25 5 C 40 5, 60 45, 75 45 C 90 45, 90 25, 75 25 C 60 25, 40 5, 25 5" />
           <path d="M 20 20 Q 25 15, 30 20" stroke-width="4" />
           <circle cx="75" cy="25" r="12" stroke-width="3" stroke-dasharray="2 2" />
         </svg>
         <div class="flex flex-col">
-          <span class="text-xl font-bold tracking-tight text-white leading-none">Океан Дружніх</span>
-          <span class="text-[11px] font-medium text-sky-400 mt-1">Платформа взаємодопомоги</span>
+          <span class="text-lg sm:text-xl font-bold tracking-tight text-white leading-none">Океан Дружніх</span>
+          <span class="text-[10px] sm:text-[11px] font-medium text-sky-400 mt-1">Платформа взаємодопомоги</span>
         </div>
       </a>
 
-      <nav class="hidden md:flex items-center gap-6 font-medium text-sm text-slate-300">
+      <!-- Desktop Nav -->
+      <nav class="hidden lg:flex items-center gap-6 font-medium text-sm text-slate-300">
         <a href="#projects" onclick="scrollToSection('projects')" class="hover:text-sky-400 transition-colors">Проєкти</a>
         <a href="#catalog" onclick="scrollToSection('catalog')" class="hover:text-sky-400 transition-colors">Каталог</a>
         <a href="#communities" onclick="scrollToSection('communities')" class="hover:text-sky-400 transition-colors">Спільноти</a>
@@ -70,22 +71,41 @@
         </button>
       </nav>
 
-      <div class="flex items-center gap-3">
-        <button id="nav-profile-btn" onclick="openProfileModal()" class="hidden items-center gap-2 px-3.5 py-2 text-xs font-bold text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
+      <!-- Desktop & Mobile Controls -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="nav-profile-btn" onclick="openProfileModal()" class="hidden items-center gap-2 px-3 py-2 text-xs font-bold text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
           <i data-lucide="user-check" class="w-4 h-4 text-sky-400"></i>
-          <span id="nav-profile-name">Кабінет</span>
+          <span id="nav-profile-name" class="hidden sm:inline">Кабінет</span>
         </button>
 
-        <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
+        <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-3 sm:px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="shield" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>Адмін Панель</span>
+          <span class="hidden sm:inline">Адмін Панель</span>
         </button>
 
-        <button id="nav-login-btn" onclick="openAuthModal()" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
+        <button id="nav-login-btn" onclick="openAuthModal()" class="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="user" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>Вхід / Реєстрація</span>
+          <span>Вхід</span>
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-300 hover:text-white bg-slate-800/80 rounded-xl border border-slate-700">
+          <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
       </div>
+    </div>
+
+    <!-- Mobile Navigation Dropdown -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-slate-900/95 border-b border-slate-800 px-4 py-4 space-y-3 font-medium text-sm text-slate-300">
+      <a href="#projects" onclick="scrollToSection('projects'); toggleMobileMenu()" class="block py-1 hover:text-sky-400">Проєкти</a>
+      <a href="#catalog" onclick="scrollToSection('catalog'); toggleMobileMenu()" class="block py-1 hover:text-sky-400">Каталог</a>
+      <a href="#communities" onclick="scrollToSection('communities'); toggleMobileMenu()" class="block py-1 hover:text-sky-400">Спільноти</a>
+      <button onclick="openMentorSelector(); toggleMobileMenu()" class="w-full text-left py-1 text-amber-300 font-bold flex items-center gap-2">
+        <i data-lucide="crown" class="w-4 h-4"></i> Обрати Супровідника
+      </button>
+      <button onclick="openTelegramModal(); toggleMobileMenu()" class="w-full text-left py-1 text-sky-400 font-bold flex items-center gap-2">
+        <i data-lucide="send" class="w-4 h-4"></i> Telegram Бот
+      </button>
     </div>
   </header>
 
@@ -96,21 +116,21 @@
       <!-- ПОЛОСА АКТИВНОГО СУПРОВІДНИКА -->
       <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div id="mentor-active-banner" class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur-md">
-          <div class="flex items-center gap-3">
-            <div id="mentor-banner-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl">
+          <div class="flex items-center gap-3 text-center sm:text-left">
+            <div id="mentor-banner-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl shrink-0">
               👵
             </div>
             <div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center justify-center sm:justify-start gap-2">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ваш живий супровідник:</span>
                 <span id="mentor-banner-name" class="text-sm font-black text-amber-400">Берегиня</span>
               </div>
               <p id="mentor-banner-desc" class="text-xs text-slate-300 mt-0.5">Лагідна берегиня, світла душевна підтримка та тепло серця</p>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
             <button onclick="speakMentorGreeting()" class="px-3.5 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
-              <i data-lucide="volume-2" class="w-4 h-4"></i> Озвучити привітання
+              <i data-lucide="volume-2" class="w-4 h-4"></i> Озвучити
             </button>
             <button onclick="openMentorSelector()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-xl text-xs font-bold transition-all">
               Змінити голос / Мову
@@ -121,14 +141,14 @@
 
       <!-- ІГРОВИЙ СЛАЙДЕР-БАННЕР -->
       <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-950/90 via-[#0a1931]/80 to-slate-950/90 border border-blue-900/40 shadow-2xl min-h-[320px] sm:min-h-[360px] flex items-center backdrop-blur-md">
+        <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-950/90 via-[#0a1931]/80 to-slate-950/90 border border-blue-900/40 shadow-2xl min-h-[300px] sm:min-h-[360px] flex items-center backdrop-blur-md">
           <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#0284c7_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
-          <div id="banner-slider-container" class="relative z-10 w-full px-6 sm:px-12 py-10 flex flex-col justify-center items-center text-center"></div>
+          <div id="banner-slider-container" class="relative z-10 w-full px-6 sm:px-12 py-8 sm:py-10 flex flex-col justify-center items-center text-center"></div>
 
-          <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-sky-500 text-white flex items-center justify-center border border-slate-700 transition-all z-20 shadow-lg">
+          <button onclick="prevSlide()" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-900/80 hover:bg-sky-500 text-white flex items-center justify-center border border-slate-700 transition-all z-20 shadow-lg">
             <i data-lucide="chevron-left" class="w-5 h-5"></i>
           </button>
-          <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-sky-500 text-white flex items-center justify-center border border-slate-700 transition-all z-20 shadow-lg">
+          <button onclick="nextSlide()" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-900/80 hover:bg-sky-500 text-white flex items-center justify-center border border-slate-700 transition-all z-20 shadow-lg">
             <i data-lucide="chevron-right" class="w-5 h-5"></i>
           </button>
         </div>
@@ -227,11 +247,11 @@
     </div>
 
     <!-- ADMIN PANEL PAGE -->
-    <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950/90">
+    <div id="page-admin" class="hidden min-h-[80vh] py-6 sm:py-10 bg-slate-950/90">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- LOGIN BOX -->
-        <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-8 rounded-3xl shadow-2xl relative">
+        <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-6 sm:p-8 rounded-3xl shadow-2xl relative">
           <div class="text-center mb-6">
             <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
               <i data-lucide="shield-alert" class="w-7 h-7"></i>
@@ -266,39 +286,39 @@
         <div id="admin-dashboard" class="hidden space-y-6">
           
           <!-- TOP HEADER BAR -->
-          <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center font-bold text-slate-950 text-lg shadow-md">
+          <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div class="flex items-center gap-3 text-center sm:text-left">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center font-bold text-slate-950 text-lg shadow-md shrink-0">
                 ОД
               </div>
               <div>
-                <div class="flex items-center gap-2">
-                  <h2 id="admin-welcome-name" class="text-xl font-bold text-white">Андрій Романов</h2>
-                  <span id="admin-role-badge" class="px-3 py-1 rounded-full text-xs font-black shadow-md border">Super Admin</span>
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h2 id="admin-welcome-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h2>
+                  <div id="admin-role-badge"></div>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5">Керування складом адміністрації, посадами, санкціями та тикетами</p>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="openAddSanctionModal()" class="px-4 py-2 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
-                <i data-lucide="alert-triangle" class="w-4 h-4"></i> Видати догану / попер.
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
+              <button onclick="openAddSanctionModal()" class="px-3.5 py-2 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i> Видати санкцію
               </button>
-              <button onclick="handleAdminLogout()" class="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
+              <button onclick="handleAdminLogout()" class="px-3.5 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
                 <i data-lucide="log-out" class="w-4 h-4"></i> Вийти
               </button>
             </div>
           </div>
 
           <!-- TABS -->
-          <div class="flex gap-2 border-b border-slate-800 pb-2">
-            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-5 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2">
+          <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
+            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2">
               <i data-lucide="users" class="w-4 h-4"></i> Список адміністраторів
             </button>
-            <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+            <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
               <i data-lucide="inbox" class="w-4 h-4"></i> Вхідні тикети
             </button>
-            <button onclick="switchAdminTab('roles')" id="tab-btn-roles" class="px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
-              <i data-lucide="palette" class="w-4 h-4"></i> Налаштування посад & кольорів
+            <button onclick="switchAdminTab('roles')" id="tab-btn-roles" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="palette" class="w-4 h-4"></i> Налаштування посад
             </button>
           </div>
 
@@ -306,37 +326,37 @@
           <div id="admin-tab-admins" class="space-y-6">
             
             <!-- STATS -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Всього адмінів</span>
-                <div id="stat-admins-total" class="text-2xl sm:text-3xl font-black text-white mt-1">1</div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Всього адмінів</span>
+                <div id="stat-admins-total" class="text-xl sm:text-3xl font-black text-white mt-1">1</div>
               </div>
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
-                <span class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">З попередженнями</span>
-                <div id="stat-admins-warns" class="text-2xl sm:text-3xl font-black text-amber-400 mt-1">0</div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-amber-400 uppercase tracking-wider">З попередженнями</span>
+                <div id="stat-admins-warns" class="text-xl sm:text-3xl font-black text-amber-400 mt-1">0</div>
               </div>
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
-                <span class="text-[11px] font-semibold text-rose-400 uppercase tracking-wider">З доганами</span>
-                <div id="stat-admins-bans" class="text-2xl sm:text-3xl font-black text-rose-400 mt-1">0</div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-rose-400 uppercase tracking-wider">З доганами</span>
+                <div id="stat-admins-bans" class="text-xl sm:text-3xl font-black text-rose-400 mt-1">0</div>
               </div>
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
-                <span class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">В мережі (Онлайн)</span>
-                <div id="stat-admins-online" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">1</div>
+                <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">В мережі</span>
+                <div id="stat-admins-online" class="text-xl sm:text-3xl font-black text-emerald-400 mt-1">1</div>
               </div>
             </div>
 
             <!-- FORM: ДОДАТИ АДМІНА -->
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
+            <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
               <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
                 <i data-lucide="user-plus" class="w-4 h-4 text-sky-400"></i> Створити нового адміністратора та призначити посаду
               </h3>
-              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <input type="text" id="new-admin-name" required placeholder="ПІБ / Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 <input type="email" id="new-admin-email" required placeholder="Email (Логін)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 <input type="password" id="new-admin-pass" required placeholder="Пароль доступу" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 
                 <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
-                  <!-- Буде заповнено скриптом зі списку посад -->
+                  <!-- Заповнюється JS -->
                 </select>
 
                 <div class="sm:col-span-2 flex items-center gap-2">
@@ -348,7 +368,7 @@
             </div>
 
             <!-- КАРТКИ І ТАБЛИЦЯ АДМІНІВ -->
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
               <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                   <i data-lucide="shield" class="w-4 h-4 text-sky-400"></i> Активний склад адміністрації
@@ -357,7 +377,7 @@
               </div>
 
               <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
+                <table class="w-full text-left border-collapse text-xs min-w-[600px]">
                   <thead>
                     <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
                       <th class="p-3">Адміністратор</th>
@@ -377,9 +397,9 @@
           <!-- TAB 2: ТИКЕТИ -->
           <div id="admin-tab-tickets" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-              <div class="p-5 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <input type="text" id="ticket-search" oninput="filterTickets()" placeholder="Пошук за ім'ям, контактом..." class="w-full sm:w-80 px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
-                <select id="status-filter" onchange="filterTickets()" class="px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold">
+                <select id="status-filter" onchange="filterTickets()" class="w-full sm:w-auto px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold">
                   <option value="all">Всі статуси</option>
                   <option value="Новий">Новий</option>
                   <option value="В роботі">В роботі</option>
@@ -387,7 +407,7 @@
               </div>
 
               <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 tracking-wider border-b border-slate-800">
                       <th class="p-4">ID / Дата</th>
@@ -405,7 +425,7 @@
 
           <!-- TAB 3: НАЛАШТУВАННЯ ПОСАД І КОЛЬОРІВ -->
           <div id="admin-tab-roles" class="hidden space-y-6">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
+            <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
               <h3 class="text-sm font-bold text-white mb-2">Налаштування стилів та кольорів посад</h3>
               <p class="text-xs text-slate-400 mb-6">Кожна посада має власний унікальний колір та стиль відображення, який динамічно змінюється по всьому сайту.</p>
               
@@ -422,13 +442,13 @@
 
   <!-- МОДАЛЬНЕ ОКНО: ВИДАЧА ДОГАНИ ТА ПОПЕРЕДЖЕННЯ -->
   <div id="sanction-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-amber-500/40 w-full max-w-lg p-7 rounded-3xl shadow-2xl relative">
+    <div class="bg-slate-900 border border-amber-500/40 w-full max-w-lg p-6 sm:p-7 rounded-3xl shadow-2xl relative">
       <button onclick="closeSanctionModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
       <div class="flex items-center gap-3 mb-5">
-        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-2xl flex items-center justify-center text-xl">
+        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-2xl flex items-center justify-center text-xl shrink-0">
           ⚠️
         </div>
         <div>
@@ -461,7 +481,7 @@
 
         <div>
           <label class="block font-bold text-slate-300 uppercase mb-1">Причина видачі</label>
-          <textarea id="sanc-reason" required rows="3" placeholder="Зазначте деталі порушення (напр., невиконання обов'язків, порушення субординації...)" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none resize-none"></textarea>
+          <textarea id="sanc-reason" required rows="3" placeholder="Зазначте деталі порушення..." class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none resize-none"></textarea>
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -475,17 +495,17 @@
 
   <!-- МОДАЛЬНЕ ОКНО: ПЕРЕГЛЯД ІСТОРІЇ АДМІНІСТРАТОРА -->
   <div id="admin-history-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-2xl p-7 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-2xl p-6 sm:p-7 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeAdminHistoryModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
       <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-800">
-        <div id="hist-avatar" class="w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-xl">
+        <div id="hist-avatar" class="w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-xl shrink-0">
           АР
         </div>
         <div>
-          <h3 id="hist-name" class="text-xl font-bold text-white">Андрій Романов</h3>
+          <h3 id="hist-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h3>
           <p id="hist-email" class="text-xs text-sky-400">andreyromanov245@gmail.com</p>
           <div id="hist-role-badge" class="mt-1"></div>
         </div>
@@ -500,7 +520,7 @@
 
   <!-- МОДАЛЬНЕ ОКНО РЕЄСТРАЦІЇ ТА ВХОДУ В ОСОБИСТИЙ КАБІНЕТ -->
   <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-md p-6 sm:p-8 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
@@ -553,19 +573,19 @@
 
   <!-- МОДАЛЬНЕ ОКНО ОСОБИСТОГО КАБІНЕТУ -->
   <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-xl p-8 rounded-3xl shadow-2xl relative my-8">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-xl p-6 sm:p-8 rounded-3xl shadow-2xl relative my-8">
       <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
 
       <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-800">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-emerald-400 text-slate-950 text-2xl font-black flex items-center justify-center shadow-lg" id="profile-avatar-letters">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-emerald-400 text-slate-950 text-2xl font-black flex items-center justify-center shadow-lg shrink-0" id="profile-avatar-letters">
           АР
         </div>
         <div>
-          <h2 class="text-xl font-bold text-white" id="profile-display-name">Андрій Романов</h2>
+          <h2 class="text-lg sm:text-xl font-bold text-white" id="profile-display-name">Андрій Романов</h2>
           <p class="text-xs text-sky-400" id="profile-display-email">andreyromanov245@gmail.com</p>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний користувач / Google Auth</span>
+          <span id="profile-admin-access-tag" class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний користувач</span>
         </div>
       </div>
 
@@ -604,14 +624,14 @@
 
         <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
           <span class="font-bold text-slate-400 uppercase text-[10px]">Статус збереження:</span>
-          <p class="text-slate-300 text-[11px]">Дані синхронізовані з вашим профілем Google та збережені у пам'яті браузера (localStorage).</p>
+          <p class="text-slate-300 text-[11px]">Дані синхронізовані з вашим профілем та збережені локально в браузері.</p>
         </div>
 
-        <div class="flex items-center gap-3 pt-2">
-          <button type="submit" class="flex-grow py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg">
-            Зберегти зміни в кабінеті
+        <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+          <button type="submit" class="w-full sm:flex-grow py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg">
+            Зберегти зміни
           </button>
-          <button type="button" onclick="handleUserLogout()" class="px-4 py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold rounded-xl transition-colors">
+          <button type="button" onclick="handleUserLogout()" class="w-full sm:w-auto px-4 py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold rounded-xl transition-colors">
             Вийти з акаунта
           </button>
         </div>
@@ -620,116 +640,116 @@
   </div>
 
   <!-- ПОЛНОЭКРАННЫЙ ВЫБОР ЖИВОГО ГОЛОСА И ЯЗЫКА СУПРОВІДНИКА -->
-  <div id="mentor-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-6 sm:p-10 overflow-y-auto">
-    <div class="max-w-6xl mx-auto w-full text-center mt-4">
+  <div id="mentor-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-4 sm:p-10 overflow-y-auto">
+    <div class="max-w-6xl mx-auto w-full text-center mt-2 sm:mt-4">
       <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold mb-3">
         <i data-lucide="mic" class="w-4 h-4"></i> Унікальні живі голоси платформи
       </div>
-      <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight">ОБЕРИ СВОГО ЖИВОГО СУПРОВІДНИКА</h1>
-      <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mt-2">
+      <h1 class="text-2xl sm:text-5xl font-black text-white tracking-tight">ОБЕРИ СВОГО ЖИВОГО СУПРОВІДНИКА</h1>
+      <p class="text-slate-400 text-xs sm:text-base max-w-2xl mx-auto mt-2">
         Вітаю, друже! Ти увійшов у потік Океану Дружніх. Оберіть характер голосу та мову супроводу.
       </p>
 
       <!-- ВЫБОР ЯЗЫКА (УКР / РУС / ENG) -->
-      <div class="flex items-center justify-center gap-2 mt-6">
-        <span class="text-xs font-bold text-slate-400 mr-2">Мова / Language:</span>
-        <button onclick="setMentorLanguage('uk')" id="lang-btn-uk" class="px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-sky-500 text-slate-950 border-sky-400">Українська</button>
-        <button onclick="setMentorLanguage('ru')" id="lang-btn-ru" class="px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">Русский</button>
-        <button onclick="setMentorLanguage('en')" id="lang-btn-en" class="px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">English</button>
+      <div class="flex items-center justify-center gap-2 mt-4 sm:mt-6">
+        <span class="text-xs font-bold text-slate-400 mr-1 sm:mr-2">Мова:</span>
+        <button onclick="setMentorLanguage('uk')" id="lang-btn-uk" class="px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-sky-500 text-slate-950 border-sky-400">Українська</button>
+        <button onclick="setMentorLanguage('ru')" id="lang-btn-ru" class="px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">Русский</button>
+        <button onclick="setMentorLanguage('en')" id="lang-btn-en" class="px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">English</button>
       </div>
     </div>
 
     <!-- 4 ЖИВИХ СУПРОВІДНИКА -->
-    <div class="max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-8">
+    <div class="max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 my-6 sm:my-8">
       
       <!-- 1. БЕРЕГИНЯ -->
-      <div onclick="selectMentor('lada')" id="card-mentor-lada" class="bg-slate-900/80 border-2 border-slate-800 hover:border-amber-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+      <div onclick="selectMentor('lada')" id="card-mentor-lada" class="bg-slate-900/80 border-2 border-slate-800 hover:border-amber-400 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20"></div>
         <div>
-          <div class="w-20 h-20 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-3xl sm:text-4xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
             👵
           </div>
           <span class="text-[10px] uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">1. Берегиня</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Берегиня</h3>
+          <h3 class="text-lg sm:text-xl font-extrabold text-white mt-2">Берегиня</h3>
           <p id="desc-mentor-lada" class="text-xs text-slate-300 mt-2 leading-relaxed">
             «Вітаю! Ласкаво просимо.»
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-800/80">
-          <button onclick="event.stopPropagation(); previewVoice('lada')" class="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
-            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+        <div class="mt-4 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('lada')" class="w-full py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати
           </button>
-          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Лагідний & Душевний</div>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Лагідний</div>
         </div>
       </div>
 
       <!-- 2. ДІВЧИНКА -->
-      <div onclick="selectMentor('olga')" id="card-mentor-olga" class="bg-slate-900/80 border-2 border-slate-800 hover:border-sky-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+      <div onclick="selectMentor('olga')" id="card-mentor-olga" class="bg-slate-900/80 border-2 border-slate-800 hover:border-sky-400 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20"></div>
         <div>
-          <div class="w-20 h-20 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-3xl sm:text-4xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
             👧
           </div>
           <span class="text-[10px] uppercase tracking-widest font-extrabold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">2. Дівчинка</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Дівчинка</h3>
+          <h3 class="text-lg sm:text-xl font-extrabold text-white mt-2">Дівчинка</h3>
           <p id="desc-mentor-olga" class="text-xs text-slate-300 mt-2 leading-relaxed">
             «Вітаю, друже! Ти у потоці Океану Дружніх.»
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-800/80">
-          <button onclick="event.stopPropagation(); previewVoice('olga')" class="w-full py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
-            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+        <div class="mt-4 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('olga')" class="w-full py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати
           </button>
-          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Щирий & Світлий</div>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Щирий</div>
         </div>
       </div>
 
       <!-- 3. КОЗАК -->
-      <div onclick="selectMentor('kozak')" id="card-mentor-kozak" class="bg-slate-900/80 border-2 border-slate-800 hover:border-emerald-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+      <div onclick="selectMentor('kozak')" id="card-mentor-kozak" class="bg-slate-900/80 border-2 border-slate-800 hover:border-emerald-400 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20"></div>
         <div>
-          <div class="w-20 h-20 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-3xl sm:text-4xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
             👨‍🦱
           </div>
           <span class="text-[10px] uppercase tracking-widest font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">3. Козак</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Козак</h3>
+          <h3 class="text-lg sm:text-xl font-extrabold text-white mt-2">Козак</h3>
           <p id="desc-mentor-kozak" class="text-xs text-slate-300 mt-2 leading-relaxed">
             «Будь як вдома, побратиме!»
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-800/80">
-          <button onclick="event.stopPropagation(); previewVoice('kozak')" class="w-full py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
-            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+        <div class="mt-4 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('kozak')" class="w-full py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати
           </button>
-          <div class="text-[10px] text-slate-500 text-center font-semibold">Чоловічий • Енергійний & Сміливий</div>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Чоловічий • Енергійний</div>
         </div>
       </div>
 
       <!-- 4. СТАРЕЦЬ / МУДРЕЦЬ -->
-      <div onclick="selectMentor('starets')" id="card-mentor-starets" class="bg-slate-900/80 border-2 border-slate-800 hover:border-purple-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
+      <div onclick="selectMentor('starets')" id="card-mentor-starets" class="bg-slate-900/80 border-2 border-slate-800 hover:border-purple-400 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20"></div>
         <div>
-          <div class="w-20 h-20 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-3xl sm:text-4xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
             🧙‍♂️
           </div>
           <span class="text-[10px] uppercase tracking-widest font-extrabold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">4. Мудрець</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Мудрець</h3>
+          <h3 class="text-lg sm:text-xl font-extrabold text-white mt-2">Мудрець</h3>
           <p id="desc-mentor-starets" class="text-xs text-slate-300 mt-2 leading-relaxed">
             «Нехай мудрість веде тебе.»
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-800/80">
-          <button onclick="event.stopPropagation(); previewVoice('starets')" class="w-full py-2.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
-            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
+        <div class="mt-4 pt-4 border-t border-slate-800/80">
+          <button onclick="event.stopPropagation(); previewVoice('starets')" class="w-full py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати
           </button>
-          <div class="text-[10px] text-slate-500 text-center font-semibold">Чоловічий • Глибокий & Спокійний</div>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Чоловічий • Глибокий</div>
         </div>
       </div>
 
     </div>
 
     <div class="max-w-md mx-auto w-full text-center pb-6">
-      <button onclick="confirmMentorChoice()" class="w-full py-4 bg-gradient-to-r from-sky-400 via-emerald-400 to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider rounded-2xl shadow-2xl transition-all hover:opacity-90 transform active:scale-95">
+      <button onclick="confirmMentorChoice()" class="w-full py-4 bg-gradient-to-r from-sky-400 via-emerald-400 to-amber-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider rounded-2xl shadow-2xl transition-all hover:opacity-90 transform active:scale-95">
         Обрати супровідника та увійти на сайт
       </button>
       <p class="text-[11px] text-slate-500 mt-3">
@@ -740,7 +760,7 @@
 
   <!-- МОДАЛЬНЕ ОКНО TELEGRAM БОТА -->
   <div id="telegram-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-lg p-8 rounded-3xl shadow-2xl relative">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-lg p-6 sm:p-8 rounded-3xl shadow-2xl relative">
       <button onclick="closeTelegramModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
@@ -749,7 +769,7 @@
         <div class="w-16 h-16 rounded-3xl bg-sky-500/20 border border-sky-400/40 text-sky-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
           <i data-lucide="send" class="w-8 h-8"></i>
         </div>
-        <h2 class="text-2xl font-black text-white">Telegram Бот «Океан Дружніх»</h2>
+        <h2 class="text-xl sm:text-2xl font-black text-white">Telegram Бот «Океан Дружніх»</h2>
         <p class="text-xs text-sky-400 mt-1 font-semibold">@Ocean_friendly_bot</p>
       </div>
 
@@ -779,15 +799,15 @@
 
   <!-- AI CHAT WIDGET З ГОЛОСОВИМ ВВОДОМ ТА ОЗВУЧКОЮ -->
   <div id="chat-widget" class="fixed bottom-4 right-4 z-50 flex flex-col items-end">
-    <div id="chat-window" class="hidden w-[90vw] sm:w-[420px] h-[600px] bg-[#070d1e]/95 backdrop-blur-xl text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
+    <div id="chat-window" class="hidden w-[92vw] sm:w-[400px] h-[520px] sm:h-[580px] bg-[#070d1e]/95 backdrop-blur-xl text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
       <div class="bg-[#0b1633]/90 backdrop-blur-md p-4 border-b border-blue-900/50 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div id="chat-mentor-avatar" class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl shadow-inner">
+          <div id="chat-mentor-avatar" class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl shadow-inner shrink-0">
             👵
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h4 id="chat-mentor-title" class="font-bold text-sm tracking-wide text-white">Берегиня (Живий голос)</h4>
+              <h4 id="chat-mentor-title" class="font-bold text-sm tracking-wide text-white">Берегиня</h4>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Онлайн</span>
             </div>
             <span class="text-[11px] text-slate-400">Озвучує відповіді наживо</span>
@@ -815,11 +835,11 @@
       </div>
 
       <form onsubmit="handleSendMessage(event)" class="p-3 bg-[#060b18] border-t border-blue-900/60 flex items-center gap-2">
-        <button type="button" onclick="toggleVoiceInput()" id="mic-btn" title="Голосовий ввід" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl transition-all">
+        <button type="button" onclick="toggleVoiceInput()" id="mic-btn" title="Голосовий ввід" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-sky-400 border border-slate-700 rounded-xl transition-all shrink-0">
           <i data-lucide="mic" class="w-4 h-4"></i>
         </button>
-        <input type="text" id="chat-input" placeholder="Напишіть запит або говоріть голосом..." required class="flex-grow bg-white text-slate-900 px-4 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400">
-        <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl transition-all shadow-lg flex items-center gap-1 shrink-0">
+        <input type="text" id="chat-input" placeholder="Напишіть запит..." required class="flex-grow bg-white text-slate-900 px-3.5 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-medium placeholder-slate-400 min-w-0">
+        <button type="submit" class="px-3.5 py-2.5 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-bold text-xs rounded-xl transition-all shadow-lg flex items-center gap-1 shrink-0">
           <span>Надіслати</span> <i data-lucide="send" class="w-3.5 h-3.5"></i>
         </button>
       </form>
@@ -835,6 +855,12 @@
 
   <script>
     lucide.createIcons();
+
+    // Toggle Mobile Navigation Menu
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
 
     // ==========================================
     // 1. АНІМАЦІЯ ФОНУ (КАНВАС)
@@ -939,19 +965,19 @@
     // 2. ДИНАМІЧНІ ПОСАДИ ТА СТИЛІ КОЛЬОРІВ
     // ==========================================
     const defaultRolesConfig = {
-      "Super Admin": { name: "Super Admin", bg: "bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/40", badgeStyle: "background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4);" },
-      "Головний Адміністратор": { name: "Головний Адміністратор", bg: "bg-purple-500/20", text: "text-purple-300", border: "border-purple-500/40", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
-      "Адміністратор": { name: "Адміністратор", bg: "bg-sky-500/20", text: "text-sky-300", border: "border-sky-500/40", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
-      "Куратор проєктів": { name: "Куратор проєктів", bg: "bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/40", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" },
-      "Волонтер-координатор": { name: "Волонтер-координатор", bg: "bg-teal-500/20", text: "text-teal-300", border: "border-teal-500/40", badgeStyle: "background: rgba(20, 184, 166, 0.2); color: #5eead4; border: 1px solid rgba(20, 184, 166, 0.4);" },
-      "Модератор": { name: "Модератор", bg: "bg-indigo-500/20", text: "text-indigo-300", border: "border-indigo-500/40", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);" }
+      "Super Admin": { name: "Super Admin", badgeStyle: "background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4);" },
+      "Головний Адміністратор": { name: "Головний Адміністратор", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
+      "Адміністратор": { name: "Адміністратор", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
+      "Куратор проєктів": { name: "Куратор проєктів", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" },
+      "Волонтер-координатор": { name: "Волонтер-координатор", badgeStyle: "background: rgba(20, 184, 166, 0.2); color: #5eead4; border: 1px solid rgba(20, 184, 166, 0.4);" },
+      "Модератор": { name: "Модератор", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);" }
     };
 
     let rolesConfig = JSON.parse(localStorage.getItem('okean_roles_config')) || defaultRolesConfig;
 
     function getRoleBadgeHTML(roleName) {
       const r = rolesConfig[roleName] || { name: roleName, badgeStyle: "background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);" };
-      return `<span class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider inline-block shadow-sm" style="${r.badgeStyle}">${r.name}</span>`;
+      return `<span class="px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-wider inline-block shadow-sm" style="${r.badgeStyle}">${r.name}</span>`;
     }
 
     // ==========================================
@@ -991,7 +1017,7 @@
     localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
 
     const state = {
-      currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || savedAdmins[0],
+      currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
       admins: savedAdmins,
       organizations: [
         { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
@@ -1042,9 +1068,9 @@
       currentLang = lang;
       localStorage.setItem('okean_lang', lang);
 
-      document.getElementById('lang-btn-uk').className = `px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'uk' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
-      document.getElementById('lang-btn-ru').className = `px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'ru' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
-      document.getElementById('lang-btn-en').className = `px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'en' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
+      document.getElementById('lang-btn-uk').className = `px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'uk' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
+      document.getElementById('lang-btn-ru').className = `px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'ru' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
+      document.getElementById('lang-btn-en').className = `px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'en' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
 
       document.getElementById('desc-mentor-lada').textContent = `«${mentors.lada.greetings[lang]}»`;
       document.getElementById('desc-mentor-olga').textContent = `«${mentors.olga.greetings[lang]}»`;
@@ -1063,6 +1089,7 @@
     }
     function confirmMentorChoice() {
       localStorage.setItem('okean_mentor', selectedMentorKey);
+      localStorage.setItem('okean_mentor_chosen', 'true');
       document.getElementById('mentor-selector-modal').classList.add('hidden');
       updateMentorUI();
       speakMentorGreeting();
@@ -1107,10 +1134,11 @@
         });
         google.accounts.id.renderButton(
           document.getElementById("google-signin-btn-container"),
-          { theme: "outline", size: "large", width: "320", text: "continue_with", locale: "uk" }
+          { theme: "outline", size: "large", width: "280", text: "continue_with", locale: "uk" }
         );
       }
       populateRoleSelects();
+      syncUserAndAdminState();
     };
 
     function parseJwt(token) {
@@ -1127,7 +1155,7 @@
         currentUser = { name: payload.name, email: payload.email, phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
         closeAuthModal();
-        updateHeaderUserUI();
+        syncUserAndAdminState();
         openProfileModal();
       }
     }
@@ -1160,13 +1188,30 @@
       currentUser = { name: name || "Користувач", email, pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Учасник платформи." };
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
       closeAuthModal();
-      updateHeaderUserUI();
+      syncUserAndAdminState();
     }
 
     function handleUserLogout() {
       currentUser = null;
       localStorage.removeItem('okean_logged_user');
       closeProfileModal();
+      syncUserAndAdminState();
+    }
+
+    // Автоматическая привязка Личного кабинета к Админ-панели
+    function syncUserAndAdminState() {
+      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
+      
+      if (currentUser) {
+        const foundAdmin = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
+        if (foundAdmin) {
+          foundAdmin.online = true;
+          state.currentUser = foundAdmin;
+          localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
+        }
+      }
+      
+      updateHeaderAuthUI();
       updateHeaderUserUI();
     }
 
@@ -1179,6 +1224,14 @@
       document.getElementById('prof-phone').value = currentUser.phone || '';
       document.getElementById('prof-city').value = currentUser.city || '';
       document.getElementById('prof-bio').value = currentUser.bio || '';
+
+      const adminTag = document.getElementById('profile-admin-access-tag');
+      if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
+        adminTag.outerHTML = `<div id="profile-admin-access-tag" class="mt-1">${getRoleBadgeHTML(state.currentUser.role)}</div>`;
+      } else {
+        adminTag.outerHTML = `<span id="profile-admin-access-tag" class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний користувач</span>`;
+      }
+
       document.getElementById('profile-modal').classList.remove('hidden');
     }
     function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
@@ -1191,6 +1244,12 @@
       currentUser.city = document.getElementById('prof-city').value.trim();
       currentUser.bio = document.getElementById('prof-bio').value.trim();
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+      
+      if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
+        state.currentUser.name = currentUser.name;
+        syncAdminsData();
+      }
+
       updateHeaderUserUI();
       closeProfileModal();
     }
@@ -1268,7 +1327,7 @@
       }
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
-      document.getElementById('admin-login-box').classList.add('hidden');
+      document.getElementById('admin-login-box').classList.remove('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
       updateHeaderAuthUI();
       showPage('home');
@@ -1286,10 +1345,10 @@
     function switchAdminTab(tabName) {
       ['admins', 'tickets', 'roles'].forEach(t => {
         document.getElementById(`admin-tab-${t}`).classList.add('hidden');
-        document.getElementById(`tab-btn-${t}`).className = "px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
+        document.getElementById(`tab-btn-${t}`).className = "px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
       });
       document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${tabName}`).className = "px-5 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
+      document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
 
       if (tabName === 'roles') renderRolesConfigGrid();
     }
@@ -1483,7 +1542,7 @@
             <td class="p-3 text-right">
               <div class="flex items-center justify-end gap-2">
                 <button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-xl text-[11px] transition-all border border-amber-500/30 flex items-center gap-1">
-                  + Виговор
+                  + Санкція
                 </button>
                 ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
                   `<span class="px-2.5 py-1 bg-slate-800 text-slate-500 font-bold rounded-xl text-[11px]">Захищено</span>` :
@@ -1522,7 +1581,7 @@
       if (!state.currentUser) return;
 
       document.getElementById('admin-welcome-name').textContent = state.currentUser.name;
-      document.getElementById('admin-role-badge').outerHTML = `<div id="admin-role-badge">${getRoleBadgeHTML(state.currentUser.role)}</div>`;
+      document.getElementById('admin-role-badge').innerHTML = getRoleBadgeHTML(state.currentUser.role);
 
       document.getElementById('stat-admins-total').textContent = state.admins.length;
       document.getElementById('stat-admins-warns').textContent = state.admins.filter(a => (a.history || []).some(h => h.type === 'warn')).length;
@@ -1582,7 +1641,7 @@
       container.innerHTML = `
         <div class="slider-transition opacity-100 flex flex-col items-center max-w-3xl mx-auto">
           <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-3">${b.tag}</span>
-          <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug mb-3">${b.title}</h2>
+          <h2 class="text-xl sm:text-4xl font-black text-white tracking-tight leading-snug mb-3">${b.title}</h2>
           <p class="text-xs sm:text-sm text-slate-300 mb-6 max-w-xl">${b.desc}</p>
           <button onclick="${b.action}" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-2xl transition-all shadow-lg flex items-center gap-2">
             <span>${b.btnText}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -1682,8 +1741,7 @@
 
     // ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
     renderBanner();
-    updateHeaderAuthUI();
-    updateHeaderUserUI();
+    syncUserAndAdminState();
     renderCatalog();
     setMentorLanguage(currentLang);
 
