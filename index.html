@@ -418,7 +418,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЕ ОКНО ОСОБИСТОГО КАБІНЕТУ З ІНФОРМАЦІЄЮ ПРО СЕБЕ -->
+  <!-- МОДАЛЬНЕ ОКНО ОСОБИСТОГО КАБІНЕТУ -->
   <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-sky-500/30 w-full max-w-xl p-8 rounded-3xl shadow-2xl relative my-8">
       <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
@@ -962,7 +962,7 @@
     }
 
     // ==========================================
-    // 3. АВТОРИЗАЦІЯ, РЕЄСТРАЦІЯ ТА КАБІНЕТ (ПОШТА + ЗБЕРЕЖЕННЯ)
+    // 3. АВТОРИЗАЦІЯ, РЕЄСТРАЦІЯ ТА КАБІНЕТ
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
@@ -1044,7 +1044,6 @@
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
       closeAuthModal();
       updateHeaderUserUI();
-      alert(`Успішний вхід! Вітаємо, ${currentUser.name}.`);
     }
 
     function handleUserLogout() {
@@ -1052,7 +1051,6 @@
       localStorage.removeItem('okean_logged_user');
       closeProfileModal();
       updateHeaderUserUI();
-      alert("Ви вийшли з особистого кабінету.");
     }
 
     function openProfileModal() {
@@ -1092,7 +1090,6 @@
 
       updateHeaderUserUI();
       closeProfileModal();
-      alert("Дані особистого кабінету успішно збережено у пам'яті!");
     }
 
     function updateHeaderUserUI() {
@@ -1110,7 +1107,7 @@
     }
 
     // ==========================================
-    // 4. ГОЛОСОВИЙ ВВІД (SPEECH RECOGNITION)
+    // 4. ГОЛОСОВИЙ ВВІД
     // ==========================================
     let isListening = false;
     function toggleVoiceInput() {
@@ -1206,7 +1203,7 @@
     setInterval(nextSlide, 5000);
 
     // ==========================================
-    > 7. АДМІН-ПАНЕЛЬ ТА ЗАХИСТ ПРАВ АДМІНІВ
+    // 7. АДМІН-ПАНЕЛЬ ТА ЗАХИСТ ПРАВ АДМІНІВ
     // ==========================================
     let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || [];
     const superAdminEmail = "andreyromanov245@gmail.com";
@@ -1230,7 +1227,6 @@
       ]
     };
 
-    // Перевірка при завантаженні: если залогиненный админ был удален из базы админов — выкидываем его!
     function validateAdminSession() {
       if (state.currentUser) {
         state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
@@ -1238,7 +1234,6 @@
         if (!stillAdmin) {
           state.currentUser = null;
           localStorage.removeItem('okean_current_admin');
-          alert("Увага! Ваші права адміністратора було знято власником системи. Доступ до адмін-панелі заблоковано.");
         }
       }
     }
@@ -1362,7 +1357,6 @@
       document.getElementById('new-admin-pass').value = '';
 
       renderAdminAdminsList();
-      alert(`Співробітнику успішно призначено посаду: "${role}"!`);
     }
 
     function addWarn(id) {
@@ -1397,11 +1391,10 @@
         alert("Неможливо забрати права у головного власника (Андрій Романов)!");
         return;
       }
-      if (confirm(`Ви дійсно хочете забрати права адміністратора у "${admin ? admin.name : ''}"? Ця дія повністю заблокує йому доступ до адмін-панелі.`)) {
+      if (confirm(`Ви дійсно хочете забрати права адміністратора у "${admin ? admin.name : ''}"?`)) {
         state.admins = state.admins.filter(a => a.id !== id);
         localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
 
-        // Если удаленный админ сейчас сидит в системе — выбиваем его сразу
         if (state.currentUser && state.currentUser.email.toLowerCase() === admin.email.toLowerCase()) {
           state.currentUser = null;
           localStorage.removeItem('okean_current_admin');
@@ -1547,16 +1540,18 @@
       }, 750);
     }
 
-    // Ініціалізація при завантаженні
+    // Инициализация при загрузке
     renderBanner();
     updateHeaderAuthUI();
     updateHeaderUserUI();
     renderCatalog();
     setMentorLanguage(currentLang);
 
+    // Автоматический показ выбора супровідника только при первом визите, с возможностью закрытия
     if (!localStorage.getItem('okean_mentor_chosen')) {
       openMentorSelector();
-      localStorage.setItem('okean_mentor_chosen', 'true');
+    } else {
+      document.getElementById('mentor-selector-modal').classList.add('hidden');
     }
   </script>
 </body>
