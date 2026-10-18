@@ -423,7 +423,7 @@
                   <h3 class="text-base font-bold text-white flex items-center gap-2">
                     <i data-lucide="users" class="w-5 h-5 text-emerald-400"></i> Зареєстровані користувачі (<span id="user-count-display">0</span>)
                   </h3>
-                  <p class="text-xs text-slate-400 mt-0.5">Данні фіксуються та зберігаються в системі без сбросів</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Данні надійно фіксуються та зберігаються в базі без сбросів</p>
                 </div>
                 <input type="text" id="user-search" oninput="renderRegisteredUsersList()" placeholder="Пошук користувача..." class="w-full sm:w-72 px-4 py-2 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
               </div>
@@ -701,10 +701,10 @@
           <p class="text-slate-400 text-[10px]">Якщо ця пошта внесена адміністратором до списку адміністрації, вам автоматично надається доступ до Адмін Панелі.</p>
         </div>
 
-        <!-- ФОРМА СТВОРЕННЯ ТИКЕТУ В ЛИЧНОМ КАБИНЕТЕ -->
+        <!-- ФОРМА СТВОРЕННЯ ТИКЕТУ (ТІЛЬКИ ДЛЯ АДМІНІСТРАЦІЇ) -->
         <div class="p-4 bg-slate-950/80 rounded-2xl border border-sky-500/20 space-y-3">
           <h4 class="font-bold text-white text-xs flex items-center gap-2">
-            <i data-lucide="life-buoy" class="w-4 h-4 text-sky-400"></i> Створити обращение / Тикет в підтримку
+            <i data-lucide="life-buoy" class="w-4 h-4 text-sky-400"></i> Створити звернення / Тикет (надійде виключно адміністрації)
           </h4>
           <input type="text" id="user-ticket-topic" placeholder="Тема звернення..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none">
           <textarea id="user-ticket-msg" rows="2" placeholder="Опишіть проблему або питання..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none resize-none"></textarea>
@@ -1066,7 +1066,7 @@
     }
 
     // ==========================================
-    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ, КОРИСТУВАЧІВ ТА САНКЦІЙ
+    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ, КОРИСТУВАЧІВ ТА ТИКЕТІВ
     // ==========================================
     const superAdminEmail = "maksimkopenko123@gmail.com";
     
@@ -1114,7 +1114,7 @@
     }
     localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
 
-    // База зарегистрированных пользователей
+    // Постійна база зареєстрованих користувачів
     let defaultUsers = [
       { id: 1, name: "maksim", email: "maksimkopenko123@gmail.com", phone: "+380670001122", city: "Україна", interest: "Реабілітація та спорт", online: true, lastLogin: "18.10.2026, 15:42" },
       { id: 2, name: "Віктор", email: "viktor@gmail.com", phone: "+380931112233", city: "Одеса", interest: "Інженерія та розробка", online: false, lastLogin: "17.10.2026, 20:15" },
@@ -1139,17 +1139,9 @@
       ]
     };
 
-    function syncAdminsData() {
-      localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
-    }
-
-    function syncUsersData() {
-      localStorage.setItem('okean_registered_users', JSON.stringify(state.registeredUsers));
-    }
-
-    function syncTicketsData() {
-      localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets));
-    }
+    function syncAdminsData() { localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); }
+    function syncUsersData() { localStorage.setItem('okean_registered_users', JSON.stringify(state.registeredUsers)); }
+    function syncTicketsData() { localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); }
 
     // ==========================================
     // 4. ЖИВІ ГОЛОСИ ТА МОВИ
@@ -1238,7 +1230,7 @@
     }
 
     // ==========================================
-    // 5. АВТОРИЗАЦІЯ ТА ОСОБИСТИЙ КАБІНЕТ З АВАТАРКОЮ
+    // 5. АВТОРИЗАЦІЯ ТА КОРИСТУВАЧІ
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || {
@@ -1247,7 +1239,7 @@
       phone: "",
       city: "Україна",
       interest: "Реабілітація та спорт",
-      bio: "Авторизовано через Google-акаунт."
+      bio: "Авторизовано через систему."
     };
 
     window.onload = function () {
@@ -1262,6 +1254,7 @@
         );
       }
       populateRoleSelects();
+      registerUserInDatabase(currentUser);
       syncUserAndAdminState();
     };
 
@@ -1286,12 +1279,13 @@
     }
 
     function registerUserInDatabase(u) {
+      if (!u || !u.email) return;
       state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
       let existing = state.registeredUsers.find(user => user.email.toLowerCase() === u.email.toLowerCase());
       if (!existing) {
         state.registeredUsers.unshift({
           id: Date.now(),
-          name: u.name,
+          name: u.name || "Гість",
           email: u.email,
           phone: u.phone || "Не вказано",
           city: u.city || "Україна",
@@ -1302,6 +1296,7 @@
       } else {
         existing.online = true;
         existing.lastLogin = new Date().toLocaleString('uk-UA');
+        if (u.name) existing.name = u.name;
       }
       syncUsersData();
     }
@@ -1334,15 +1329,8 @@
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const matchedAdmin = state.admins.find(a => a.email.toLowerCase() === email);
 
-      if (!isRegisterMode && matchedAdmin && matchedAdmin.pass && matchedAdmin.pass !== pass) {
-        const errorDiv = document.getElementById('auth-error');
-        errorDiv.textContent = "Невірний пароль для адміністративного акаунта!";
-        errorDiv.classList.remove('hidden');
-        return;
-      }
-
       currentUser = currentUser || { avatar: "" };
-      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "maksim");
+      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "Користувач");
       currentUser.email = email;
       currentUser.pass = pass;
 
@@ -1355,6 +1343,7 @@
 
     function handleUserLogout() {
       if (currentUser) {
+        state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
         let u = state.registeredUsers.find(x => x.email.toLowerCase() === currentUser.email.toLowerCase());
         if (u) { u.online = false; syncUsersData(); }
       }
@@ -1470,11 +1459,13 @@
       alert("Зміни успішно збережено у профілі!");
     }
 
+    // ТИКЕТИ НАДХОДЖУТЬ ВИКЛЮЧНО АДМІНІСТРАЦІЇ
     function submitUserTicket() {
       const topic = document.getElementById('user-ticket-topic').value.trim();
       const msg = document.getElementById('user-ticket-msg').value.trim();
       if (!topic || !msg) { alert("Будь ласка, заповніть тему та повідомлення тикету!"); return; }
 
+      state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || [];
       const newTicket = {
         id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
         date: new Date().toLocaleString('uk-UA'),
@@ -1490,7 +1481,7 @@
 
       document.getElementById('user-ticket-topic').value = '';
       document.getElementById('user-ticket-msg').value = '';
-      alert("Ваш тикет успішно відправлено адміністрації!");
+      alert("Ваш тикет успішно надіслано адміністрації платформи!");
     }
 
     function updateHeaderUserUI() {
@@ -1582,7 +1573,7 @@
       }
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
-      document.getElementById('admin-login-box').classList.remove('hidden');
+      document.getElementById('admin-login-box').classList.add('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
       updateHeaderAuthUI();
       showPage('home');
@@ -1613,6 +1604,7 @@
       if (tabName === 'roles') renderRolesConfigGrid();
       if (tabName === 'admin-cards') renderAdminCardsGrid();
       if (tabName === 'users') renderRegisteredUsersList();
+      if (tabName === 'tickets') filterTickets();
     }
 
     function populateRoleSelects() {
@@ -1944,6 +1936,11 @@
         return matchesQuery && matchesStatus;
       });
 
+      if (filtered.length === 0) {
+        list.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Вхідних тикетів поки немає. Вони з'являться тут відразу після звернення користувачів.</td></tr>`;
+        return;
+      }
+
       list.innerHTML = filtered.map(t => `
         <tr class="hover:bg-slate-800/50 transition-colors">
           <td class="p-4"><span class="font-bold text-white">${t.id}</span><div class="text-[11px] text-slate-400 mt-0.5">${t.date}</div></td>
@@ -1957,11 +1954,12 @@
     }
 
     function toggleTicketStatus(id) {
+      state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || state.tickets;
       const ticket = state.tickets.find(t => t.id === id);
       if (ticket) {
         ticket.status = ticket.status === 'Новий' ? 'В роботі' : (ticket.status === 'В роботі' ? 'Завершено' : 'Новий');
         syncTicketsData();
-        renderAdminDashboard();
+        filterTickets();
       }
     }
 
@@ -2044,18 +2042,19 @@
       const currentMentor = mentors[selectedMentorKey];
 
       setTimeout(() => {
-        let aiReply = `${currentMentor.name}: Дякую за звернення! Запит успішно опрацьовано.`;
+        let aiReply = `${currentMentor.name}: Дякую за звернення! Ваш запит передано адміністрації платформи.`;
         chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
         chatBody.scrollTop = chatBody.scrollHeight;
         speakText(aiReply, currentMentor);
 
+        state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || [];
         state.tickets.unshift({
           id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
-          name: currentUser ? currentUser.name : "Захищений гість",
-          contact: currentUser ? currentUser.email : "Сайт / Бот",
-          category: "Консультація",
-          project: "Загальний",
+          name: currentUser ? currentUser.name : "Гість чату",
+          contact: currentUser ? currentUser.email : "Веб-чат",
+          category: "Чат-запит",
+          project: message,
           status: "Новий"
         });
         syncTicketsData();
