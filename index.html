@@ -856,7 +856,6 @@
   <script>
     lucide.createIcons();
 
-    // Toggle Mobile Navigation Menu
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       menu.classList.toggle('hidden');
@@ -1121,7 +1120,7 @@
     }
 
     // ==========================================
-    // 5. АВТОРИЗАЦІЯ КОРИСТУВАЧІВ ТА СТРОГА ПРИВ'ЯЗКА АДМІНІСТРАТОРІВ
+    // 5. АВТОРИЗАЦІЯ ТА ОСОБИСТИЙ КАБІНЕТ З АВАТАРКОЮ
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
@@ -1152,7 +1151,7 @@
     function handleGoogleSignInResponse(response) {
       const payload = parseJwt(response.credential);
       if (payload) {
-        currentUser = { name: payload.name, email: payload.email, phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
+        currentUser = { name: payload.name, email: payload.email, avatar: payload.picture || "", phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
         closeAuthModal();
         syncUserAndAdminState();
@@ -1185,7 +1184,6 @@
       const pass = document.getElementById('auth-pass').value.trim();
       const name = document.getElementById('auth-name').value.trim();
 
-      // СТРОГА ПРОВЕРКА: Если входит не существующий админ по паролю (когда это форма входа), проверяем
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const matchedAdmin = state.admins.find(a => a.email.toLowerCase() === email);
 
@@ -1196,10 +1194,15 @@
         return;
       }
 
-      currentUser = { name: name || (matchedAdmin ? matchedAdmin.name : "Користувач"), email, pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Учасник платформи." };
+      currentUser = currentUser || { avatar: "" };
+      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "Користувач");
+      currentUser.email = email;
+      currentUser.pass = pass;
+
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
       closeAuthModal();
       syncUserAndAdminState();
+      openProfileModal();
     }
 
     function handleUserLogout() {
@@ -1212,19 +1215,16 @@
       showPage('home');
     }
 
-    // СТРОГАЯ СИНХРОНИЗАЦИЯ: Доступ к админ-панели получают ИСКЛЮЧИТЕЛЬНО те, чей email есть в базе admins_db
     function syncUserAndAdminState() {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       
       if (currentUser) {
         const foundAdmin = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
         if (foundAdmin) {
-          // Почта строго совпала с базой администраторов!
           foundAdmin.online = true;
           state.currentUser = foundAdmin;
           localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
         } else {
-          // Почта НЕ найдена в списке администраторов — убираем админ-права
           state.currentUser = null;
           localStorage.removeItem('okean_current_admin');
         }
@@ -1237,11 +1237,42 @@
       updateHeaderUserUI();
     }
 
+    function handleAvatarUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(uploadEvent) {
+        currentUser = currentUser || {};
+        currentUser.avatar = uploadEvent.target.result;
+        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+        updateProfileAvatarDisplay();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateProfileAvatarDisplay() {
+      const avatarImg = document.getElementById('profile-avatar-img');
+      const avatarLetters = document.getElementById('profile-avatar-letters');
+      if (currentUser && currentUser.avatar) {
+        avatarImg.src = currentUser.avatar;
+        avatarImg.classList.remove('hidden');
+        avatarLetters.classList.add('hidden');
+      } else {
+        avatarImg.classList.add('hidden');
+        avatarLetters.classList.remove('hidden');
+        if (currentUser && currentUser.name) {
+          avatarLetters.textContent = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        }
+      }
+    }
+
     function openProfileModal() {
       if (!currentUser) { openAuthModal(); return; }
       document.getElementById('profile-display-name').textContent = currentUser.name;
       document.getElementById('profile-display-email').textContent = currentUser.email;
-      document.getElementById('profile-avatar-letters').textContent = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'ОД';
+      
+      updateProfileAvatarDisplay();
+
       document.getElementById('prof-name').value = currentUser.name || '';
       document.getElementById('prof-phone').value = currentUser.phone || '';
       document.getElementById('prof-city').value = currentUser.city || '';
@@ -1249,9 +1280,9 @@
 
       const adminTag = document.getElementById('profile-admin-access-tag');
       if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
-        adminTag.outerHTML = `<div id="profile-admin-access-tag" class="mt-1">${getRoleBadgeHTML(state.currentUser.role)}</div>`;
+        adminTag.innerHTML = getRoleBadgeHTML(state.currentUser.role);
       } else {
-        adminTag.outerHTML = `<span id="profile-admin-access-tag" class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач (Немає прав адміна)</span>`;
+        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач (Немає прав адміна)</span>`;
       }
 
       document.getElementById('profile-modal').classList.remove('hidden');
@@ -1274,6 +1305,7 @@
 
       updateHeaderUserUI();
       closeProfileModal();
+      alert("Зміни успішно збережено у профілі!");
     }
 
     function updateHeaderUserUI() {
@@ -1299,12 +1331,10 @@
       if (pageId === 'admin') {
         document.getElementById('page-admin').classList.remove('hidden');
         
-        // СТРОГАЯ ПРОВЕРКА ДОСТУПА К ПАНЕЛИ
         if (!state.currentUser) {
           document.getElementById('admin-login-box').classList.remove('hidden');
           document.getElementById('admin-dashboard').classList.add('hidden');
         } else {
-          // Проверяем, действительно ли текущий залогиненный емейл есть в базе администраторов
           const verifiedAdmin = state.admins.find(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
           if (verifiedAdmin) {
             document.getElementById('admin-login-box').classList.add('hidden');
@@ -1340,8 +1370,10 @@
         state.currentUser = foundAdmin;
         localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
         
-        // Автоматически синхронизируем и как обычного юзера
-        currentUser = { name: foundAdmin.name, email: foundAdmin.email, pass: foundAdmin.pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Адміністратор платформи." };
+        currentUser = currentUser || { avatar: "" };
+        currentUser.name = foundAdmin.name;
+        currentUser.email = foundAdmin.email;
+        currentUser.pass = foundAdmin.pass;
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
         
         syncAdminsData();
@@ -1422,7 +1454,7 @@
       document.getElementById('new-admin-email').value = '';
       document.getElementById('new-admin-pass').value = '';
 
-      alert(`Пошту ${email} успішно зареєстровано в системі адміністрації! Тепер користувач може увійти під нею у свій кабінет і отримати доступ до адмін-панелі.`);
+      alert(`Пошту ${email} успішно зареєстровано в системі адміністрації!`);
       renderAdminDashboard();
     }
 
@@ -1442,13 +1474,12 @@
       const admin = state.admins.find(a => a.id === adminId);
       if (admin) {
         if (!admin.history) admin.history = [];
-        const sanctionEntry = {
+        admin.history.unshift({
           date: new Date().toLocaleString('uk-UA'),
           type: sancType,
           reason: reason,
-          author: state.currentUser ? state.currentUser.name : "Головна Адміністрація"
-        };
-        admin.history.unshift(sanctionEntry);
+          author: state.currentUser ? state.currentUser.name : "Адміністрація"
+        });
         syncAdminsData();
         closeSanctionModal();
         renderAdminDashboard();
@@ -1777,7 +1808,6 @@
     function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
     function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
 
-    // ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
     renderBanner();
     syncUserAndAdminState();
     renderCatalog();
