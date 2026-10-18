@@ -68,14 +68,19 @@
       </nav>
 
       <div class="flex items-center gap-3">
+        <button id="nav-profile-btn" onclick="openProfileModal()" class="hidden items-center gap-2 px-3.5 py-2 text-xs font-bold text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
+          <i data-lucide="user-check" class="w-4 h-4 text-sky-400"></i>
+          <span id="nav-profile-name">Кабінет</span>
+        </button>
+
         <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Адмін Панель</span>
         </button>
 
-        <button id="nav-login-btn" onclick="showPage('admin')" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
+        <button id="nav-login-btn" onclick="openAuthModal()" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="user" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>Вхід</span>
+          <span>Вхід / Реєстрація</span>
         </button>
       </div>
     </div>
@@ -230,7 +235,7 @@
               <i data-lucide="shield-alert" class="w-7 h-7"></i>
             </div>
             <h2 class="text-2xl font-bold text-white tracking-tight">Вхід в Адмін-Панель</h2>
-            <p class="text-xs text-slate-400 mt-1">Доступ лише для уповноважених кураторів та Супер Адміна</p>
+            <p class="text-xs text-slate-400 mt-1">Доступ лише для уповноважених співробітників та Супер Адміна</p>
           </div>
 
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
@@ -243,7 +248,7 @@
               <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
             </div>
             <div id="admin-login-error" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
-              Помилка авторизації! Невірний логін або пароль.
+              Доступ заборонено! Ви не є адміністратором або ваші права було знято.
             </div>
             <button type="submit" class="w-full py-3.5 bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-sky-400/20">
               Увійти до панелі
@@ -370,6 +375,116 @@
     </div>
 
   </main>
+
+  <!-- МОДАЛЬНЕ ОКНО РЕЄСТРАЦІЇ ТА ВХОДУ В ОСОБИСТИЙ КАБІНЕТ -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
+      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
+          <i data-lucide="user-plus" class="w-7 h-7"></i>
+        </div>
+        <h2 id="auth-title" class="text-2xl font-bold text-white tracking-tight">Реєстрація в кабінеті</h2>
+        <p class="text-xs text-slate-400 mt-1">Збережіть свої дані та налаштування на платформі</p>
+      </div>
+
+      <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div id="name-field-box">
+          <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Ваше ім'я</label>
+          <input type="text" id="auth-name" placeholder="Андрій Романов" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email (пошта)</label>
+          <input type="email" id="auth-email" required placeholder="user@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
+          <input type="password" id="auth-pass" required placeholder="••••••••" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+        <div id="auth-error" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20"></div>
+
+        <button type="submit" id="auth-submit-btn" class="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-lg">
+          Зареєструватися
+        </button>
+      </form>
+
+      <div class="mt-5 text-center text-xs text-slate-400">
+        <span id="auth-switch-text">Вже є акаунт?</span>
+        <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-sky-400 font-bold ml-1 hover:underline">Увійти</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНЕ ОКНО ОСОБИСТОГО КАБІНЕТУ З ІНФОРМАЦІЄЮ ПРО СЕБЕ -->
+  <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-xl p-8 rounded-3xl shadow-2xl relative my-8">
+      <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-800">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-sky-500 to-emerald-400 text-slate-950 text-2xl font-black flex items-center justify-center shadow-lg" id="profile-avatar-letters">
+          АР
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white" id="profile-display-name">Андрій Романов</h2>
+          <p class="text-xs text-sky-400" id="profile-display-email">andreyromanov245@gmail.com</p>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний кадет / Користувач</span>
+        </div>
+      </div>
+
+      <form onsubmit="saveUserProfile(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-300 uppercase mb-1">Повне ім'я</label>
+            <input type="text" id="prof-name" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 uppercase mb-1">Телефон / Контакт</label>
+            <input type="text" id="prof-phone" placeholder="+380..." class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-bold text-slate-300 uppercase mb-1">Місто / Регіон</label>
+            <input type="text" id="prof-city" placeholder="Одеса / Вознесенськ" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-300 uppercase mb-1">Напрямок / Інтереси</label>
+            <select id="prof-interest" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white font-semibold focus:outline-none">
+              <option value="Реабілітація та спорт">Реабілітація та спорт</option>
+              <option value="Інженерія та розробка">Інженерія та розробка</option>
+              <option value="Волонтерство">Волонтерство</option>
+              <option value="Морські ініціативи">Морські ініціативи</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 uppercase mb-1">Про себе / Біографія (Ваші цілі та проєкти)</label>
+          <textarea id="prof-bio" rows="3" placeholder="Розкажіть трохи про себе..." class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none resize-none"></textarea>
+        </div>
+
+        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+          <span class="font-bold text-slate-400 uppercase text-[10px]">Статус збереження:</span>
+          <p class="text-slate-300 text-[11px]">Усі зміни миттєво записуються у пам'ять браузера (localStorage) та залишаються незмінними після оновлення сторінки чи виходу.</p>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="submit" class="flex-grow py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg">
+            Зберегти зміни в кабінеті
+          </button>
+          <button type="button" onclick="handleUserLogout()" class="px-4 py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold rounded-xl transition-colors">
+            Вийти з акаунта
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- ПОЛНОЭКРАННЫЙ ВЫБОР ЖИВОГО ГОЛОСА И ЯЗЫКА СУПРОВІДНИКА -->
   <div id="mentor-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-6 sm:p-10 overflow-y-auto">
@@ -688,7 +803,7 @@
     animateBg();
 
     // ==========================================
-    // 2. ЖИВІ ГОЛОСИ ТА МОВИ СУПРОВІДНИКІВ (UKR / RUS / ENG)
+    // 2. ЖИВІ ГОЛОСИ ТА МОВИ СУПРОВІДНИКІВ
     // ==========================================
     let currentLang = localStorage.getItem('okean_lang') || 'uk';
 
@@ -696,11 +811,11 @@
       lada: {
         name: "Берегиня",
         emoji: "👵",
-        pitch: 1.25, rate: 0.95,
+        pitch: 1.15, rate: 0.96,
         greetings: {
-          uk: "Вітаю! Ласкаво просимо.",
-          ru: "Приветствую! Добро пожаловать.",
-          en: "Welcome! Glad to have you here."
+          uk: "Вітаю! Ласкаво просимо до нашої платформи.",
+          ru: "Приветствую! Добро пожаловать на нашу платформу.",
+          en: "Welcome! Glad to have you on our platform."
         },
         descs: {
           uk: "Лагідна берегиня, світла душевна підтримка та тепло серця",
@@ -711,11 +826,11 @@
       olga: {
         name: "Дівчинка",
         emoji: "👧",
-        pitch: 1.4, rate: 1.05,
+        pitch: 1.35, rate: 1.02,
         greetings: {
-          uk: "Вітаю, друже! Ти у потоці Океану Дружніх.",
-          ru: "Привет, друг! Ты в потоке Океана Дружелюбных.",
-          en: "Hello, my friend! You are in the flow of the Ocean of Friendly."
+          uk: "Вітаю, друже! Ти у чудовому потоці Океану Дружніх.",
+          ru: "Привет, друг! Ты в прекрасном потоке Океана Дружелюбных.",
+          en: "Hello, my friend! You are in the wonderful flow of the Ocean of Friendly."
         },
         descs: {
           uk: "Щира дівчинка, радість, дружба та світлий оптимізм",
@@ -726,11 +841,11 @@
       kozak: {
         name: "Козак",
         emoji: "👨‍🦱",
-        pitch: 0.75, rate: 1.08,
+        pitch: 0.8, rate: 1.05,
         greetings: {
-          uk: "Будь як вдома, побратиме!",
-          ru: "Будь как дома, братишка!",
-          en: "Make yourself at home, my friend!"
+          uk: "Будь як вдома, побратиме! Раді вітати тебе.",
+          ru: "Будь как дома, братишка! Рады приветствовать тебя.",
+          en: "Make yourself at home, my friend! Glad to welcome you."
         },
         descs: {
           uk: "Енергійний козацький дух, підтримка побратимів",
@@ -741,15 +856,15 @@
       starets: {
         name: "Мудрець",
         emoji: "🧙‍♂️",
-        pitch: 0.55, rate: 0.85,
+        pitch: 0.65, rate: 0.90,
         greetings: {
-          uk: "Нехай мудрість веде тебе.",
-          ru: "Пусть мудрость ведет тебя.",
-          en: "May wisdom guide your way."
+          uk: "Нехай життєва мудрість та спокій ведуть тебе вперед.",
+          ru: "Пусть житейская мудрость и покой ведут тебя вперед.",
+          en: "May life's wisdom and peace guide your way forward."
         },
         descs: {
           uk: "Спокій, вікова мудрість предків та глибока виваженість",
-          ru: "Покой, вековая мудрость предков и глубокая спокойствие",
+          ru: "Покой, вековая мудрость предков и глубокая выверенность",
           en: "Peace, ancient wisdom, and deep calm guidance"
         }
       }
@@ -847,7 +962,155 @@
     }
 
     // ==========================================
-    // 3. ГОЛОСОВИЙ ВВІД (SPEECH RECOGNITION)
+    // 3. АВТОРИЗАЦІЯ, РЕЄСТРАЦІЯ ТА КАБІНЕТ (ПОШТА + ЗБЕРЕЖЕННЯ)
+    // ==========================================
+    let isRegisterMode = true;
+    let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
+
+    function openAuthModal() {
+      isRegisterMode = true;
+      updateAuthModalUI();
+      document.getElementById('auth-modal').classList.remove('hidden');
+    }
+    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+
+    function toggleAuthMode() {
+      isRegisterMode = !isRegisterMode;
+      updateAuthModalUI();
+    }
+
+    function updateAuthModalUI() {
+      const title = document.getElementById('auth-title');
+      const nameBox = document.getElementById('name-field-box');
+      const submitBtn = document.getElementById('auth-submit-btn');
+      const switchText = document.getElementById('auth-switch-text');
+      const switchBtn = document.getElementById('auth-switch-btn');
+      document.getElementById('auth-error').classList.add('hidden');
+
+      if (isRegisterMode) {
+        title.textContent = "Реєстрація в кабінеті";
+        nameBox.style.display = "block";
+        document.getElementById('auth-name').required = true;
+        submitBtn.textContent = "Зареєструватися";
+        switchText.textContent = "Вже є акаунт?";
+        switchBtn.textContent = "Увійти";
+      } else {
+        title.textContent = "Вхід до кабінету";
+        nameBox.style.display = "none";
+        document.getElementById('auth-name').required = false;
+        submitBtn.textContent = "Увійти до акаунта";
+        switchText.textContent = "Ще немає акаунта?";
+        switchBtn.textContent = "Зареєструватися";
+      }
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const pass = document.getElementById('auth-pass').value.trim();
+      const nameInput = document.getElementById('auth-name').value.trim();
+      const errorDiv = document.getElementById('auth-error');
+
+      let registeredUsers = JSON.parse(localStorage.getItem('okean_users_db')) || [];
+
+      if (isRegisterMode) {
+        if (registeredUsers.some(u => u.email === email)) {
+          errorDiv.textContent = "Користувач з такою поштою вже зареєстрований!";
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+        const newUser = {
+          name: nameInput || "Користувач",
+          email: email,
+          pass: pass,
+          phone: "",
+          city: "",
+          interest: "Реабілітація та спорт",
+          bio: "Привіт! Я новий учасник платформи Океан Дружніх."
+        };
+        registeredUsers.push(newUser);
+        localStorage.setItem('okean_users_db', JSON.stringify(registeredUsers));
+        currentUser = newUser;
+      } else {
+        const found = registeredUsers.find(u => u.email === email && u.pass === pass);
+        if (!found) {
+          errorDiv.textContent = "Невірний email або пароль!";
+          errorDiv.classList.remove('hidden');
+          return;
+        }
+        currentUser = found;
+      }
+
+      localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+      closeAuthModal();
+      updateHeaderUserUI();
+      alert(`Успішний вхід! Вітаємо, ${currentUser.name}.`);
+    }
+
+    function handleUserLogout() {
+      currentUser = null;
+      localStorage.removeItem('okean_logged_user');
+      closeProfileModal();
+      updateHeaderUserUI();
+      alert("Ви вийшли з особистого кабінету.");
+    }
+
+    function openProfileModal() {
+      if (!currentUser) {
+        openAuthModal();
+        return;
+      }
+      document.getElementById('profile-display-name').textContent = currentUser.name;
+      document.getElementById('profile-display-email').textContent = currentUser.email;
+      document.getElementById('profile-avatar-letters').textContent = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'ОД';
+
+      document.getElementById('prof-name').value = currentUser.name || '';
+      document.getElementById('prof-phone').value = currentUser.phone || '';
+      document.getElementById('prof-city').value = currentUser.city || '';
+      document.getElementById('prof-interest').value = currentUser.interest || 'Реабілітація та спорт';
+      document.getElementById('prof-bio').value = currentUser.bio || '';
+
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+    function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+    function saveUserProfile(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+
+      currentUser.name = document.getElementById('prof-name').value.trim();
+      currentUser.phone = document.getElementById('prof-phone').value.trim();
+      currentUser.city = document.getElementById('prof-city').value.trim();
+      currentUser.interest = document.getElementById('prof-interest').value;
+      currentUser.bio = document.getElementById('prof-bio').value.trim();
+
+      localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+
+      let registeredUsers = JSON.parse(localStorage.getItem('okean_users_db')) || [];
+      registeredUsers = registeredUsers.map(u => u.email === currentUser.email ? currentUser : u);
+      localStorage.setItem('okean_users_db', JSON.stringify(registeredUsers));
+
+      updateHeaderUserUI();
+      closeProfileModal();
+      alert("Дані особистого кабінету успішно збережено у пам'яті!");
+    }
+
+    function updateHeaderUserUI() {
+      const profileBtn = document.getElementById('nav-profile-btn');
+      const loginBtn = document.getElementById('nav-login-btn');
+      if (currentUser) {
+        profileBtn.classList.remove('hidden');
+        profileBtn.classList.add('flex');
+        document.getElementById('nav-profile-name').textContent = currentUser.name.split(' ')[0];
+        loginBtn.classList.add('hidden');
+      } else {
+        profileBtn.classList.add('hidden');
+        loginBtn.classList.remove('hidden');
+      }
+    }
+
+    // ==========================================
+    // 4. ГОЛОСОВИЙ ВВІД (SPEECH RECOGNITION)
     // ==========================================
     let isListening = false;
     function toggleVoiceInput() {
@@ -889,13 +1152,13 @@
     }
 
     // ==========================================
-    // 4. TELEGRAM MODAL
+    // 5. TELEGRAM MODAL
     // ==========================================
     function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
     function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
 
     // ==========================================
-    // 5. СЛАЙДЕР І КАТАЛОГ
+    // 6. СЛАЙДЕР І КАТАЛОГ
     // ==========================================
     const banners = [
       {
@@ -943,7 +1206,7 @@
     setInterval(nextSlide, 5000);
 
     // ==========================================
-    // 6. АДМІН-ПАНЕЛЬ
+    > 7. АДМІН-ПАНЕЛЬ ТА ЗАХИСТ ПРАВ АДМІНІВ
     // ==========================================
     let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || [];
     const superAdminEmail = "andreyromanov245@gmail.com";
@@ -967,6 +1230,20 @@
       ]
     };
 
+    // Перевірка при завантаженні: если залогиненный админ был удален из базы админов — выкидываем его!
+    function validateAdminSession() {
+      if (state.currentUser) {
+        state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
+        const stillAdmin = state.admins.find(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
+        if (!stillAdmin) {
+          state.currentUser = null;
+          localStorage.removeItem('okean_current_admin');
+          alert("Увага! Ваші права адміністратора було знято власником системи. Доступ до адмін-панелі заблоковано.");
+        }
+      }
+    }
+    validateAdminSession();
+
     function renderCatalog() {
       const container = document.getElementById('catalog-grid');
       container.innerHTML = state.organizations.map(org => `
@@ -988,6 +1265,7 @@
     }
 
     function showPage(pageId) {
+      validateAdminSession();
       document.getElementById('page-home').classList.add('hidden');
       document.getElementById('page-admin').classList.add('hidden');
 
@@ -1036,7 +1314,7 @@
     function handleAdminLogout() {
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
-      document.getElementById('admin-login-box').classList.remove('hidden');
+      document.getElementById('admin-login-box').classList.add('hidden');
       document.getElementById('admin-dashboard').classList.add('hidden');
       updateHeaderAuthUI();
       showPage('home');
@@ -1044,14 +1322,11 @@
 
     function updateHeaderAuthUI() {
       const adminBtn = document.getElementById('nav-admin-btn');
-      const loginBtn = document.getElementById('nav-login-btn');
       if (state.currentUser) {
         adminBtn.classList.remove('hidden');
         adminBtn.classList.add('flex');
-        loginBtn.classList.add('hidden');
       } else {
         adminBtn.classList.add('hidden');
-        loginBtn.classList.remove('hidden');
       }
     }
 
@@ -1122,9 +1397,18 @@
         alert("Неможливо забрати права у головного власника (Андрій Романов)!");
         return;
       }
-      if (confirm(`Ви дійсно хочете забрати права адміністратора у "${admin ? admin.name : ''}"?`)) {
+      if (confirm(`Ви дійсно хочете забрати права адміністратора у "${admin ? admin.name : ''}"? Ця дія повністю заблокує йому доступ до адмін-панелі.`)) {
         state.admins = state.admins.filter(a => a.id !== id);
         localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+
+        // Если удаленный админ сейчас сидит в системе — выбиваем его сразу
+        if (state.currentUser && state.currentUser.email.toLowerCase() === admin.email.toLowerCase()) {
+          state.currentUser = null;
+          localStorage.removeItem('okean_current_admin');
+          showPage('home');
+          updateHeaderAuthUI();
+        }
+
         renderAdminAdminsList();
       }
     }
@@ -1201,7 +1485,7 @@
     }
 
     // ==========================================
-    // 7. ЧАТ З ОЗВУЧКОЮ
+    // 8. ЧАТ З ОЗВУЧКОЮ
     // ==========================================
     function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
     function openChatWithPrompt(text) {
@@ -1253,8 +1537,8 @@
         state.tickets.unshift({
           id: `ТК-108${state.tickets.length + 1}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
-          name: "Запит через ШІ",
-          contact: "Сайт / Бот",
+          name: currentUser ? currentUser.name : "Захищений гість",
+          contact: currentUser ? currentUser.email : "Сайт / Бот",
           category: "Консультація",
           project: "Загальний",
           status: "Новий"
@@ -1266,6 +1550,7 @@
     // Ініціалізація при завантаженні
     renderBanner();
     updateHeaderAuthUI();
+    updateHeaderUserUI();
     renderCatalog();
     setMentorLanguage(currentLang);
 
