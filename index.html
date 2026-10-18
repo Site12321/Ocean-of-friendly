@@ -7,7 +7,7 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Подключаем официальную библиотеку Google Sign-In -->
+  <!-- Google Sign-In API -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,7 +77,7 @@
         </button>
 
         <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
-          <i data-lucide="lock" class="w-3.5 h-3.5 text-sky-400"></i>
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-sky-400"></i>
           <span>Адмін Панель</span>
         </button>
 
@@ -93,7 +93,6 @@
 
     <!-- HOME PAGE -->
     <div id="page-home">
-      
       <!-- ПОЛОСА АКТИВНОГО СУПРОВІДНИКА -->
       <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div id="mentor-active-banner" class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur-md">
@@ -167,7 +166,7 @@
                   <i data-lucide="send" class="w-6 h-6"></i>
                 </div>
                 <h3 class="font-bold text-white text-lg">Telegram Бот</h3>
-                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Миттєве перенаправлення, бот підтримки та сповіщення[cite: 5]</p>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Миттєве перенаправлення, бот підтримки та сповіщення</p>
               </div>
               <span class="mt-6 text-xs font-bold text-amber-400 flex items-center gap-1">Перейти в бот <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
@@ -227,31 +226,31 @@
       </section>
     </div>
 
-    <!-- ADMIN PANEL -->
+    <!-- ADMIN PANEL PAGE -->
     <div id="page-admin" class="hidden min-h-[80vh] py-10 bg-slate-950/90">
-      <div class="max-w-6xl mx-auto px-4">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <!-- ВХІД В АДМІНКУ -->
+        <!-- LOGIN BOX -->
         <div id="admin-login-box" class="max-w-md mx-auto bg-[#0b1633] border border-blue-900/50 p-8 rounded-3xl shadow-2xl relative">
           <div class="text-center mb-6">
             <div class="w-14 h-14 bg-sky-500/10 border border-sky-500/30 text-sky-400 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
               <i data-lucide="shield-alert" class="w-7 h-7"></i>
             </div>
             <h2 class="text-2xl font-bold text-white tracking-tight">Вхід в Адмін-Панель</h2>
-            <p class="text-xs text-slate-400 mt-1">Доступ лише для уповноважених співробітників та Супер Адміна</p>
+            <p class="text-xs text-slate-400 mt-1">Доступ лише для уповноважених співробітників</p>
           </div>
 
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email / Логін</label>
-              <input type="text" id="admin-username" required placeholder="Введіть ваш email" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
+              <input type="text" id="admin-username" required placeholder="andreyromanov245@gmail.com" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
               <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
             </div>
             <div id="admin-login-error" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
-              Доступ заборонено! Ви не є адміністратором або ваші права було знято.
+              Доступ заборонено! Перевірте правильність логіна або пароля.
             </div>
             <button type="submit" class="w-full py-3.5 bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-sky-400/20">
               Увійти до панелі
@@ -263,8 +262,10 @@
           </div>
         </div>
 
-        <!-- ДЕШБОРД СИСТЕМИ -->
+        <!-- DASHBOARD CONTAINER -->
         <div id="admin-dashboard" class="hidden space-y-6">
+          
+          <!-- TOP HEADER BAR -->
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-cyan-400 flex items-center justify-center font-bold text-slate-950 text-lg shadow-md">
@@ -272,39 +273,109 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h2 class="text-xl font-bold text-white">Океан Дружніх</h2>
-                  <span id="admin-role-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/40">Admin</span>
+                  <h2 id="admin-welcome-name" class="text-xl font-bold text-white">Андрій Романов</h2>
+                  <span id="admin-role-badge" class="px-3 py-1 rounded-full text-xs font-black shadow-md border">Super Admin</span>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">Керування платформою, посадами та санкціями</p>
+                <p class="text-xs text-slate-400 mt-0.5">Керування складом адміністрації, посадами, санкціями та тикетами</p>
               </div>
             </div>
-            <button onclick="handleAdminLogout()" class="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-2">
-              <i data-lucide="log-out" class="w-4 h-4"></i> Вийти
+            <div class="flex items-center gap-2">
+              <button onclick="openAddSanctionModal()" class="px-4 py-2 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/40 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i> Видати догану / попер.
+              </button>
+              <button onclick="handleAdminLogout()" class="px-4 py-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Вийти
+              </button>
+            </div>
+          </div>
+
+          <!-- TABS -->
+          <div class="flex gap-2 border-b border-slate-800 pb-2">
+            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-5 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4"></i> Список адміністраторів
+            </button>
+            <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="inbox" class="w-4 h-4"></i> Вхідні тикети
+            </button>
+            <button onclick="switchAdminTab('roles')" id="tab-btn-roles" class="px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="palette" class="w-4 h-4"></i> Налаштування посад & кольорів
             </button>
           </div>
 
-          <div class="flex gap-2 border-b border-slate-800 pb-2">
-            <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all">Вхідні тикети</button>
-            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all">Керування адмінами (Посади & Санкції)</button>
-          </div>
-
-          <!-- ВКЛАДКА ТИКЕТІВ -->
-          <div id="admin-tab-tickets" class="space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Всього тикетів</span>
-                <div id="stat-total" class="text-3xl font-black text-white mt-2">2</div>
+          <!-- TAB 1: АДМІНІСТРАТОРИ (СПИСОК ТА КАРТКИ) -->
+          <div id="admin-tab-admins" class="space-y-6">
+            
+            <!-- STATS -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Всього адмінів</span>
+                <div id="stat-admins-total" class="text-2xl sm:text-3xl font-black text-white mt-1">1</div>
               </div>
-              <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-                <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider">Нові / В очікуванні</span>
-                <div id="stat-new" class="text-3xl font-black text-amber-400 mt-2">1</div>
+              <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">З попередженнями</span>
+                <div id="stat-admins-warns" class="text-2xl sm:text-3xl font-black text-amber-400 mt-1">0</div>
               </div>
-              <div class="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-lg">
-                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Оброблені</span>
-                <div id="stat-in-progress" class="text-3xl font-black text-emerald-400 mt-2">1</div>
+              <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-semibold text-rose-400 uppercase tracking-wider">З доганами</span>
+                <div id="stat-admins-bans" class="text-2xl sm:text-3xl font-black text-rose-400 mt-1">0</div>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
+                <span class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">В мережі (Онлайн)</span>
+                <div id="stat-admins-online" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1">1</div>
               </div>
             </div>
 
+            <!-- FORM: ДОДАТИ АДМІНА -->
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
+              <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4 text-sky-400"></i> Створити нового адміністратора та призначити посаду
+              </h3>
+              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <input type="text" id="new-admin-name" required placeholder="ПІБ / Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <input type="email" id="new-admin-email" required placeholder="Email (Логін)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <input type="password" id="new-admin-pass" required placeholder="Пароль доступу" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                
+                <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+                  <!-- Буде заповнено скриптом зі списку посад -->
+                </select>
+
+                <div class="sm:col-span-2 flex items-center gap-2">
+                  <button type="submit" class="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
+                    Призначити посаду та створити
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- КАРТКИ І ТАБЛИЦЯ АДМІНІВ -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                  <i data-lucide="shield" class="w-4 h-4 text-sky-400"></i> Активний склад адміністрації
+                </h3>
+                <input type="text" id="admin-search" oninput="renderAdminAdminsList()" placeholder="Пошук за ім'ям чи посадою..." class="w-full sm:w-72 px-4 py-2 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
+                      <th class="p-3">Адміністратор</th>
+                      <th class="p-3">Посада</th>
+                      <th class="p-3">Активні санкції</th>
+                      <th class="p-3 text-center">Права</th>
+                      <th class="p-3 text-right">Дії / Керування</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-team-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB 2: ТИКЕТИ -->
+          <div id="admin-tab-tickets" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
               <div class="p-5 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <input type="text" id="ticket-search" oninput="filterTickets()" placeholder="Пошук за ім'ям, контактом..." class="w-full sm:w-80 px-4 py-2.5 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
@@ -332,43 +403,13 @@
             </div>
           </div>
 
-          <!-- ВКЛАДКА УПРАВЛІННЯ АДМІНАМИ -->
-          <div id="admin-tab-admins" class="hidden space-y-6">
+          <!-- TAB 3: НАЛАШТУВАННЯ ПОСАД І КОЛЬОРІВ -->
+          <div id="admin-tab-roles" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
-              <h3 class="text-sm font-bold text-white mb-4">Видати посаду та створити адміністратора</h3>
-              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input type="text" id="new-admin-name" required placeholder="Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
-                <input type="email" id="new-admin-email" required placeholder="Email (логін)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
-                <input type="password" id="new-admin-pass" required placeholder="Пароль" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none">
-                
-                <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none">
-                  <option value="Super Admin">Super Admin (Повний доступ)</option>
-                  <option value="Адміністратор">Адміністратор</option>
-                  <option value="Куратор проєктів">Куратор проєктів</option>
-                  <option value="Волонтер-координатор">Волонтер-координатор</option>
-                </select>
-
-                <button type="submit" class="sm:col-span-2 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
-                  Створити адміністратора
-                </button>
-              </form>
-            </div>
-
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
-              <h3 class="text-sm font-bold text-white mb-4">Список співробітників (Керування посадами, доганами та зняття санкцій)</h3>
-              <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
-                      <th class="p-3">Ім'я / Email</th>
-                      <th class="p-3">Посада</th>
-                      <th class="p-3">Санкції (Догани / Попередження)</th>
-                      <th class="p-3 text-right">Керування (Дії)</th>
-                    </tr>
-                  </thead>
-                  <tbody id="admin-team-list" class="divide-y divide-slate-800"></tbody>
-                </table>
-              </div>
+              <h3 class="text-sm font-bold text-white mb-2">Налаштування стилів та кольорів посад</h3>
+              <p class="text-xs text-slate-400 mb-6">Кожна посада має власний унікальний колір та стиль відображення, який динамічно змінюється по всьому сайту.</p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="roles-config-grid"></div>
             </div>
           </div>
 
@@ -378,6 +419,84 @@
     </div>
 
   </main>
+
+  <!-- МОДАЛЬНЕ ОКНО: ВИДАЧА ДОГАНИ ТА ПОПЕРЕДЖЕННЯ -->
+  <div id="sanction-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-amber-500/40 w-full max-w-lg p-7 rounded-3xl shadow-2xl relative">
+      <button onclick="closeSanctionModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-12 h-12 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-2xl flex items-center justify-center text-xl">
+          ⚠️
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">Видати дисциплінарне стягнення</h3>
+          <p class="text-xs text-slate-400">Фіксація дати, часу та причини санкції</p>
+        </div>
+      </div>
+
+      <form onsubmit="handleApplySanction(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-300 uppercase mb-1">Оберіть адміністратора</label>
+          <select id="sanc-admin-id" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 uppercase mb-1">Тип санкції</label>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2 p-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer">
+              <input type="radio" name="sanc-type" value="warn" checked class="text-amber-500">
+              <span class="font-bold text-amber-400">Попередження</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer">
+              <input type="radio" name="sanc-type" value="ban" class="text-rose-500">
+              <span class="font-bold text-rose-400">Офіційна Догана</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-300 uppercase mb-1">Причина видачі</label>
+          <textarea id="sanc-reason" required rows="3" placeholder="Зазначте деталі порушення (напр., невиконання обов'язків, порушення субординації...)" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="submit" class="flex-grow py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl uppercase tracking-wider text-xs transition-all shadow-lg">
+            Зафіксувати санкцію в системі
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНЕ ОКНО: ПЕРЕГЛЯД ІСТОРІЇ АДМІНІСТРАТОРА -->
+  <div id="admin-history-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-sky-500/30 w-full max-w-2xl p-7 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeAdminHistoryModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-800">
+        <div id="hist-avatar" class="w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-xl">
+          АР
+        </div>
+        <div>
+          <h3 id="hist-name" class="text-xl font-bold text-white">Андрій Романов</h3>
+          <p id="hist-email" class="text-xs text-sky-400">andreyromanov245@gmail.com</p>
+          <div id="hist-role-badge" class="mt-1"></div>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Історія та журнал дисциплінарних зауважень:</h4>
+        <div id="hist-logs-list" class="space-y-2 text-xs"></div>
+      </div>
+    </div>
+  </div>
 
   <!-- МОДАЛЬНЕ ОКНО РЕЄСТРАЦІЇ ТА ВХОДУ В ОСОБИСТИЙ КАБІНЕТ -->
   <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
@@ -394,7 +513,7 @@
         <p class="text-xs text-slate-400 mt-1">Оберіть швидкий вхід через Google або стандартну форму</p>
       </div>
 
-      <!-- КНОПКА GOOGLE SIGN-IN -->
+      <!-- GOOGLE SIGN-IN BUTTON CONTAINER -->
       <div class="mb-6 flex justify-center">
         <div id="google-signin-btn-container"></div>
       </div>
@@ -692,7 +811,7 @@
 
       <div class="px-3 py-2 bg-[#060c1b] border-t border-blue-900/40 flex gap-2 overflow-x-auto no-scrollbar text-[11px]">
         <button onclick="sendQuickChip('Потрібна реабілітація')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Потрібна реабілітація</button>
-        <button onclick="sendQuickChip('Перейти в Телеграм бот')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот[cite: 5]</button>
+        <button onclick="sendQuickChip('Перейти в Телеграм бот')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот</button>
       </div>
 
       <form onsubmit="handleSendMessage(event)" class="p-3 bg-[#060b18] border-t border-blue-900/60 flex items-center gap-2">
@@ -718,7 +837,7 @@
     lucide.createIcons();
 
     // ==========================================
-    // 1. АНІМАЦІЯ ФОНУ (МОРЕ -> КОСМОС -> МОРЕ)
+    // 1. АНІМАЦІЯ ФОНУ (КАНВАС)
     // ==========================================
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
@@ -817,70 +936,103 @@
     animateBg();
 
     // ==========================================
-    // 2. ЖИВІ ГОЛОСИ ТА МОВИ СУПРОВІДНИКІВ
+    // 2. ДИНАМІЧНІ ПОСАДИ ТА СТИЛІ КОЛЬОРІВ
+    // ==========================================
+    const defaultRolesConfig = {
+      "Super Admin": { name: "Super Admin", bg: "bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/40", badgeStyle: "background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4);" },
+      "Головний Адміністратор": { name: "Головний Адміністратор", bg: "bg-purple-500/20", text: "text-purple-300", border: "border-purple-500/40", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
+      "Адміністратор": { name: "Адміністратор", bg: "bg-sky-500/20", text: "text-sky-300", border: "border-sky-500/40", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
+      "Куратор проєктів": { name: "Куратор проєктів", bg: "bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/40", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" },
+      "Волонтер-координатор": { name: "Волонтер-координатор", bg: "bg-teal-500/20", text: "text-teal-300", border: "border-teal-500/40", badgeStyle: "background: rgba(20, 184, 166, 0.2); color: #5eead4; border: 1px solid rgba(20, 184, 166, 0.4);" },
+      "Модератор": { name: "Модератор", bg: "bg-indigo-500/20", text: "text-indigo-300", border: "border-indigo-500/40", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);" }
+    };
+
+    let rolesConfig = JSON.parse(localStorage.getItem('okean_roles_config')) || defaultRolesConfig;
+
+    function getRoleBadgeHTML(roleName) {
+      const r = rolesConfig[roleName] || { name: roleName, badgeStyle: "background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4);" };
+      return `<span class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider inline-block shadow-sm" style="${r.badgeStyle}">${r.name}</span>`;
+    }
+
+    // ==========================================
+    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ ТА САНКЦІЙ
+    // ==========================================
+    const superAdminEmail = "andreyromanov245@gmail.com";
+    
+    let defaultAdmins = [
+      {
+        id: 1,
+        name: "Андрій Романов",
+        email: superAdminEmail,
+        pass: "pass123",
+        role: "Super Admin",
+        online: true,
+        permissions: { tickets: true, manageAdmins: true, giveSanctions: true, editRoles: true },
+        history: [
+          { date: "18.10.2026, 09:00", type: "system", reason: "Призначено головним власником та Super Admin системи", author: "Система" }
+        ]
+      },
+      {
+        id: 2,
+        name: "Віктор Мастега",
+        email: "mastega@gmail.com",
+        pass: "123456",
+        role: "Адміністратор",
+        online: false,
+        permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
+        history: []
+      }
+    ];
+
+    let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || defaultAdmins;
+    if (!savedAdmins.some(a => a.email.toLowerCase() === superAdminEmail.toLowerCase())) {
+      savedAdmins.unshift(defaultAdmins[0]);
+    }
+    localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
+
+    const state = {
+      currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || savedAdmins[0],
+      admins: savedAdmins,
+      organizations: [
+        { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
+        { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
+        { id: 3, name: "Інженерна майстерня 'Хаб 4.0'", city: "Львів", category: "Інженерія", verified: true }
+      ],
+      tickets: [
+        { id: "ТК-1082", date: "18.10.2026, 08:30", name: "Олександр Коваль", contact: "+380671112233", category: "Реабілітація", project: "Морські леви", status: "Новий" },
+        { id: "ТK-1081", date: "17.10.2026, 17:45", name: "Марія Петренко", contact: "telegram: @mariia_help", category: "Волонтерство", project: "Оберіг", status: "В роботі" }
+      ]
+    };
+
+    function syncAdminsData() {
+      localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+    }
+
+    // ==========================================
+    // 4. ЖИВІ ГОЛОСИ ТА МОВИ
     // ==========================================
     let currentLang = localStorage.getItem('okean_lang') || 'uk';
 
     const mentors = {
       lada: {
-        name: "Берегиня",
-        emoji: "👵",
-        pitch: 1.15, rate: 0.96,
-        greetings: {
-          uk: "Вітаю! Ласкаво просимо до нашої платформи.",
-          ru: "Приветствую! Добро пожаловать на нашу платформу.",
-          en: "Welcome! Glad to have you on our platform."
-        },
-        descs: {
-          uk: "Лагідна берегиня, світла душевна підтримка та тепло серця",
-          ru: "Заботливая хранительница, душевная поддержка и тепло сердца",
-          en: "Caring guardian, warm and gentle support"
-        }
+        name: "Берегиня", emoji: "👵", pitch: 1.15, rate: 0.96,
+        greetings: { uk: "Вітаю! Ласкаво просимо до нашої платформи.", ru: "Приветствую! Добро пожаловать на нашу платформу.", en: "Welcome! Glad to have you on our platform." },
+        descs: { uk: "Лагідна берегиня, світла душевна підтримка та тепло серця", ru: "Заботливая хранительница, душевная поддержка и тепло сердца", en: "Caring guardian, warm and gentle support" }
       },
       olga: {
-        name: "Дівчинка",
-        emoji: "👧",
-        pitch: 1.35, rate: 1.02,
-        greetings: {
-          uk: "Вітаю, друже! Ти у чудовому потоці Океану Дружніх.",
-          ru: "Привет, друг! Ты в прекрасном потоке Океана Дружелюбных.",
-          en: "Hello, my friend! You are in the wonderful flow of the Ocean of Friendly."
-        },
-        descs: {
-          uk: "Щира дівчинка, радість, дружба та світлий оптимізм",
-          ru: "Искренняя девочка, радость, дружба и светлый оптимизм",
-          en: "Joyful girl, cheerful and friendly energy"
-        }
+        name: "Дівчинка", emoji: "👧", pitch: 1.35, rate: 1.02,
+        greetings: { uk: "Вітаю, друже! Ти у чудовому потоці Океану Дружніх.", ru: "Привет, друг! Ты в прекрасном потоке Океана Дружелюбных.", en: "Hello, my friend! You are in the wonderful flow of the Ocean of Friendly." },
+        descs: { uk: "Щира дівчинка, радість, дружба та світлий оптимізм", ru: "Искренняя девочка, радость, дружба и светлый оптимизм", en: "Joyful girl, cheerful and friendly energy" }
       },
       kozak: {
-        name: "Козак",
-        emoji: "👨‍🦱",
-        pitch: 0.8, rate: 1.05,
-        greetings: {
-          uk: "Будь як вдома, побратиме! Раді вітати тебе.",
-          ru: "Будь как дома, братишка! Рады приветствовать тебя.",
-          en: "Make yourself at home, my friend! Glad to welcome you."
-        },
-        descs: {
-          uk: "Енергійний козацький дух, підтримка побратимів",
-          ru: "Энергичный дух побратима, поддержка и сила",
-          en: "Energetic companion, brave and supportive"
-        }
+        name: "Козак", emoji: "👨‍🦱", pitch: 0.8, rate: 1.05,
+        greetings: { uk: "Будь як вдома, побратиме! Раді вітати тебе.", ru: "Будь как дома, братишка! Рады приветствовать тебя.", en: "Make yourself at home, my friend! Glad to welcome you." },
+        descs: { uk: "Енергійний козацький дух, підтримка побратимів", ru: "Энергичный дух побратима, поддержка и сила", en: "Energetic companion, brave and supportive" }
       },
       starets: {
-        name: "Мудрець",
-        emoji: "🧙‍♂️",
-        pitch: 0.65, rate: 0.90,
-        greetings: {
-          uk: "Нехай життєва мудрість та спокій ведуть тебе вперед.",
-          ru: "Пусть житейская мудрость и покой ведут тебя вперед.",
-          en: "May life's wisdom and peace guide your way forward."
-        },
-        descs: {
-          uk: "Спокій, вікова мудрість предків та глибока виваженість",
-          ru: "Покой, вековая мудрость предков и глубокая выверенность",
-          en: "Peace, ancient wisdom, and deep calm guidance"
-        }
+        name: "Мудрець", emoji: "🧙‍♂️", pitch: 0.65, rate: 0.90,
+        greetings: { uk: "Нехай життєва мудрість та спокій ведуть тебе вперед.", ru: "Пусть житейская мудрость и покой ведут тебя вперед.", en: "May life's wisdom and peace guide your way forward." },
+        descs: { uk: "Спокій, вікова мудрість предків та глибока виваженість", ru: "Покой, вековая мудрость предков и глубокая выверенность", en: "Peace, ancient wisdom, and deep calm guidance" }
       }
     };
 
@@ -902,19 +1054,13 @@
       updateMentorUI();
     }
 
-    function openMentorSelector() {
-      document.getElementById('mentor-selector-modal').classList.remove('hidden');
-    }
-
+    function openMentorSelector() { document.getElementById('mentor-selector-modal').classList.remove('hidden'); }
     function selectMentor(key) {
       selectedMentorKey = key;
-      document.querySelectorAll('[id^="card-mentor-"]').forEach(el => {
-        el.classList.remove('border-amber-400', 'border-sky-400', 'border-emerald-400', 'border-purple-400', 'ring-4', 'ring-sky-500/50');
-      });
+      document.querySelectorAll('[id^="card-mentor-"]').forEach(el => el.classList.remove('ring-4', 'ring-sky-500/50'));
       const activeCard = document.getElementById(`card-mentor-${key}`);
       if (activeCard) activeCard.classList.add('ring-4', 'ring-sky-500/50');
     }
-
     function confirmMentorChoice() {
       localStorage.setItem('okean_mentor', selectedMentorKey);
       document.getElementById('mentor-selector-modal').classList.add('hidden');
@@ -924,64 +1070,35 @@
 
     function updateMentorUI() {
       const m = mentors[selectedMentorKey];
-      const greeting = m.greetings[currentLang];
-      const desc = m.descs[currentLang];
-
       document.getElementById('mentor-banner-avatar').textContent = m.emoji;
       document.getElementById('mentor-banner-name').textContent = m.name;
-      document.getElementById('mentor-banner-desc').textContent = desc;
-
+      document.getElementById('mentor-banner-desc').textContent = m.descs[currentLang];
       document.getElementById('chat-mentor-avatar').textContent = m.emoji;
       document.getElementById('chat-mentor-title').textContent = `${m.name} (${currentLang.toUpperCase()})`;
       document.getElementById('msg-mentor-icon').textContent = m.emoji;
-      document.getElementById('chat-welcome-text').textContent = greeting;
+      document.getElementById('chat-welcome-text').textContent = m.greetings[currentLang];
     }
 
-    function previewVoice(key) {
-      const m = mentors[key];
-      speakText(m.greetings[currentLang], m);
-    }
-
-    function speakMentorGreeting() {
-      const m = mentors[selectedMentorKey];
-      speakText(m.greetings[currentLang], m);
-    }
+    function speakMentorGreeting() { speakText(mentors[selectedMentorKey].greetings[currentLang], mentors[selectedMentorKey]); }
+    function previewVoice(key) { speakText(mentors[key].greetings[currentLang], mentors[key]); }
 
     function speakText(text, mentorObj) {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
-      
       const m = mentorObj || mentors[selectedMentorKey];
       const utter = new SpeechSynthesisUtterance(text);
-      
-      let langCode = 'uk-UA';
-      if (currentLang === 'ru') langCode = 'ru-RU';
-      if (currentLang === 'en') langCode = 'en-US';
-      
-      utter.lang = langCode;
+      utter.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
       utter.pitch = m.pitch;
       utter.rate = m.rate;
-
-      const voices = window.speechSynthesis.getVoices();
-      const matchedVoice = voices.find(v => v.lang.toLowerCase().includes(currentLang));
-      if (matchedVoice) {
-        utter.voice = matchedVoice;
-      }
-
       window.speechSynthesis.speak(utter);
     }
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
-    }
-
     // ==========================================
-    // 3. АВТОРИЗАЦІЯ, РЕЄСТРАЦІЯ ТА GOOGLE OAUTH
+    // 5. АВТОРИЗАЦІЯ КОРИСТУВАЧІВ ТА GOOGLE OAUTH
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
 
-    // Инициализация Google Sign-In API
     window.onload = function () {
       if (window.google) {
         google.accounts.id.initialize({
@@ -993,84 +1110,44 @@
           { theme: "outline", size: "large", width: "320", text: "continue_with", locale: "uk" }
         );
       }
+      populateRoleSelects();
     };
 
-    // Декодирование JWT токена от Google для получения данных пользователя
     function parseJwt(token) {
       try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        return null;
-      }
+        return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+      } catch (e) { return null; }
     }
 
     function handleGoogleSignInResponse(response) {
-      const responsePayload = parseJwt(response.credential);
-      if (responsePayload) {
-        const googleUser = {
-          name: responsePayload.name,
-          email: responsePayload.email,
-          phone: "",
-          city: "Україна",
-          interest: "Реабілітація та спорт",
-          bio: "Авторизовано через Google-акаунт на платформі Океан Дружніх."
-        };
-
-        currentUser = googleUser;
+      const payload = parseJwt(response.credential);
+      if (payload) {
+        currentUser = { name: payload.name, email: payload.email, phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-
-        // Сохраняем в общую базу пользователей
-        let registeredUsers = JSON.parse(localStorage.getItem('okean_users_db')) || [];
-        if (!registeredUsers.some(u => u.email === googleUser.email)) {
-          registeredUsers.push(googleUser);
-          localStorage.setItem('okean_users_db', JSON.stringify(registeredUsers));
-        }
-
         closeAuthModal();
         updateHeaderUserUI();
         openProfileModal();
       }
     }
 
-    function openAuthModal() {
-      isRegisterMode = true;
-      updateAuthModalUI();
-      document.getElementById('auth-modal').classList.remove('hidden');
-    }
+    function openAuthModal() { isRegisterMode = true; updateAuthModalUI(); document.getElementById('auth-modal').classList.remove('hidden'); }
     function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-
-    function toggleAuthMode() {
-      isRegisterMode = !isRegisterMode;
-      updateAuthModalUI();
-    }
+    function toggleAuthMode() { isRegisterMode = !isRegisterMode; updateAuthModalUI(); }
 
     function updateAuthModalUI() {
       const title = document.getElementById('auth-title');
       const nameBox = document.getElementById('name-field-box');
       const submitBtn = document.getElementById('auth-submit-btn');
-      const switchText = document.getElementById('auth-switch-text');
-      const switchBtn = document.getElementById('auth-switch-btn');
-      document.getElementById('auth-error').classList.add('hidden');
-
       if (isRegisterMode) {
         title.textContent = "Реєстрація в кабінеті";
         nameBox.style.display = "block";
-        document.getElementById('auth-name').required = true;
         submitBtn.textContent = "Зареєструватися";
-        switchText.textContent = "Вже є акаунт?";
-        switchBtn.textContent = "Увійти";
       } else {
         title.textContent = "Вхід до кабінету";
         nameBox.style.display = "none";
-        document.getElementById('auth-name').required = false;
         submitBtn.textContent = "Увійти до акаунта";
-        switchText.textContent = "Ще немає акаунта?";
-        switchBtn.textContent = "Зареєструватися";
       }
     }
 
@@ -1078,39 +1155,9 @@
       e.preventDefault();
       const email = document.getElementById('auth-email').value.trim().toLowerCase();
       const pass = document.getElementById('auth-pass').value.trim();
-      const nameInput = document.getElementById('auth-name').value.trim();
-      const errorDiv = document.getElementById('auth-error');
+      const name = document.getElementById('auth-name').value.trim();
 
-      let registeredUsers = JSON.parse(localStorage.getItem('okean_users_db')) || [];
-
-      if (isRegisterMode) {
-        if (registeredUsers.some(u => u.email === email)) {
-          errorDiv.textContent = "Користувач з такою поштою вже зареєстрований!";
-          errorDiv.classList.remove('hidden');
-          return;
-        }
-        const newUser = {
-          name: nameInput || "Користувач",
-          email: email,
-          pass: pass,
-          phone: "",
-          city: "",
-          interest: "Реабілітація та спорт",
-          bio: "Привіт! Я новий учасник платформи Океан Дружніх."
-        };
-        registeredUsers.push(newUser);
-        localStorage.setItem('okean_users_db', JSON.stringify(registeredUsers));
-        currentUser = newUser;
-      } else {
-        const found = registeredUsers.find(u => u.email === email && u.pass === pass);
-        if (!found) {
-          errorDiv.textContent = "Невірний email або пароль!";
-          errorDiv.classList.remove('hidden');
-          return;
-        }
-        currentUser = found;
-      }
-
+      currentUser = { name: name || "Користувач", email, pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Учасник платформи." };
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
       closeAuthModal();
       updateHeaderUserUI();
@@ -1124,20 +1171,14 @@
     }
 
     function openProfileModal() {
-      if (!currentUser) {
-        openAuthModal();
-        return;
-      }
+      if (!currentUser) { openAuthModal(); return; }
       document.getElementById('profile-display-name').textContent = currentUser.name;
       document.getElementById('profile-display-email').textContent = currentUser.email;
       document.getElementById('profile-avatar-letters').textContent = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'ОД';
-
       document.getElementById('prof-name').value = currentUser.name || '';
       document.getElementById('prof-phone').value = currentUser.phone || '';
       document.getElementById('prof-city').value = currentUser.city || '';
-      document.getElementById('prof-interest').value = currentUser.interest || 'Реабілітація та спорт';
       document.getElementById('prof-bio').value = currentUser.bio || '';
-
       document.getElementById('profile-modal').classList.remove('hidden');
     }
     function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
@@ -1145,19 +1186,11 @@
     function saveUserProfile(e) {
       e.preventDefault();
       if (!currentUser) return;
-
       currentUser.name = document.getElementById('prof-name').value.trim();
       currentUser.phone = document.getElementById('prof-phone').value.trim();
       currentUser.city = document.getElementById('prof-city').value.trim();
-      currentUser.interest = document.getElementById('prof-interest').value;
       currentUser.bio = document.getElementById('prof-bio').value.trim();
-
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-
-      let registeredUsers = JSON.parse(localStorage.getItem('okean_users_db')) || [];
-      registeredUsers = registeredUsers.map(u => u.email === currentUser.email ? currentUser : u);
-      localStorage.setItem('okean_users_db', JSON.stringify(registeredUsers));
-
       updateHeaderUserUI();
       closeProfileModal();
     }
@@ -1166,8 +1199,7 @@
       const profileBtn = document.getElementById('nav-profile-btn');
       const loginBtn = document.getElementById('nav-login-btn');
       if (currentUser) {
-        profileBtn.classList.remove('hidden');
-        profileBtn.classList.add('flex');
+        profileBtn.classList.remove('hidden'); profileBtn.classList.add('flex');
         document.getElementById('nav-profile-name').textContent = currentUser.name.split(' ')[0];
         loginBtn.classList.add('hidden');
       } else {
@@ -1177,160 +1209,9 @@
     }
 
     // ==========================================
-    // 4. ГОЛОСОВИЙ ВВІД
+    // 6. ФУНКЦІОНАЛ АДМІНІСТРАТИВНОЇ ПАНЕЛІ
     // ==========================================
-    let isListening = false;
-    function toggleVoiceInput() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("На жаль, ваш браузер не підтримує розпізнавання голосу.");
-        return;
-      }
-
-      const micBtn = document.getElementById('mic-btn');
-      if (isListening) {
-        isListening = false;
-        micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
-        return;
-      }
-
-      const recognition = new SpeechRecognition();
-      recognition.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
-      recognition.interimResults = false;
-
-      recognition.onstart = () => {
-        isListening = true;
-        micBtn.classList.add('bg-rose-500', 'text-white', 'animate-pulse');
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        document.getElementById('chat-input').value = transcript;
-        isListening = false;
-        micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
-      };
-
-      recognition.onerror = () => {
-        isListening = false;
-        micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
-      };
-
-      recognition.start();
-    }
-
-    // ==========================================
-    // 5. TELEGRAM MODAL
-    // ==========================================
-    function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
-    function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
-
-    // ==========================================
-    // 6. СЛАЙДЕР І КАТАЛОГ
-    // ==========================================
-    const banners = [
-      {
-        tag: "Спільнота & Підтримка",
-        title: "Знайди своїх, отримай допомогу та втілюй ідеї",
-        desc: "Платформа взаємодопомоги та розвитку людей і громад в Україні та за кордоном.",
-        btnText: "Дізнатися більше",
-        action: "scrollToSection('projects')"
-      },
-      {
-        tag: "Telegram Бот",
-        title: "Миттєвий зв'язок та допомога у вашому смартфоні",
-        desc: "Пройди швидке опитування та отримай персонального координатора без реєстрації.",
-        btnText: "Перейти до Telegram",
-        action: "openTelegramModal()"
-      },
-      {
-        tag: "Проєкт «Морські леви»",
-        title: "Реабілітація та водний спорт для захисників",
-        desc: "Відновлення фізичної сили та психологічної рівноваги через командні водні тренування.",
-        btnText: "Підтримати проєкт",
-        action: "openChatWithPrompt('Хочу дізнатися більше про проєкт Морські леви')"
-      }
-    ];
-    let currentSlide = 0;
-
-    function renderBanner() {
-      const container = document.getElementById('banner-slider-container');
-      const b = banners[currentSlide];
-      container.innerHTML = `
-        <div class="slider-transition opacity-100 flex flex-col items-center max-w-3xl mx-auto">
-          <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-3">${b.tag}</span>
-          <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug mb-3">${b.title}</h2>
-          <p class="text-xs sm:text-sm text-slate-300 mb-6 max-w-xl">${b.desc}</p>
-          <button onclick="${b.action}" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-2xl transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
-            <span>${b.btnText}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-        </div>
-      `;
-      lucide.createIcons();
-    }
-
-    function nextSlide() { currentSlide = (currentSlide + 1) % banners.length; renderBanner(); }
-    function prevSlide() { currentSlide = (currentSlide - 1 + banners.length) % banners.length; renderBanner(); }
-    setInterval(nextSlide, 5000);
-
-    // ==========================================
-    // 7. АДМІН-ПАНЕЛЬ ТА ЗАХИСТ ПРАВ АДМІНІВ
-    // ==========================================
-    let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || [];
-    const superAdminEmail = "andreyromanov245@gmail.com";
-    
-    if (!savedAdmins.some(a => a.email.toLowerCase() === superAdminEmail.toLowerCase())) {
-      savedAdmins.unshift({ id: 1, name: "Андрій Романов", email: superAdminEmail, pass: "pass123", role: "Super Admin", warns: 0, bans: 0 });
-      localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
-    }
-
-    const state = {
-      currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
-      admins: savedAdmins,
-      organizations: [
-        { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
-        { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
-        { id: 3, name: "Інженерна майстерня 'Хаб 4.0'", city: "Львів", category: "Інженерія", verified: true }
-      ],
-      tickets: [
-        { id: "ТК-1082", date: "17.10.2026, 08:30", name: "Олександр Коваль", contact: "+380671112233", category: "Реабілітація", project: "Морські леви", status: "Новий" },
-        { id: "ТK-1081", date: "16.10.2026, 17:45", name: "Марія Петренко", contact: "telegram: @mariia_help", category: "Волонтерство", project: "Оберіг", status: "В роботі" }
-      ]
-    };
-
-    function validateAdminSession() {
-      if (state.currentUser) {
-        state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-        const stillAdmin = state.admins.find(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
-        if (!stillAdmin) {
-          state.currentUser = null;
-          localStorage.removeItem('okean_current_admin');
-        }
-      }
-    }
-    validateAdminSession();
-
-    function renderCatalog() {
-      const container = document.getElementById('catalog-grid');
-      container.innerHTML = state.organizations.map(org => `
-        <div class="bg-slate-900/80 border border-slate-700 p-5 rounded-3xl shadow-sm flex flex-col justify-between backdrop-blur-md">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">${org.category}</span>
-              <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Перевірено</span>
-            </div>
-            <h4 class="font-bold text-white text-base">${org.name}</h4>
-            <p class="text-xs text-slate-400 mt-1">Локація: ${org.city}</p>
-          </div>
-          <button onclick="openChatWithPrompt('Хочу отримати контакти організації: ${org.name}')" class="mt-5 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs rounded-2xl transition-colors border border-slate-700">
-            Зв'язатися через координатора
-          </button>
-        </div>
-      `).join('');
-      lucide.createIcons();
-    }
-
     function showPage(pageId) {
-      validateAdminSession();
       document.getElementById('page-home').classList.add('hidden');
       document.getElementById('page-admin').classList.add('hidden');
 
@@ -1364,8 +1245,11 @@
       const foundAdmin = state.admins.find(a => a.email.trim().toLowerCase() === username && a.pass.trim() === password);
 
       if (foundAdmin) {
+        foundAdmin.online = true;
         state.currentUser = foundAdmin;
         localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
+        syncAdminsData();
+        
         errorMsg.classList.add('hidden');
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -1377,6 +1261,11 @@
     }
 
     function handleAdminLogout() {
+      if (state.currentUser) {
+        const found = state.admins.find(a => a.id === state.currentUser.id);
+        if (found) found.online = false;
+        syncAdminsData();
+      }
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
       document.getElementById('admin-login-box').classList.add('hidden');
@@ -1388,21 +1277,27 @@
     function updateHeaderAuthUI() {
       const adminBtn = document.getElementById('nav-admin-btn');
       if (state.currentUser) {
-        adminBtn.classList.remove('hidden');
-        adminBtn.classList.add('flex');
+        adminBtn.classList.remove('hidden'); adminBtn.classList.add('flex');
       } else {
         adminBtn.classList.add('hidden');
       }
     }
 
     function switchAdminTab(tabName) {
-      document.getElementById('admin-tab-tickets').classList.add('hidden');
-      document.getElementById('admin-tab-admins').classList.add('hidden');
-      document.getElementById('tab-btn-tickets').className = "px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all";
-      document.getElementById('tab-btn-admins').className = "px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all";
-
+      ['admins', 'tickets', 'roles'].forEach(t => {
+        document.getElementById(`admin-tab-${t}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${t}`).className = "px-5 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
+      });
       document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all";
+      document.getElementById(`tab-btn-${tabName}`).className = "px-5 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
+
+      if (tabName === 'roles') renderRolesConfigGrid();
+    }
+
+    function populateRoleSelects() {
+      const roleSelect = document.getElementById('new-admin-role');
+      if (!roleSelect) return;
+      roleSelect.innerHTML = Object.keys(rolesConfig).map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
     function handleAddAdmin(e) {
@@ -1412,114 +1307,238 @@
       const pass = document.getElementById('new-admin-pass').value.trim();
       const role = document.getElementById('new-admin-role').value;
 
-      let currentAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      if (currentAdmins.some(a => a.email.toLowerCase() === email)) {
-        alert("Користувач з таким email вже існує в системі!");
+      if (state.admins.some(a => a.email.toLowerCase() === email)) {
+        alert("Адміністратор з таким email вже існує!");
         return;
       }
 
-      currentAdmins.push({ id: Date.now(), name, email, pass, role, warns: 0, bans: 0 });
-      state.admins = currentAdmins;
-      localStorage.setItem('okean_admins_db', JSON.stringify(currentAdmins));
+      const newAdmin = {
+        id: Date.now(),
+        name, email, pass, role, online: false,
+        permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
+        history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Створено акаунт та призначено посаду "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
+      };
+
+      state.admins.push(newAdmin);
+      syncAdminsData();
 
       document.getElementById('new-admin-name').value = '';
       document.getElementById('new-admin-email').value = '';
       document.getElementById('new-admin-pass').value = '';
 
-      renderAdminAdminsList();
+      renderAdminDashboard();
     }
 
-    function addWarn(id) {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      const admin = state.admins.find(a => a.id === id);
-      if (admin) { admin.warns = (admin.warns || 0) + 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
+    function openAddSanctionModal(targetAdminId) {
+      const select = document.getElementById('sanc-admin-id');
+      select.innerHTML = state.admins.map(a => `<option value="${a.id}" ${a.id === targetAdminId ? 'selected' : ''}>${a.name} (${a.role})</option>`).join('');
+      document.getElementById('sanction-modal').classList.remove('hidden');
     }
-    function removeWarn(id) {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      const admin = state.admins.find(a => a.id === id);
-      if (admin && admin.warns > 0) { admin.warns -= 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
-    }
-    function addBan(id) {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      const admin = state.admins.find(a => a.id === id);
-      if (admin) { admin.bans = (admin.bans || 0) + 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
-    }
-    function removeBan(id) {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      const admin = state.admins.find(a => a.id === id);
-      if (admin && admin.bans > 0) { admin.bans -= 1; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
-    }
-    function clearSanctions(id) {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      const admin = state.admins.find(a => a.id === id);
-      if (admin) { admin.warns = 0; admin.bans = 0; localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); renderAdminAdminsList(); }
-    }
-    function removeAdmin(id) {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      const admin = state.admins.find(a => a.id === id);
-      if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-        alert("Неможливо забрати права у головного власника (Андрій Романов)!");
-        return;
+    function closeSanctionModal() { document.getElementById('sanction-modal').classList.add('hidden'); }
+
+    function handleApplySanction(e) {
+      e.preventDefault();
+      const adminId = parseInt(document.getElementById('sanc-admin-id').value);
+      const sancType = document.querySelector('input[name="sanc-type"]:checked').value;
+      const reason = document.getElementById('sanc-reason').value.trim();
+
+      const admin = state.admins.find(a => a.id === adminId);
+      if (admin) {
+        if (!admin.history) admin.history = [];
+        const sanctionEntry = {
+          date: new Date().toLocaleString('uk-UA'),
+          type: sancType,
+          reason: reason,
+          author: state.currentUser ? state.currentUser.name : "Головна Адміністрація"
+        };
+        admin.history.unshift(sanctionEntry);
+        syncAdminsData();
+        closeSanctionModal();
+        renderAdminDashboard();
       }
-      if (confirm(`Ви дійсно хочете забрати права адміністратора у "${admin ? admin.name : ''}"?`)) {
-        state.admins = state.admins.filter(a => a.id !== id);
-        localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+    }
 
-        if (state.currentUser && state.currentUser.email.toLowerCase() === admin.email.toLowerCase()) {
-          state.currentUser = null;
-          localStorage.removeItem('okean_current_admin');
-          showPage('home');
-          updateHeaderAuthUI();
+    function openAdminHistoryModal(adminId) {
+      const admin = state.admins.find(a => a.id === adminId);
+      if (!admin) return;
+
+      document.getElementById('hist-name').textContent = admin.name;
+      document.getElementById('hist-email').textContent = admin.email;
+      document.getElementById('hist-avatar').textContent = admin.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('hist-role-badge').innerHTML = getRoleBadgeHTML(admin.role);
+
+      const logsList = document.getElementById('hist-logs-list');
+      if (!admin.history || admin.history.length === 0) {
+        logsList.innerHTML = `<div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 text-slate-400 text-center">Історія порожня. Порушень не зафіксовано.</div>`;
+      } else {
+        logsList.innerHTML = admin.history.map(h => `
+          <div class="p-3.5 bg-slate-950/60 border ${h.type === 'ban' ? 'border-rose-500/30' : h.type === 'warn' ? 'border-amber-500/30' : 'border-slate-800'} rounded-2xl flex flex-col gap-1">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-[11px] ${h.type === 'ban' ? 'text-rose-400' : h.type === 'warn' ? 'text-amber-400' : 'text-sky-400'}">
+                ${h.type === 'ban' ? '⛔ ДОГАНА' : h.type === 'warn' ? '⚠️ ПОПЕРЕДЖЕННЯ' : 'ℹ️ СИСТЕМА'}
+              </span>
+              <span class="text-[10px] text-slate-500 font-semibold">${h.date}</span>
+            </div>
+            <p class="text-slate-200 text-xs">${h.reason}</p>
+            <span class="text-[10px] text-slate-400 mt-0.5">Видав: ${h.author || 'Адміністратор'}</span>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('admin-history-modal').classList.remove('hidden');
+    }
+    function closeAdminHistoryModal() { document.getElementById('admin-history-modal').classList.add('hidden'); }
+
+    function changeAdminRole(adminId, newRole) {
+      const admin = state.admins.find(a => a.id === adminId);
+      if (admin) {
+        if (admin.email.toLowerCase() === superAdminEmail.toLowerCase() && newRole !== "Super Admin") {
+          alert("Головний власник акаунта завжди зберігає статус Super Admin!");
+          renderAdminAdminsList();
+          return;
         }
+        admin.role = newRole;
+        if (!admin.history) admin.history = [];
+        admin.history.unshift({
+          date: new Date().toLocaleString('uk-UA'),
+          type: "role_change",
+          reason: `Посаду змінено на "${newRole}"`,
+          author: state.currentUser ? state.currentUser.name : "System"
+        });
+        syncAdminsData();
+        renderAdminDashboard();
+      }
+    }
 
+    function toggleAdminPermission(adminId, permKey) {
+      const admin = state.admins.find(a => a.id === adminId);
+      if (admin) {
+        if (!admin.permissions) admin.permissions = { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
+        admin.permissions[permKey] = !admin.permissions[permKey];
+        syncAdminsData();
         renderAdminAdminsList();
       }
     }
 
+    function removeAdmin(id) {
+      const admin = state.admins.find(a => a.id === id);
+      if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
+        alert("Неможливо вилучити головного власника платформи!");
+        return;
+      }
+      if (confirm(`Ви впевнені, що хочете вилучити з адміністраторів "${admin ? admin.name : ''}"?`)) {
+        state.admins = state.admins.filter(a => a.id !== id);
+        syncAdminsData();
+        renderAdminDashboard();
+      }
+    }
+
     function renderAdminAdminsList() {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
+      const query = (document.getElementById('admin-search')?.value || '').toLowerCase();
       const list = document.getElementById('admin-team-list');
-      list.innerHTML = state.admins.map(a => `
-        <tr class="hover:bg-slate-800/40 transition-colors">
-          <td class="p-3"><span class="font-bold text-white block">${a.name}</span><span class="text-[11px] text-sky-400">${a.email}</span></td>
-          <td class="p-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-500/20 text-sky-300 border border-sky-500/30">${a.role}</span></td>
-          <td class="p-3">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="px-2 py-1 rounded bg-amber-500/10 text-amber-400 font-bold text-[11px]">Попереджень: ${a.warns || 0}</span>
-              <span class="px-2 py-1 rounded bg-rose-500/10 text-rose-400 font-bold text-[11px]">Догани: ${a.bans || 0}</span>
+
+      const filtered = state.admins.filter(a => a.name.toLowerCase().includes(query) || a.role.toLowerCase().includes(query) || a.email.toLowerCase().includes(query));
+
+      list.innerHTML = filtered.map(a => {
+        const warnsCount = (a.history || []).filter(h => h.type === 'warn').length;
+        const bansCount = (a.history || []).filter(h => h.type === 'ban').length;
+        const perms = a.permissions || { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="p-3">
+              <div class="flex items-center gap-3">
+                <div class="relative">
+                  <div class="w-9 h-9 rounded-xl bg-slate-800 text-white font-bold flex items-center justify-center border border-slate-700">
+                    ${a.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2)}
+                  </div>
+                  <span class="w-3 h-3 rounded-full absolute -bottom-0.5 -right-0.5 border-2 border-slate-900 ${a.online ? 'bg-emerald-500' : 'bg-slate-600'}"></span>
+                </div>
+                <div>
+                  <span class="font-bold text-white block leading-snug">${a.name}</span>
+                  <span class="text-[11px] text-sky-400">${a.email}</span>
+                </div>
+              </div>
+            </td>
+            <td class="p-3">
+              <select onchange="changeAdminRole(${a.id}, this.value)" class="bg-slate-950/80 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white font-bold focus:outline-none">
+                ${Object.keys(rolesConfig).map(r => `<option value="${r}" ${r === a.role ? 'selected' : ''}>${r}</option>`).join('')}
+              </select>
+              <div class="mt-1">${getRoleBadgeHTML(a.role)}</div>
+            </td>
+            <td class="p-3">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-1 rounded-lg bg-amber-500/10 text-amber-300 font-bold text-[11px] border border-amber-500/20">Попереджень: ${warnsCount}</span>
+                <span class="px-2 py-1 rounded-lg bg-rose-500/10 text-rose-300 font-bold text-[11px] border border-rose-500/20">Доган: ${bansCount}</span>
+                <button onclick="openAdminHistoryModal(${a.id})" class="text-[11px] text-sky-400 hover:underline font-semibold ml-1">Історія (${(a.history || []).length})</button>
+              </div>
+            </td>
+            <td class="p-3 text-center">
+              <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                <button onclick="toggleAdminPermission(${a.id}, 'tickets')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.tickets ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="Доступ до тикетів">Тикети</button>
+                <button onclick="toggleAdminPermission(${a.id}, 'manageAdmins')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.manageAdmins ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="Керування персоналом">Персонал</button>
+                <button onclick="toggleAdminPermission(${a.id}, 'giveSanctions')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.giveSanctions ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="Видача доган">Догани</button>
+              </div>
+            </td>
+            <td class="p-3 text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-xl text-[11px] transition-all border border-amber-500/30 flex items-center gap-1">
+                  + Виговор
+                </button>
+                ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
+                  `<span class="px-2.5 py-1 bg-slate-800 text-slate-500 font-bold rounded-xl text-[11px]">Захищено</span>` :
+                  `<button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Вилучити</button>`
+                }
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderRolesConfigGrid() {
+      const container = document.getElementById('roles-config-grid');
+      container.innerHTML = Object.keys(rolesConfig).map(rName => {
+        const r = rolesConfig[rName];
+        return `
+          <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between gap-3">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-300">${rName}</span>
+                <div style="${r.badgeStyle}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold">Прев'ю</div>
+              </div>
+              <p class="text-[11px] text-slate-400">Автоматичний стилізований шильдик посади</p>
             </div>
-          </td>
-          <td class="p-3 text-right">
-            <div class="flex items-center justify-end gap-1.5 flex-wrap">
-              <button onclick="addWarn(${a.id})" class="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-semibold rounded-lg text-[10px]">+ Попер.</button>
-              <button onclick="addBan(${a.id})" class="px-2 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 font-semibold rounded-lg text-[10px]">+ Догана</button>
-              <button onclick="removeWarn(${a.id})" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Попер.</button>
-              <button onclick="removeBan(${a.id})" class="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-semibold rounded-lg text-[10px]">- Догана</button>
-              <button onclick="clearSanctions(${a.id})" class="px-2 py-1 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-semibold rounded-lg text-[10px]">Очистити</button>
-              ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
-                `<span class="px-2 py-1 bg-slate-800 text-slate-500 font-bold rounded-lg text-[10px] cursor-not-allowed">Захищено</span>` :
-                `<button onclick="removeAdmin(${a.id})" class="px-2 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold rounded-lg text-[10px]">Зняти</button>`
-              }
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+              <span class="text-emerald-400 font-bold">● Колір активний</span>
+              <span class="text-slate-500">Авто-синхронізація</span>
             </div>
-          </td>
-        </tr>
-      `).join('');
+          </div>
+        `;
+      }).join('');
     }
 
     function renderAdminDashboard() {
       if (!state.currentUser) return;
-      document.getElementById('admin-role-badge').textContent = state.currentUser.role;
-      document.getElementById('stat-total').textContent = state.tickets.length;
-      document.getElementById('stat-new').textContent = state.tickets.filter(t => t.status === 'Новий').length;
-      document.getElementById('stat-in-progress').textContent = state.tickets.filter(t => t.status === 'В роботі').length;
-      filterTickets();
+
+      document.getElementById('admin-welcome-name').textContent = state.currentUser.name;
+      document.getElementById('admin-role-badge').outerHTML = `<div id="admin-role-badge">${getRoleBadgeHTML(state.currentUser.role)}</div>`;
+
+      document.getElementById('stat-admins-total').textContent = state.admins.length;
+      document.getElementById('stat-admins-warns').textContent = state.admins.filter(a => (a.history || []).some(h => h.type === 'warn')).length;
+      document.getElementById('stat-admins-bans').textContent = state.admins.filter(a => (a.history || []).some(h => h.type === 'ban')).length;
+      document.getElementById('stat-admins-online').textContent = state.admins.filter(a => a.online).length;
+
+      populateRoleSelects();
       renderAdminAdminsList();
+      filterTickets();
     }
 
     function filterTickets() {
-      const query = document.getElementById('ticket-search').value.toLowerCase();
-      const statusFilter = document.getElementById('status-filter').value;
+      const query = (document.getElementById('ticket-search')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('status-filter')?.value || 'all';
       const list = document.getElementById('admin-tickets-list');
+      if (!list) return;
 
       const filtered = state.tickets.filter(t => {
         const matchesQuery = t.name.toLowerCase().includes(query) || t.contact.toLowerCase().includes(query) || t.id.toLowerCase().includes(query);
@@ -1548,7 +1567,56 @@
     }
 
     // ==========================================
-    // 8. ЧАТ З ОЗВУЧКОЮ
+    // 7. СЛАЙДЕР ТА КАТАЛОГ
+    // ==========================================
+    const banners = [
+      { tag: "Спільнота & Підтримка", title: "Знайди своїх, отримай допомогу та втілюй ідеї", desc: "Платформа взаємодопомоги та розвитку людей і громад.", btnText: "Дізнатися більше", action: "scrollToSection('projects')" },
+      { tag: "Telegram Бот", title: "Миттєвий зв'язок та допомога у вашому смартфоні", desc: "Отримай персонального координатора без реєстрації.", btnText: "Перейти до Telegram", action: "openTelegramModal()" },
+      { tag: "Проєкт «Морські леви»", title: "Реабілітація та водний спорт для захисників", desc: "Відновлення сили та рівноваги через тренування.", btnText: "Підтримати проєкт", action: "openChatWithPrompt('Хочу дізнатися більше про проєкт Морські леви')" }
+    ];
+    let currentSlide = 0;
+
+    function renderBanner() {
+      const container = document.getElementById('banner-slider-container');
+      const b = banners[currentSlide];
+      container.innerHTML = `
+        <div class="slider-transition opacity-100 flex flex-col items-center max-w-3xl mx-auto">
+          <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-3">${b.tag}</span>
+          <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug mb-3">${b.title}</h2>
+          <p class="text-xs sm:text-sm text-slate-300 mb-6 max-w-xl">${b.desc}</p>
+          <button onclick="${b.action}" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-2xl transition-all shadow-lg flex items-center gap-2">
+            <span>${b.btnText}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+    function nextSlide() { currentSlide = (currentSlide + 1) % banners.length; renderBanner(); }
+    function prevSlide() { currentSlide = (currentSlide - 1 + banners.length) % banners.length; renderBanner(); }
+    setInterval(nextSlide, 5000);
+
+    function renderCatalog() {
+      const container = document.getElementById('catalog-grid');
+      container.innerHTML = state.organizations.map(org => `
+        <div class="bg-slate-900/80 border border-slate-700 p-5 rounded-3xl shadow-sm flex flex-col justify-between backdrop-blur-md">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">${org.category}</span>
+              <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Перевірено</span>
+            </div>
+            <h4 class="font-bold text-white text-base">${org.name}</h4>
+            <p class="text-xs text-slate-400 mt-1">Локація: ${org.city}</p>
+          </div>
+          <button onclick="openChatWithPrompt('Хочу отримати контакти організації: ${org.name}')" class="mt-5 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs rounded-2xl transition-colors border border-slate-700">
+            Зв'язатися через координатора
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // 8. ІНТЕРАКТИВНИЙ AI CHAT WIDGET
     // ==========================================
     function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
     function openChatWithPrompt(text) {
@@ -1558,12 +1626,8 @@
       input.focus();
     }
     function sendQuickChip(text) {
-      if (text.includes('Телеграм')) {
-        openTelegramModal();
-        return;
-      }
-      const input = document.getElementById('chat-input');
-      input.value = text;
+      if (text.includes('Телеграм')) { openTelegramModal(); return; }
+      document.getElementById('chat-input').value = text;
       handleSendMessage(new Event('submit'));
     }
 
@@ -1582,19 +1646,8 @@
 
       setTimeout(() => {
         let aiReply = `${currentMentor.name}: Дякую за звернення! Запит успішно опрацьовано.`;
-        if (currentLang === 'ru') aiReply = `${currentMentor.name}: Спасибо за обращение! Запрос успешно обработан.`;
-        if (currentLang === 'en') aiReply = `${currentMentor.name}: Thank you for reaching out! Your request has been processed.`;
-
-        if (message.toLowerCase().includes('реабілітаці') || message.toLowerCase().includes('реабилитаци') || message.toLowerCase().includes('rehab')) {
-          if (currentLang === 'uk') aiReply = `${currentMentor.name}: Для реабілітації радимо проєкт «Морські леви» або контакти в каталозі.`;
-          if (currentLang === 'ru') aiReply = `${currentMentor.name}: Для реабилитации рекомендуем проект «Морские львы» или каталог.`;
-          if (currentLang === 'en') aiReply = `${currentMentor.name}: For rehabilitation, we recommend the "Sea Lions" project or our catalog.`;
-        }
-
         chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
-        lucide.createIcons();
         chatBody.scrollTop = chatBody.scrollHeight;
-
         speakText(aiReply, currentMentor);
 
         state.tickets.unshift({
@@ -1610,14 +1663,30 @@
       }, 750);
     }
 
-    // Инициализация при загрузке
+    function toggleVoiceInput() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) { alert("Ваш браузер не підтримує голосовий ввід."); return; }
+
+      const micBtn = document.getElementById('mic-btn');
+      const recognition = new SpeechRecognition();
+      recognition.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
+
+      recognition.onstart = () => micBtn.classList.add('bg-rose-500', 'text-white', 'animate-pulse');
+      recognition.onresult = (e) => { document.getElementById('chat-input').value = e.results[0][0].transcript; micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse'); };
+      recognition.onerror = () => micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
+      recognition.start();
+    }
+
+    function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
+    function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
+
+    // ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ
     renderBanner();
     updateHeaderAuthUI();
     updateHeaderUserUI();
     renderCatalog();
     setMentorLanguage(currentLang);
 
-    // Автоматический показ выбора супровідника только при первом визите, с возможностью закрытия
     if (!localStorage.getItem('okean_mentor_chosen')) {
       openMentorSelector();
     } else {
