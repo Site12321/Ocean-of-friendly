@@ -263,7 +263,7 @@
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email / Логін</label>
-              <input type="text" id="admin-username" required placeholder="andreyromanov245@gmail.com" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
+              <input type="text" id="admin-username" required placeholder="maksimkopenko123@gmail.com" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
@@ -293,10 +293,10 @@
               </div>
               <div>
                 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h2 id="admin-welcome-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h2>
+                  <h2 id="admin-welcome-name" class="text-lg sm:text-xl font-bold text-white">Максим Копенко</h2>
                   <div id="admin-role-badge"></div>
                 </div>
-                <p class="text-xs text-slate-400 mt-0.5">Керування складом адміністрації, посадами, санкціями та тикетами</p>
+                <p class="text-xs text-slate-400 mt-0.5">Керування складом адміністрації, користувачами, тикетами та санкціями</p>
               </div>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
@@ -312,24 +312,30 @@
           <!-- TABS -->
           <div class="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
             <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2">
-              <i data-lucide="users" class="w-4 h-4"></i> Список адміністраторів
+              <i data-lucide="shield" class="w-4 h-4"></i> Адміністратори
+            </button>
+            <button onclick="switchAdminTab('admin-cards')" id="tab-btn-admin-cards" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="users-gear" class="w-4 h-4"></i> Картки Адмінів (TG)
+            </button>
+            <button onclick="switchAdminTab('users')" id="tab-btn-users" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4"></i> Користувачі (Онлайн)
             </button>
             <button onclick="switchAdminTab('tickets')" id="tab-btn-tickets" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
               <i data-lucide="inbox" class="w-4 h-4"></i> Вхідні тикети
             </button>
             <button onclick="switchAdminTab('roles')" id="tab-btn-roles" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
-              <i data-lucide="palette" class="w-4 h-4"></i> Налаштування посад
+              <i data-lucide="palette" class="w-4 h-4"></i> Посади та кольори
             </button>
           </div>
 
-          <!-- TAB 1: АДМІНІСТРАТОРИ (СПИСОК ТА КАРТКИ) -->
+          <!-- TAB 1: АДМІНІСТРАТОРИ (ТАБЛИЦЯ) -->
           <div id="admin-tab-admins" class="space-y-6">
             
             <!-- STATS -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
                 <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Всього адмінів</span>
-                <div id="stat-admins-total" class="text-xl sm:text-3xl font-black text-white mt-1">1</div>
+                <div id="stat-admins-total" class="text-xl sm:text-3xl font-black text-white mt-1">0</div>
               </div>
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
                 <span class="text-[10px] sm:text-[11px] font-semibold text-amber-400 uppercase tracking-wider">З попередженнями</span>
@@ -341,7 +347,7 @@
               </div>
               <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
                 <span class="text-[10px] sm:text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">В мережі</span>
-                <div id="stat-admins-online" class="text-xl sm:text-3xl font-black text-emerald-400 mt-1">1</div>
+                <div id="stat-admins-online" class="text-xl sm:text-3xl font-black text-emerald-400 mt-1">0</div>
               </div>
             </div>
 
@@ -350,16 +356,17 @@
               <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
                 <i data-lucide="user-plus" class="w-4 h-4 text-sky-400"></i> Вписати нового адміністратора в систему за поштою
               </h3>
-              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <input type="text" id="new-admin-name" required placeholder="ПІБ / Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 <input type="email" id="new-admin-email" required placeholder="Email (пошта доступу)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 <input type="password" id="new-admin-pass" required placeholder="Пароль доступу" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <input type="text" id="new-admin-tg" placeholder="Telegram handle (@nikname)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 
                 <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
                   <!-- Заповнюється JS -->
                 </select>
 
-                <div class="sm:col-span-2 flex items-center gap-2">
+                <div class="sm:col-span-2 lg:col-span-3 flex items-center gap-2">
                   <button type="submit" class="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
                     Зареєструвати пошту в адмінці
                   </button>
@@ -367,7 +374,7 @@
               </form>
             </div>
 
-            <!-- КАРТКИ І ТАБЛИЦЯ АДМІНІВ -->
+            <!-- ТАБЛИЦЯ АДМІНІВ -->
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
               <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
@@ -394,7 +401,51 @@
 
           </div>
 
-          <!-- TAB 2: ТИКЕТИ -->
+          <!-- TAB 2: КАРТКИ АДМІНІВ (БЛОКИ З TELEGRAM) -->
+          <div id="admin-tab-admin-cards" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
+              <div class="mb-6">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <i data-lucide="users-gear" class="w-5 h-5 text-sky-400"></i> Інтерактивні блоки адміністраторів
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">Швидкі контакти та прямому переходу в Telegram до складу керівництва</p>
+              </div>
+
+              <div id="admin-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+          </div>
+
+          <!-- TAB 3: ЗАРЕЄСТРОВАНІ КОРИСТУВАЧІ (ОНЛАЙН СТАТУС) -->
+          <div id="admin-tab-users" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
+              <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5 text-emerald-400"></i> Зареєстровані користувачі (<span id="user-count-display">0</span>)
+                  </h3>
+                  <p class="text-xs text-slate-400 mt-0.5">Данні фіксуються та зберігаються в системі без сбросів</p>
+                </div>
+                <input type="text" id="user-search" oninput="renderRegisteredUsersList()" placeholder="Пошук користувача..." class="w-full sm:w-72 px-4 py-2 text-xs bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none">
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs min-w-[650px]">
+                  <thead>
+                    <tr class="bg-slate-950/60 text-[11px] font-bold uppercase text-slate-400 border-b border-slate-800">
+                      <th class="p-3">Користувач</th>
+                      <th class="p-3">Контактний телефон</th>
+                      <th class="p-3">Місто / Напрямок</th>
+                      <th class="p-3 text-center">Статус в мережі</th>
+                      <th class="p-3 text-right">Останній вхід</th>
+                    </tr>
+                  </thead>
+                  <tbody id="registered-users-list" class="divide-y divide-slate-800"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: ТИКЕТИ -->
           <div id="admin-tab-tickets" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
               <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -403,6 +454,7 @@
                   <option value="all">Всі статуси</option>
                   <option value="Новий">Новий</option>
                   <option value="В роботі">В роботі</option>
+                  <option value="Завершено">Завершено</option>
                 </select>
               </div>
 
@@ -423,7 +475,7 @@
             </div>
           </div>
 
-          <!-- TAB 3: НАЛАШТУВАННЯ ПОСАД І КОЛЬОРІВ -->
+          <!-- TAB 5: НАЛАШТУВАННЯ ПОСАД І КОЛЬОРІВ -->
           <div id="admin-tab-roles" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
               <h3 class="text-sm font-bold text-white mb-2">Налаштування стилів та кольорів посад</h3>
@@ -502,11 +554,11 @@
 
       <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-800">
         <div id="hist-avatar" class="w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-xl shrink-0">
-          АР
+          МК
         </div>
         <div>
-          <h3 id="hist-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h3>
-          <p id="hist-email" class="text-xs text-sky-400">andreyromanov245@gmail.com</p>
+          <h3 id="hist-name" class="text-lg sm:text-xl font-bold text-white">Максим Копенко</h3>
+          <p id="hist-email" class="text-xs text-sky-400">maksimkopenko123@gmail.com</p>
           <div id="hist-role-badge" class="mt-1"></div>
         </div>
       </div>
@@ -547,11 +599,11 @@
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div id="name-field-box">
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Ваше ім'я</label>
-          <input type="text" id="auth-name" placeholder="Андрій Романов" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="text" id="auth-name" placeholder="Максим" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email (пошта)</label>
-          <input type="email" id="auth-email" required placeholder="user@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="email" id="auth-email" required placeholder="maksimkopenko123@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
@@ -571,7 +623,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЕ ОКНО ОСОБИСТОГО КАБІНЕТУ (ПОПРАВЛЕНА СИСТЕМА + АВАТАРКА + ВХІД В АДМІНКУ) -->
+  <!-- МОДАЛЬНЕ ОКНО ОСОБИСТОГО КАБІНЕТУ -->
   <div id="profile-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-sky-500/30 w-full max-w-xl p-6 sm:p-8 rounded-3xl shadow-2xl relative my-8">
       <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
@@ -579,11 +631,11 @@
       </button>
 
       <div class="flex flex-col sm:flex-row items-center gap-5 mb-6 pb-6 border-b border-slate-800">
-        <!-- БЛОК АВАТАРКИ З МОЖЛИВІСТЮ ЗАВАНТАЖЕННЯ ФОТО -->
+        <!-- БЛОК АВАТАРКИ -->
         <div class="relative group shrink-0">
           <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-sky-500 to-emerald-400 text-slate-950 text-3xl font-black flex items-center justify-center shadow-xl overflow-hidden border-2 border-sky-400/40">
             <img id="profile-avatar-img" src="" alt="Аватарка" class="w-full h-full object-cover hidden" />
-            <span id="profile-avatar-letters">АР</span>
+            <span id="profile-avatar-letters">МК</span>
           </div>
           <label for="avatar-file-input" class="absolute inset-0 bg-slate-950/60 rounded-3xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-opacity text-white text-[10px] font-bold gap-1 backdrop-blur-xs">
             <i data-lucide="camera" class="w-5 h-5"></i>
@@ -595,10 +647,10 @@
         <div class="text-center sm:text-left flex-grow">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 class="text-xl font-black text-white tracking-tight" id="profile-display-name">Андрій Романов</h2>
-              <p class="text-xs text-sky-400 font-medium" id="profile-display-email">andreyromanov245@gmail.com</p>
+              <h2 class="text-xl font-black text-white tracking-tight" id="profile-display-name">maksim</h2>
+              <p class="text-xs text-sky-400 font-medium" id="profile-display-email">maksimkopenko123@gmail.com</p>
             </div>
-            <!-- КНОПКА ПЕРЕХОДУ В АДМІН-ПАНЕЛЬ (ВИДИМА ДЛЯ АДМІНІВ) -->
+            <!-- КНОПКА ПЕРЕХОДУ В АДМІН-ПАНЕЛЬ -->
             <button id="profile-admin-link-btn" onclick="closeProfileModal(); showPage('admin')" class="hidden px-3.5 py-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-extrabold text-xs rounded-2xl shadow-md transition-all items-center gap-1.5 self-center sm:self-start">
               <i data-lucide="shield" class="w-4 h-4 text-amber-300"></i>
               <span>Вхід в Адмінку</span>
@@ -625,7 +677,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block font-bold text-slate-300 uppercase mb-1">Місто / Регіон</label>
-            <input type="text" id="prof-city" placeholder="Одеса / Вознесенськ" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <input type="text" id="prof-city" placeholder="Україна" class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
           </div>
           <div>
             <label class="block font-bold text-slate-300 uppercase mb-1">Напрямок / Інтереси</label>
@@ -645,8 +697,20 @@
 
         <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-1.5">
           <span class="font-bold text-slate-400 uppercase text-[10px]">Авторизована пошта:</span>
-          <p id="prof-email-static" class="text-sky-400 font-bold text-xs">user@gmail.com</p>
+          <p id="prof-email-static" class="text-sky-400 font-bold text-xs">maksimkopenko123@gmail.com</p>
           <p class="text-slate-400 text-[10px]">Якщо ця пошта внесена адміністратором до списку адміністрації, вам автоматично надається доступ до Адмін Панелі.</p>
+        </div>
+
+        <!-- ФОРМА СТВОРЕННЯ ТИКЕТУ В ЛИЧНОМ КАБИНЕТЕ -->
+        <div class="p-4 bg-slate-950/80 rounded-2xl border border-sky-500/20 space-y-3">
+          <h4 class="font-bold text-white text-xs flex items-center gap-2">
+            <i data-lucide="life-buoy" class="w-4 h-4 text-sky-400"></i> Створити обращение / Тикет в підтримку
+          </h4>
+          <input type="text" id="user-ticket-topic" placeholder="Тема звернення..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none">
+          <textarea id="user-ticket-msg" rows="2" placeholder="Опишіть проблему або питання..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs focus:outline-none resize-none"></textarea>
+          <button type="button" onclick="submitUserTicket()" class="w-full py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-bold rounded-xl border border-sky-500/30 transition-all text-xs">
+            Надіслати тикет адміністрації
+          </button>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
@@ -1002,17 +1066,18 @@
     }
 
     // ==========================================
-    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ ТА САНКЦІЙ
+    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ, КОРИСТУВАЧІВ ТА САНКЦІЙ
     // ==========================================
-    const superAdminEmail = "andreyromanov245@gmail.com";
+    const superAdminEmail = "maksimkopenko123@gmail.com";
     
     let defaultAdmins = [
       {
         id: 1,
-        name: "Андрій Романов",
-        email: superAdminEmail,
-        pass: "pass123",
+        name: "Максим Копенко",
+        email: "maksimkopenko123@gmail.com",
+        pass: "admin123",
         role: "Super Admin",
+        telegram: "https://t.me/telegram",
         online: true,
         permissions: { tickets: true, manageAdmins: true, giveSanctions: true, editRoles: true },
         history: [
@@ -1021,10 +1086,22 @@
       },
       {
         id: 2,
+        name: "Андрій Романов",
+        email: "andreyromanov245@gmail.com",
+        pass: "pass123",
+        role: "Головний Адміністратор",
+        telegram: "https://t.me/telegram",
+        online: false,
+        permissions: { tickets: true, manageAdmins: true, giveSanctions: true, editRoles: false },
+        history: []
+      },
+      {
+        id: 3,
         name: "Віктор Мастега",
         email: "mastega@gmail.com",
         pass: "123456",
         role: "Адміністратор",
+        telegram: "https://t.me/telegram",
         online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
         history: []
@@ -1037,15 +1114,26 @@
     }
     localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
 
+    // База зарегистрированных пользователей
+    let defaultUsers = [
+      { id: 1, name: "maksim", email: "maksimkopenko123@gmail.com", phone: "+380670001122", city: "Україна", interest: "Реабілітація та спорт", online: true, lastLogin: "18.10.2026, 15:42" },
+      { id: 2, name: "Віктор", email: "viktor@gmail.com", phone: "+380931112233", city: "Одеса", interest: "Інженерія та розробка", online: false, lastLogin: "17.10.2026, 20:15" },
+      { id: 3, name: "Олена", email: "olena@gmail.com", phone: "+380509998877", city: "Київ", interest: "Волонтерство", online: false, lastLogin: "16.10.2026, 11:30" }
+    ];
+
+    let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || defaultUsers;
+    localStorage.setItem('okean_registered_users', JSON.stringify(savedUsers));
+
     const state = {
       currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
       admins: savedAdmins,
+      registeredUsers: savedUsers,
       organizations: [
         { id: 1, name: "Центр реабілітації 'Новий День'", city: "Київ", category: "Реабілітація", verified: true },
         { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
         { id: 3, name: "Інженерна майстерня 'Хаб 4.0'", city: "Львів", category: "Інженерія", verified: true }
       ],
-      tickets: [
+      tickets: JSON.parse(localStorage.getItem('okean_tickets_db')) || [
         { id: "ТК-1082", date: "18.10.2026, 08:30", name: "Олександр Коваль", contact: "+380671112233", category: "Реабілітація", project: "Морські леви", status: "Новий" },
         { id: "ТK-1081", date: "17.10.2026, 17:45", name: "Марія Петренко", contact: "telegram: @mariia_help", category: "Волонтерство", project: "Оберіг", status: "В роботі" }
       ]
@@ -1053,6 +1141,14 @@
 
     function syncAdminsData() {
       localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+    }
+
+    function syncUsersData() {
+      localStorage.setItem('okean_registered_users', JSON.stringify(state.registeredUsers));
+    }
+
+    function syncTicketsData() {
+      localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets));
     }
 
     // ==========================================
@@ -1145,7 +1241,14 @@
     // 5. АВТОРИЗАЦІЯ ТА ОСОБИСТИЙ КАБІНЕТ З АВАТАРКОЮ
     // ==========================================
     let isRegisterMode = true;
-    let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
+    let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || {
+      name: "maksim",
+      email: "maksimkopenko123@gmail.com",
+      phone: "",
+      city: "Україна",
+      interest: "Реабілітація та спорт",
+      bio: "Авторизовано через Google-акаунт."
+    };
 
     window.onload = function () {
       if (window.google) {
@@ -1175,10 +1278,32 @@
       if (payload) {
         currentUser = { name: payload.name, email: payload.email, avatar: payload.picture || "", phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+        registerUserInDatabase(currentUser);
         closeAuthModal();
         syncUserAndAdminState();
         openProfileModal();
       }
+    }
+
+    function registerUserInDatabase(u) {
+      state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
+      let existing = state.registeredUsers.find(user => user.email.toLowerCase() === u.email.toLowerCase());
+      if (!existing) {
+        state.registeredUsers.unshift({
+          id: Date.now(),
+          name: u.name,
+          email: u.email,
+          phone: u.phone || "Не вказано",
+          city: u.city || "Україна",
+          interest: u.interest || "Реабілітація",
+          online: true,
+          lastLogin: new Date().toLocaleString('uk-UA')
+        });
+      } else {
+        existing.online = true;
+        existing.lastLogin = new Date().toLocaleString('uk-UA');
+      }
+      syncUsersData();
     }
 
     function openAuthModal() { isRegisterMode = true; updateAuthModalUI(); document.getElementById('auth-modal').classList.remove('hidden'); }
@@ -1217,17 +1342,22 @@
       }
 
       currentUser = currentUser || { avatar: "" };
-      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "Користувач");
+      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "maksim");
       currentUser.email = email;
       currentUser.pass = pass;
 
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+      registerUserInDatabase(currentUser);
       closeAuthModal();
       syncUserAndAdminState();
       openProfileModal();
     }
 
     function handleUserLogout() {
+      if (currentUser) {
+        let u = state.registeredUsers.find(x => x.email.toLowerCase() === currentUser.email.toLowerCase());
+        if (u) { u.online = false; syncUsersData(); }
+      }
       currentUser = null;
       state.currentUser = null;
       localStorage.removeItem('okean_logged_user');
@@ -1334,9 +1464,33 @@
         syncAdminsData();
       }
 
+      registerUserInDatabase(currentUser);
       updateHeaderUserUI();
       closeProfileModal();
       alert("Зміни успішно збережено у профілі!");
+    }
+
+    function submitUserTicket() {
+      const topic = document.getElementById('user-ticket-topic').value.trim();
+      const msg = document.getElementById('user-ticket-msg').value.trim();
+      if (!topic || !msg) { alert("Будь ласка, заповніть тему та повідомлення тикету!"); return; }
+
+      const newTicket = {
+        id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toLocaleString('uk-UA'),
+        name: currentUser ? currentUser.name : "Гість",
+        contact: currentUser ? currentUser.email : "Сайт",
+        category: topic,
+        project: msg,
+        status: "Новий"
+      };
+
+      state.tickets.unshift(newTicket);
+      syncTicketsData();
+
+      document.getElementById('user-ticket-topic').value = '';
+      document.getElementById('user-ticket-msg').value = '';
+      alert("Ваш тикет успішно відправлено адміністрації!");
     }
 
     function updateHeaderUserUI() {
@@ -1408,6 +1562,7 @@
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
         
         syncAdminsData();
+        registerUserInDatabase(currentUser);
         errorMsg.classList.add('hidden');
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -1443,14 +1598,21 @@
     }
 
     function switchAdminTab(tabName) {
-      ['admins', 'tickets', 'roles'].forEach(t => {
-        document.getElementById(`admin-tab-${t}`).classList.add('hidden');
-        document.getElementById(`tab-btn-${t}`).className = "px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
+      ['admins', 'admin-cards', 'users', 'tickets', 'roles'].forEach(t => {
+        const panel = document.getElementById(`admin-tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (panel) panel.classList.add('hidden');
+        if (btn) btn.className = "px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
       });
-      document.getElementById(`admin-tab-${tabName}`).classList.remove('hidden');
-      document.getElementById(`tab-btn-${tabName}`).className = "px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
+
+      const activePanel = document.getElementById(`admin-tab-${tabName}`);
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      if (activePanel) activePanel.classList.remove('hidden');
+      if (activeBtn) activeBtn.className = "px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
 
       if (tabName === 'roles') renderRolesConfigGrid();
+      if (tabName === 'admin-cards') renderAdminCardsGrid();
+      if (tabName === 'users') renderRegisteredUsersList();
     }
 
     function populateRoleSelects() {
@@ -1464,6 +1626,7 @@
       const name = document.getElementById('new-admin-name').value.trim();
       const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
       const pass = document.getElementById('new-admin-pass').value.trim();
+      const tg = document.getElementById('new-admin-tg').value.trim();
       const role = document.getElementById('new-admin-role').value;
 
       if (state.admins.some(a => a.email.toLowerCase() === email)) {
@@ -1473,7 +1636,9 @@
 
       const newAdmin = {
         id: Date.now(),
-        name, email, pass, role, online: false,
+        name, email, pass, role,
+        telegram: tg ? (tg.startsWith('http') ? tg : `https://t.me/${tg.replace('@','')}`) : "https://t.me/telegram",
+        online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
         history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Пошту вписано в систему адміністрації з посадою "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
       };
@@ -1484,6 +1649,7 @@
       document.getElementById('new-admin-name').value = '';
       document.getElementById('new-admin-email').value = '';
       document.getElementById('new-admin-pass').value = '';
+      document.getElementById('new-admin-tg').value = '';
 
       alert(`Пошту ${email} успішно зареєстровано в системі адміністрації!`);
       renderAdminDashboard();
@@ -1595,6 +1761,7 @@
     function renderAdminAdminsList() {
       const query = (document.getElementById('admin-search')?.value || '').toLowerCase();
       const list = document.getElementById('admin-team-list');
+      if (!list) return;
 
       const filtered = state.admins.filter(a => a.name.toLowerCase().includes(query) || a.role.toLowerCase().includes(query) || a.email.toLowerCase().includes(query));
 
@@ -1655,6 +1822,77 @@
       }).join('');
     }
 
+    function renderAdminCardsGrid() {
+      const container = document.getElementById('admin-cards-grid');
+      if (!container) return;
+
+      container.innerHTML = state.admins.map(a => `
+        <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-lg hover:border-sky-500/30 transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-black text-lg flex items-center justify-center">
+                ${a.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+              </div>
+              <div>${getRoleBadgeHTML(a.role)}</div>
+            </div>
+            <h4 class="font-bold text-white text-base">${a.name}</h4>
+            <p class="text-xs text-sky-400 mt-1 flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5"></i> ${a.email}</p>
+          </div>
+          
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+            <a href="${a.telegram || 'https://t.me/telegram'}" target="_blank" class="px-3 py-1.5 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i> Telegram
+            </a>
+            <span class="text-[10px] font-bold ${a.online ? 'text-emerald-400' : 'text-slate-500'} flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full ${a.online ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}"></span>
+              ${a.online ? 'В мережі' : 'Офлайн'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderRegisteredUsersList() {
+      const query = (document.getElementById('user-search')?.value || '').toLowerCase();
+      const list = document.getElementById('registered-users-list');
+      const countDisplay = document.getElementById('user-count-display');
+      if (!list) return;
+
+      state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
+      const filtered = state.registeredUsers.filter(u => u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query) || u.city.toLowerCase().includes(query));
+
+      if (countDisplay) countDisplay.textContent = state.registeredUsers.length;
+
+      list.innerHTML = filtered.map(u => `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          <td class="p-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-slate-800 text-sky-400 font-bold flex items-center justify-center border border-slate-700 text-xs">
+                ${u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
+              </div>
+              <div>
+                <span class="font-bold text-white block">${u.name}</span>
+                <span class="text-[11px] text-sky-400">${u.email}</span>
+              </div>
+            </div>
+          </td>
+          <td class="p-3 text-slate-300">${u.phone || 'Не вказано'}</td>
+          <td class="p-3">
+            <span class="text-white font-semibold">${u.city}</span>
+            <div class="text-[10px] text-slate-400">${u.interest}</div>
+          </td>
+          <td class="p-3 text-center">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${u.online ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700'}">
+              <span class="w-2 h-2 rounded-full ${u.online ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}"></span>
+              ${u.online ? 'В мережі' : 'Офлайн'}
+            </span>
+          </td>
+          <td class="p-3 text-right text-slate-400 text-[11px]">${u.lastLogin || '—'}</td>
+        </tr>
+      `).join('');
+    }
+
     function renderRolesConfigGrid() {
       const container = document.getElementById('roles-config-grid');
       container.innerHTML = Object.keys(rolesConfig).map(rName => {
@@ -1699,6 +1937,7 @@
       const list = document.getElementById('admin-tickets-list');
       if (!list) return;
 
+      state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || state.tickets;
       const filtered = state.tickets.filter(t => {
         const matchesQuery = t.name.toLowerCase().includes(query) || t.contact.toLowerCase().includes(query) || t.id.toLowerCase().includes(query);
         const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
@@ -1720,7 +1959,8 @@
     function toggleTicketStatus(id) {
       const ticket = state.tickets.find(t => t.id === id);
       if (ticket) {
-        ticket.status = ticket.status === 'Новий' ? 'В роботі' : 'Новий';
+        ticket.status = ticket.status === 'Новий' ? 'В роботі' : (ticket.status === 'В роботі' ? 'Завершено' : 'Новий');
+        syncTicketsData();
         renderAdminDashboard();
       }
     }
@@ -1810,7 +2050,7 @@
         speakText(aiReply, currentMentor);
 
         state.tickets.unshift({
-          id: `ТК-108${state.tickets.length + 1}`,
+          id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
           name: currentUser ? currentUser.name : "Захищений гість",
           contact: currentUser ? currentUser.email : "Сайт / Бот",
@@ -1818,6 +2058,7 @@
           project: "Загальний",
           status: "Новий"
         });
+        syncTicketsData();
         if (state.currentUser) renderAdminDashboard();
       }, 750);
     }
