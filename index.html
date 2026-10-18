@@ -7,6 +7,9 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Подключаем официальную библиотеку Google Sign-In -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -164,7 +167,7 @@
                   <i data-lucide="send" class="w-6 h-6"></i>
                 </div>
                 <h3 class="font-bold text-white text-lg">Telegram Бот</h3>
-                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Миттєве перенаправлення, бот підтримки та сповіщення</p>
+                <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">Миттєве перенаправлення, бот підтримки та сповіщення[cite: 5]</p>
               </div>
               <span class="mt-6 text-xs font-bold text-amber-400 flex items-center gap-1">Перейти в бот <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </button>
@@ -388,7 +391,18 @@
           <i data-lucide="user-plus" class="w-7 h-7"></i>
         </div>
         <h2 id="auth-title" class="text-2xl font-bold text-white tracking-tight">Реєстрація в кабінеті</h2>
-        <p class="text-xs text-slate-400 mt-1">Збережіть свої дані та налаштування на платформі</p>
+        <p class="text-xs text-slate-400 mt-1">Оберіть швидкий вхід через Google або стандартну форму</p>
+      </div>
+
+      <!-- КНОПКА GOOGLE SIGN-IN -->
+      <div class="mb-6 flex justify-center">
+        <div id="google-signin-btn-container"></div>
+      </div>
+
+      <div class="relative flex py-2 items-center mb-4">
+        <div class="flex-grow border-t border-slate-800"></div>
+        <span class="flex-shrink mx-4 text-[11px] uppercase tracking-wider text-slate-500 font-bold">або через пошту</span>
+        <div class="flex-grow border-t border-slate-800"></div>
       </div>
 
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
@@ -432,7 +446,7 @@
         <div>
           <h2 class="text-xl font-bold text-white" id="profile-display-name">Андрій Романов</h2>
           <p class="text-xs text-sky-400" id="profile-display-email">andreyromanov245@gmail.com</p>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний кадет / Користувач</span>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний користувач / Google Auth</span>
         </div>
       </div>
 
@@ -471,7 +485,7 @@
 
         <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-2">
           <span class="font-bold text-slate-400 uppercase text-[10px]">Статус збереження:</span>
-          <p class="text-slate-300 text-[11px]">Усі зміни миттєво записуються у пам'ять браузера (localStorage) та залишаються незмінними після оновлення сторінки чи виходу.</p>
+          <p class="text-slate-300 text-[11px]">Дані синхронізовані з вашим профілем Google та збережені у пам'яті браузера (localStorage).</p>
         </div>
 
         <div class="flex items-center gap-3 pt-2">
@@ -678,7 +692,7 @@
 
       <div class="px-3 py-2 bg-[#060c1b] border-t border-blue-900/40 flex gap-2 overflow-x-auto no-scrollbar text-[11px]">
         <button onclick="sendQuickChip('Потрібна реабілітація')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Потрібна реабілітація</button>
-        <button onclick="sendQuickChip('Перейти в Телеграм бот')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот</button>
+        <button onclick="sendQuickChip('Перейти в Телеграм бот')" class="px-3 py-1.5 rounded-xl bg-[#0e1836] hover:bg-sky-600/30 text-sky-300 border border-sky-500/30 whitespace-nowrap transition-colors">Telegram Бот[cite: 5]</button>
       </div>
 
       <form onsubmit="handleSendMessage(event)" class="p-3 bg-[#060b18] border-t border-blue-900/60 flex items-center gap-2">
@@ -962,10 +976,66 @@
     }
 
     // ==========================================
-    // 3. АВТОРИЗАЦІЯ, РЕЄСТРАЦІЯ ТА КАБІНЕТ
+    // 3. АВТОРИЗАЦІЯ, РЕЄСТРАЦІЯ ТА GOOGLE OAUTH
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
+
+    // Инициализация Google Sign-In API
+    window.onload = function () {
+      if (window.google) {
+        google.accounts.id.initialize({
+          client_id: "1086603183359-1j4a468uartbu8da0irqp81g414vv1tk.apps.googleusercontent.com",
+          callback: handleGoogleSignInResponse
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("google-signin-btn-container"),
+          { theme: "outline", size: "large", width: "320", text: "continue_with", locale: "uk" }
+        );
+      }
+    };
+
+    // Декодирование JWT токена от Google для получения данных пользователя
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function handleGoogleSignInResponse(response) {
+      const responsePayload = parseJwt(response.credential);
+      if (responsePayload) {
+        const googleUser = {
+          name: responsePayload.name,
+          email: responsePayload.email,
+          phone: "",
+          city: "Україна",
+          interest: "Реабілітація та спорт",
+          bio: "Авторизовано через Google-акаунт на платформі Океан Дружніх."
+        };
+
+        currentUser = googleUser;
+        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+
+        // Сохраняем в общую базу пользователей
+        let registeredUsers = JSON.parse(localStorage.getItem('okean_users_db')) || [];
+        if (!registeredUsers.some(u => u.email === googleUser.email)) {
+          registeredUsers.push(googleUser);
+          localStorage.setItem('okean_users_db', JSON.stringify(registeredUsers));
+        }
+
+        closeAuthModal();
+        updateHeaderUserUI();
+        openProfileModal();
+      }
+    }
 
     function openAuthModal() {
       isRegisterMode = true;
