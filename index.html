@@ -10,6 +10,9 @@
   <!-- Google Sign-In API -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -940,6 +943,11 @@
   </div>
 
   <script>
+    // Инициализация Supabase
+    const SUPABASE_URL = "https://dwlsbihtzmqqqxpuhvqh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_xxeca8IKqbCAn1K_zzjWUQ_E9klBWWh";
+    const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
     lucide.createIcons();
 
     function toggleMobileMenu() {
