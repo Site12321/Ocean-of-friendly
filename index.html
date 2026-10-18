@@ -257,7 +257,7 @@
               <i data-lucide="shield-alert" class="w-7 h-7"></i>
             </div>
             <h2 class="text-2xl font-bold text-white tracking-tight">Вхід в Адмін-Панель</h2>
-            <p class="text-xs text-slate-400 mt-1">Доступ лише для уповноважених співробітників</p>
+            <p class="text-xs text-slate-400 mt-1">Доступ лише для уповноважених співробітників з бази адміністрації</p>
           </div>
 
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
@@ -270,7 +270,7 @@
               <input type="password" id="admin-password" required placeholder="••••••••" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none">
             </div>
             <div id="admin-login-error" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
-              Доступ заборонено! Перевірте правильність логіна або пароля.
+              Доступ заборонено! Ця пошта не зареєстрована в системі адміністраторів.
             </div>
             <button type="submit" class="w-full py-3.5 bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold rounded-2xl text-sm transition-all shadow-lg shadow-sky-400/20">
               Увійти до панелі
@@ -348,11 +348,11 @@
             <!-- FORM: ДОДАТИ АДМІНА -->
             <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
               <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <i data-lucide="user-plus" class="w-4 h-4 text-sky-400"></i> Створити нового адміністратора та призначити посаду
+                <i data-lucide="user-plus" class="w-4 h-4 text-sky-400"></i> Вписати нового адміністратора в систему за поштою
               </h3>
               <form onsubmit="handleAddAdmin(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <input type="text" id="new-admin-name" required placeholder="ПІБ / Ім'я співробітника" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
-                <input type="email" id="new-admin-email" required placeholder="Email (Логін)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <input type="email" id="new-admin-email" required placeholder="Email (пошта доступу)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 <input type="password" id="new-admin-pass" required placeholder="Пароль доступу" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 
                 <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
@@ -361,7 +361,7 @@
 
                 <div class="sm:col-span-2 flex items-center gap-2">
                   <button type="submit" class="w-full py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-md">
-                    Призначити посаду та створити
+                    Зареєструвати пошту в адмінці
                   </button>
                 </div>
               </form>
@@ -1121,7 +1121,7 @@
     }
 
     // ==========================================
-    // 5. АВТОРИЗАЦІЯ КОРИСТУВАЧІВ ТА GOOGLE OAUTH
+    // 5. АВТОРИЗАЦІЯ КОРИСТУВАЧІВ ТА СТРОГА ПРИВ'ЯЗКА АДМІНІСТРАТОРІВ
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || null;
@@ -1185,7 +1185,18 @@
       const pass = document.getElementById('auth-pass').value.trim();
       const name = document.getElementById('auth-name').value.trim();
 
-      currentUser = { name: name || "Користувач", email, pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Учасник платформи." };
+      // СТРОГА ПРОВЕРКА: Если входит не существующий админ по паролю (когда это форма входа), проверяем
+      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
+      const matchedAdmin = state.admins.find(a => a.email.toLowerCase() === email);
+
+      if (!isRegisterMode && matchedAdmin && matchedAdmin.pass && matchedAdmin.pass !== pass) {
+        const errorDiv = document.getElementById('auth-error');
+        errorDiv.textContent = "Невірний пароль для адміністративного акаунта!";
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      currentUser = { name: name || (matchedAdmin ? matchedAdmin.name : "Користувач"), email, pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Учасник платформи." };
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
       closeAuthModal();
       syncUserAndAdminState();
@@ -1193,22 +1204,33 @@
 
     function handleUserLogout() {
       currentUser = null;
+      state.currentUser = null;
       localStorage.removeItem('okean_logged_user');
+      localStorage.removeItem('okean_current_admin');
       closeProfileModal();
       syncUserAndAdminState();
+      showPage('home');
     }
 
-    // Автоматическая привязка Личного кабинета к Админ-панели
+    // СТРОГАЯ СИНХРОНИЗАЦИЯ: Доступ к админ-панели получают ИСКЛЮЧИТЕЛЬНО те, чей email есть в базе admins_db
     function syncUserAndAdminState() {
       state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       
       if (currentUser) {
         const foundAdmin = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
         if (foundAdmin) {
+          // Почта строго совпала с базой администраторов!
           foundAdmin.online = true;
           state.currentUser = foundAdmin;
           localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
+        } else {
+          // Почта НЕ найдена в списке администраторов — убираем админ-права
+          state.currentUser = null;
+          localStorage.removeItem('okean_current_admin');
         }
+      } else {
+        state.currentUser = null;
+        localStorage.removeItem('okean_current_admin');
       }
       
       updateHeaderAuthUI();
@@ -1229,7 +1251,7 @@
       if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
         adminTag.outerHTML = `<div id="profile-admin-access-tag" class="mt-1">${getRoleBadgeHTML(state.currentUser.role)}</div>`;
       } else {
-        adminTag.outerHTML = `<span id="profile-admin-access-tag" class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний користувач</span>`;
+        adminTag.outerHTML = `<span id="profile-admin-access-tag" class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач (Немає прав адміна)</span>`;
       }
 
       document.getElementById('profile-modal').classList.remove('hidden');
@@ -1276,13 +1298,23 @@
 
       if (pageId === 'admin') {
         document.getElementById('page-admin').classList.remove('hidden');
+        
+        // СТРОГАЯ ПРОВЕРКА ДОСТУПА К ПАНЕЛИ
         if (!state.currentUser) {
           document.getElementById('admin-login-box').classList.remove('hidden');
           document.getElementById('admin-dashboard').classList.add('hidden');
         } else {
-          document.getElementById('admin-login-box').classList.add('hidden');
-          document.getElementById('admin-dashboard').classList.remove('hidden');
-          renderAdminDashboard();
+          // Проверяем, действительно ли текущий залогиненный емейл есть в базе администраторов
+          const verifiedAdmin = state.admins.find(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
+          if (verifiedAdmin) {
+            document.getElementById('admin-login-box').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            renderAdminDashboard();
+          } else {
+            alert("Доступ заборонено! Ваш акаунт не має прав адміністратора.");
+            document.getElementById('admin-login-box').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+          }
         }
       } else {
         document.getElementById('page-home').classList.remove('hidden');
@@ -1307,12 +1339,17 @@
         foundAdmin.online = true;
         state.currentUser = foundAdmin;
         localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
-        syncAdminsData();
         
+        // Автоматически синхронизируем и как обычного юзера
+        currentUser = { name: foundAdmin.name, email: foundAdmin.email, pass: foundAdmin.pass, phone: "", city: "", interest: "Реабілітація та спорт", bio: "Адміністратор платформи." };
+        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+        
+        syncAdminsData();
         errorMsg.classList.add('hidden');
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
         updateHeaderAuthUI();
+        updateHeaderUserUI();
         renderAdminDashboard();
       } else {
         errorMsg.classList.remove('hidden');
@@ -1367,7 +1404,7 @@
       const role = document.getElementById('new-admin-role').value;
 
       if (state.admins.some(a => a.email.toLowerCase() === email)) {
-        alert("Адміністратор з таким email вже існує!");
+        alert("Цей email вже внесено до системи адміністраторів!");
         return;
       }
 
@@ -1375,7 +1412,7 @@
         id: Date.now(),
         name, email, pass, role, online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-        history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Створено акаунт та призначено посаду "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
+        history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Пошту вписано в систему адміністрації з посадою "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
       };
 
       state.admins.push(newAdmin);
@@ -1385,6 +1422,7 @@
       document.getElementById('new-admin-email').value = '';
       document.getElementById('new-admin-pass').value = '';
 
+      alert(`Пошту ${email} успішно зареєстровано в системі адміністрації! Тепер користувач може увійти під нею у свій кабінет і отримати доступ до адмін-панелі.`);
       renderAdminDashboard();
     }
 
@@ -1485,7 +1523,7 @@
         alert("Неможливо вилучити головного власника платформи!");
         return;
       }
-      if (confirm(`Ви впевнені, що хочете вилучити з адміністраторів "${admin ? admin.name : ''}"?`)) {
+      if (confirm(`Ви впевнені, що хочете видалити пошту "${admin ? admin.email : ''}" з бази адміністраторів?`)) {
         state.admins = state.admins.filter(a => a.id !== id);
         syncAdminsData();
         renderAdminDashboard();
@@ -1546,7 +1584,7 @@
                 </button>
                 ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
                   `<span class="px-2.5 py-1 bg-slate-800 text-slate-500 font-bold rounded-xl text-[11px]">Захищено</span>` :
-                  `<button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Вилучити</button>`
+                  `<button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Видалити</button>`
                 }
               </div>
             </td>
