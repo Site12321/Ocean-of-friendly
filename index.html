@@ -36,7 +36,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen relative selection:bg-sky-500 selection:text-slate-950">
 
-  <!-- АНІМОВАНИЙ КАНВАС ФОНУ (САМОСТІЙНИЙ ПЕРЕХІД: МОРЕ -> КОСМОС -> МОРЕ) -->
+  <!-- АНІМОВАНИЙ КАНВАС ФОНУ -->
   <canvas id="bg-canvas"></canvas>
 
   <!-- NAVIGATION BAR -->
@@ -91,12 +91,12 @@
         <div id="mentor-active-banner" class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur-md">
           <div class="flex items-center gap-3">
             <div id="mentor-banner-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl">
-              🌺
+              👵
             </div>
             <div>
               <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ваш живий супровідник:</span>
-                <span id="mentor-banner-name" class="text-sm font-black text-amber-400">Лада</span>
+                <span id="mentor-banner-name" class="text-sm font-black text-amber-400">Берегиня</span>
               </div>
               <p id="mentor-banner-desc" class="text-xs text-slate-300 mt-0.5">Лагідна берегиня, світла душевна підтримка та тепло серця</p>
             </div>
@@ -106,7 +106,7 @@
               <i data-lucide="volume-2" class="w-4 h-4"></i> Озвучити привітання
             </button>
             <button onclick="openMentorSelector()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-xl text-xs font-bold transition-all">
-              Змінити голос
+              Змінити голос / Мову
             </button>
           </div>
         </div>
@@ -115,9 +115,7 @@
       <!-- ІГРОВИЙ СЛАЙДЕР-БАННЕР -->
       <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-950/90 via-[#0a1931]/80 to-slate-950/90 border border-blue-900/40 shadow-2xl min-h-[320px] sm:min-h-[360px] flex items-center backdrop-blur-md">
-          
           <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#0284c7_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
-
           <div id="banner-slider-container" class="relative z-10 w-full px-6 sm:px-12 py-10 flex flex-col justify-center items-center text-center"></div>
 
           <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/80 hover:bg-sky-500 text-white flex items-center justify-center border border-slate-700 transition-all z-20 shadow-lg">
@@ -373,7 +371,7 @@
 
   </main>
 
-  <!-- ПОЛНОЭКРАННЫЙ ВЫБОР ЖИВОГО ГОЛОСА СУПРОВІДНИКА (WELCOME OVERLAY) -->
+  <!-- ПОЛНОЭКРАННЫЙ ВЫБОР ЖИВОГО ГОЛОСА И ЯЗЫКА СУПРОВІДНИКА -->
   <div id="mentor-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-6 sm:p-10 overflow-y-auto">
     <div class="max-w-6xl mx-auto w-full text-center mt-4">
       <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold mb-3">
@@ -381,66 +379,74 @@
       </div>
       <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight">ОБЕРИ СВОГО ЖИВОГО СУПРОВІДНИКА</h1>
       <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mt-2">
-        Оберіть унікальний характер і тембр голосу, який буде озвучувати відповіді та супроводжувати вас на сайті.
+        Вітаю, друже! Ти увійшов у потік Океану Дружніх. Оберіть характер голосу та мову супроводу.
       </p>
+
+      <!-- ВЫБОР ЯЗЫКА (УКР / РУС / ENG) -->
+      <div class="flex items-center justify-center gap-2 mt-6">
+        <span class="text-xs font-bold text-slate-400 mr-2">Мова / Language:</span>
+        <button onclick="setMentorLanguage('uk')" id="lang-btn-uk" class="px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-sky-500 text-slate-950 border-sky-400">Українська</button>
+        <button onclick="setMentorLanguage('ru')" id="lang-btn-ru" class="px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">Русский</button>
+        <button onclick="setMentorLanguage('en')" id="lang-btn-en" class="px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">English</button>
+      </div>
     </div>
 
     <!-- 4 ЖИВИХ СУПРОВІДНИКА -->
     <div class="max-w-6xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-8">
       
-      <!-- 1. ЛАДА -->
+      <!-- 1. БЕРЕГИНЯ -->
       <div onclick="selectMentor('lada')" id="card-mentor-lada" class="bg-slate-900/80 border-2 border-slate-800 hover:border-amber-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20"></div>
         <div>
           <div class="w-20 h-20 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-            🌺
+            👵
           </div>
-          <span class="text-[10px] uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">1. Лада</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Лада (Берегиня)</h3>
-          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-            «Теплий жіночий голос, створений для душевної підтримки та затишку.»
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">1. Берегиня</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Берегиня</h3>
+          <p id="desc-mentor-lada" class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Вітаю! Ласкаво просимо.»
           </p>
         </div>
         <div class="mt-6 pt-4 border-t border-slate-800/80">
           <button onclick="event.stopPropagation(); previewVoice('lada')" class="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
             <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
           </button>
-          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Теплий & Лагідний</div>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Лагідний & Душевний</div>
         </div>
       </div>
 
-      <!-- 2. КНЯГИНЯ ОЛЬГА -->
+      <!-- 2. ДІВЧИНКА -->
       <div onclick="selectMentor('olga')" id="card-mentor-olga" class="bg-slate-900/80 border-2 border-slate-800 hover:border-sky-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20"></div>
         <div>
           <div class="w-20 h-20 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-            👑
+            👧
           </div>
-          <span class="text-[10px] uppercase tracking-widest font-extrabold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">2. Княгиня Ольга</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Княгиня Ольга</h3>
-          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-            «Впевнений, мудрий жіночий голос із твердою і чіткою інтонацією.»
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">2. Дівчинка</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Дівчинка</h3>
+          <p id="desc-mentor-olga" class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Вітаю, друже! Ти у потоці Океану Дружніх.»
           </p>
         </div>
         <div class="mt-6 pt-4 border-t border-slate-800/80">
           <button onclick="event.stopPropagation(); previewVoice('olga')" class="w-full py-2.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors mb-2">
             <i data-lucide="volume-2" class="w-4 h-4"></i> Прослухати голос
           </button>
-          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Мудрий & Впевнений</div>
+          <div class="text-[10px] text-slate-500 text-center font-semibold">Жіночий • Щирий & Світлий</div>
         </div>
       </div>
 
-      <!-- 3. КОЗАЦЬКИЙ -->
+      <!-- 3. КОЗАК -->
       <div onclick="selectMentor('kozak')" id="card-mentor-kozak" class="bg-slate-900/80 border-2 border-slate-800 hover:border-emerald-400 rounded-3xl p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-2 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20"></div>
         <div>
           <div class="w-20 h-20 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-            ⚔️
+            👨‍🦱
           </div>
-          <span class="text-[10px] uppercase tracking-widest font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">3. Козацький</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Козацький</h3>
-          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-            «Енергійний, бадьорий та міцний чоловічий голос побратима.»
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">3. Козак</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Козак</h3>
+          <p id="desc-mentor-kozak" class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Будь як вдома, побратиме!»
           </p>
         </div>
         <div class="mt-6 pt-4 border-t border-slate-800/80">
@@ -458,10 +464,10 @@
           <div class="w-20 h-20 rounded-2xl bg-purple-500/20 border border-purple-500/40 text-4xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
             🧙‍♂️
           </div>
-          <span class="text-[10px] uppercase tracking-widest font-extrabold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">4. Старець</span>
-          <h3 class="text-xl font-extrabold text-white mt-2">Старець / Мудрець</h3>
-          <p class="text-xs text-slate-300 mt-2 leading-relaxed">
-            «Низький, глибокий та спокійний голос із тембром вікової мудрості.»
+          <span class="text-[10px] uppercase tracking-widest font-extrabold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full border border-purple-500/20">4. Мудрець</span>
+          <h3 class="text-xl font-extrabold text-white mt-2">Мудрець</h3>
+          <p id="desc-mentor-starets" class="text-xs text-slate-300 mt-2 leading-relaxed">
+            «Нехай мудрість веде тебе.»
           </p>
         </div>
         <div class="mt-6 pt-4 border-t border-slate-800/80">
@@ -479,7 +485,7 @@
         Обрати супровідника та увійти на сайт
       </button>
       <p class="text-[11px] text-slate-500 mt-3">
-        * Без реєстрації. Ви можете змінити супровідника у будь-який момент.
+        * Без реєстрації. Ви можете змінити супровідника та мову у будь-який момент.
       </p>
     </div>
   </div>
@@ -529,11 +535,11 @@
       <div class="bg-[#0b1633]/90 backdrop-blur-md p-4 border-b border-blue-900/50 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div id="chat-mentor-avatar" class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl shadow-inner">
-            🌺
+            👵
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h4 id="chat-mentor-title" class="font-bold text-sm tracking-wide text-white">Лада (Живий голос)</h4>
+              <h4 id="chat-mentor-title" class="font-bold text-sm tracking-wide text-white">Берегиня (Живий голос)</h4>
               <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Онлайн</span>
             </div>
             <span class="text-[11px] text-slate-400">Озвучує відповіді наживо</span>
@@ -547,10 +553,10 @@
       <div id="chat-body" class="p-4 flex-grow overflow-y-auto chat-scroll space-y-4 bg-gradient-to-b from-[#070d1e] to-[#040814] text-xs">
         <div class="flex gap-2.5 items-start msg-animate">
           <div id="msg-mentor-icon" class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">
-            🌺
+            👵
           </div>
           <div id="chat-welcome-text" class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">
-            Вітаю! Я твій супровідник. Обери тему або запитай мене голосом — я відповім наживо!
+            Вітаю! Ласкаво просимо.
           </div>
         </div>
       </div>
@@ -583,7 +589,7 @@
     lucide.createIcons();
 
     // ==========================================
-    // 1. АВТОМАТИЧНА АНІМАЦІЯ ФОНУ (МОРЕ -> КОСМОС -> МОРЕ)
+    // 1. АНІМАЦІЯ ФОНУ (МОРЕ -> КОСМОС -> МОРЕ)
     // ==========================================
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
@@ -618,11 +624,9 @@
     function animateBg() {
       ctx.clearRect(0, 0, width, height);
 
-      // Автоматический плавный переход от моря к космосу и обратно
       animTime += 0.003;
-      spaceBlend = (Math.sin(animTime) + 1) / 2; // Синусоидальное колебание от 0 до 1
+      spaceBlend = (Math.sin(animTime) + 1) / 2;
 
-      // Дополнительный переход при скролле страницы
       let scrollFactor = window.scrollY / (document.body.scrollHeight - window.innerHeight || 1);
       let effectiveBlend = Math.min(1, Math.max(0, spaceBlend + scrollFactor * 0.3));
 
@@ -645,7 +649,6 @@
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
 
-      // Отрисовка звезд космоса
       if (effectiveBlend > 0.05) {
         ctx.save();
         ctx.globalAlpha = effectiveBlend;
@@ -660,7 +663,6 @@
         ctx.restore();
       }
 
-      // Отрисовка морских волн
       if (effectiveBlend < 0.95) {
         ctx.save();
         ctx.globalAlpha = (1 - effectiveBlend) * 0.7;
@@ -686,44 +688,90 @@
     animateBg();
 
     // ==========================================
-    // 2. УНІКАЛЬНІ ЖИВІ ГОЛОСИ СУПРОВІДНИКІВ
+    // 2. ЖИВІ ГОЛОСИ ТА МОВИ СУПРОВІДНИКІВ (UKR / RUS / ENG)
     // ==========================================
+    let currentLang = localStorage.getItem('okean_lang') || 'uk';
+
     const mentors = {
       lada: {
-        name: "Лада",
-        role: "Берегиня",
-        emoji: "🌺",
-        desc: "Турботлива берегиня, світла душевна підтримка",
-        greeting: "Вітаю тебе, серденько! Я Лада. Я тут, щоб обійняти теплом, вислухати та допомогти тобі у будь-якій справі.",
-        pitch: 1.25, rate: 0.95
+        name: "Берегиня",
+        emoji: "👵",
+        pitch: 1.25, rate: 0.95,
+        greetings: {
+          uk: "Вітаю! Ласкаво просимо.",
+          ru: "Приветствую! Добро пожаловать.",
+          en: "Welcome! Glad to have you here."
+        },
+        descs: {
+          uk: "Лагідна берегиня, світла душевна підтримка та тепло серця",
+          ru: "Заботливая хранительница, душевная поддержка и тепло сердца",
+          en: "Caring guardian, warm and gentle support"
+        }
       },
       olga: {
-        name: "Княгиня Ольга",
-        role: "Мудра та рішуча",
-        emoji: "👑",
-        desc: "Державна мудрість, стратегічний розум та непохитна воля",
-        greeting: "Вітаю тебе! Я Княгиня Ольга. Пам'ятай: справжня сила полягає в мудрості та рішучості.",
-        pitch: 1.05, rate: 1.0
+        name: "Дівчинка",
+        emoji: "👧",
+        pitch: 1.4, rate: 1.05,
+        greetings: {
+          uk: "Вітаю, друже! Ти у потоці Океану Дружніх.",
+          ru: "Привет, друг! Ты в потоке Океана Дружелюбных.",
+          en: "Hello, my friend! You are in the flow of the Ocean of Friendly."
+        },
+        descs: {
+          uk: "Щира дівчинка, радість, дружба та світлий оптимізм",
+          ru: "Искренняя девочка, радость, дружба и светлый оптимизм",
+          en: "Joyful girl, cheerful and friendly energy"
+        }
       },
       kozak: {
-        name: "Козацький",
-        role: "Побратим",
-        emoji: "⚔️",
-        desc: "Енергійний козацький дух, підтримка побратимів",
-        greeting: "Здоров був, побратиме! Я Козацький. Тримаймо стрій, куди б не йшли, разом ми непереможні!",
-        pitch: 0.75, rate: 1.08
+        name: "Козак",
+        emoji: "👨‍🦱",
+        pitch: 0.75, rate: 1.08,
+        greetings: {
+          uk: "Будь як вдома, побратиме!",
+          ru: "Будь как дома, братишка!",
+          en: "Make yourself at home, my friend!"
+        },
+        descs: {
+          uk: "Енергійний козацький дух, підтримка побратимів",
+          ru: "Энергичный дух побратима, поддержка и сила",
+          en: "Energetic companion, brave and supportive"
+        }
       },
       starets: {
-        name: "Старець / Мудрець",
-        role: "Мудрець",
+        name: "Мудрець",
         emoji: "🧙‍♂️",
-        desc: "Спокій, вікова мудрість предків та глибокий спокій",
-        greeting: "Мир тобі, добрий чоловіче. Я Мудрець. Виважено та спокійно ми знайдемо істинний шлях.",
-        pitch: 0.55, rate: 0.85
+        pitch: 0.55, rate: 0.85,
+        greetings: {
+          uk: "Нехай мудрість веде тебе.",
+          ru: "Пусть мудрость ведет тебя.",
+          en: "May wisdom guide your way."
+        },
+        descs: {
+          uk: "Спокій, вікова мудрість предків та глибока виваженість",
+          ru: "Покой, вековая мудрость предков и глубокая спокойствие",
+          en: "Peace, ancient wisdom, and deep calm guidance"
+        }
       }
     };
 
     let selectedMentorKey = localStorage.getItem('okean_mentor') || 'lada';
+
+    function setMentorLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('okean_lang', lang);
+
+      document.getElementById('lang-btn-uk').className = `px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'uk' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
+      document.getElementById('lang-btn-ru').className = `px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'ru' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
+      document.getElementById('lang-btn-en').className = `px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'en' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
+
+      document.getElementById('desc-mentor-lada').textContent = `«${mentors.lada.greetings[lang]}»`;
+      document.getElementById('desc-mentor-olga').textContent = `«${mentors.olga.greetings[lang]}»`;
+      document.getElementById('desc-mentor-kozak').textContent = `«${mentors.kozak.greetings[lang]}»`;
+      document.getElementById('desc-mentor-starets').textContent = `«${mentors.starets.greetings[lang]}»`;
+
+      updateMentorUI();
+    }
 
     function openMentorSelector() {
       document.getElementById('mentor-selector-modal').classList.remove('hidden');
@@ -747,41 +795,48 @@
 
     function updateMentorUI() {
       const m = mentors[selectedMentorKey];
+      const greeting = m.greetings[currentLang];
+      const desc = m.descs[currentLang];
+
       document.getElementById('mentor-banner-avatar').textContent = m.emoji;
       document.getElementById('mentor-banner-name').textContent = m.name;
-      document.getElementById('mentor-banner-desc').textContent = m.desc;
+      document.getElementById('mentor-banner-desc').textContent = desc;
 
       document.getElementById('chat-mentor-avatar').textContent = m.emoji;
-      document.getElementById('chat-mentor-title').textContent = `${m.name} (Живий голос)`;
+      document.getElementById('chat-mentor-title').textContent = `${m.name} (${currentLang.toUpperCase()})`;
       document.getElementById('msg-mentor-icon').textContent = m.emoji;
-      document.getElementById('chat-welcome-text').textContent = m.greeting;
+      document.getElementById('chat-welcome-text').textContent = greeting;
     }
 
     function previewVoice(key) {
       const m = mentors[key];
-      speakText(m.greeting, m);
+      speakText(m.greetings[currentLang], m);
     }
 
     function speakMentorGreeting() {
       const m = mentors[selectedMentorKey];
-      speakText(m.greeting, m);
+      speakText(m.greetings[currentLang], m);
     }
 
-    // Синтез людських голосів із налаштуванням тональності
     function speakText(text, mentorObj) {
       if (!('speechSynthesis' in window)) return;
       window.speechSynthesis.cancel();
       
       const m = mentorObj || mentors[selectedMentorKey];
       const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'uk-UA';
+      
+      let langCode = 'uk-UA';
+      if (currentLang === 'ru') langCode = 'ru-RU';
+      if (currentLang === 'en') langCode = 'en-US';
+      
+      utter.lang = langCode;
       utter.pitch = m.pitch;
       utter.rate = m.rate;
 
       const voices = window.speechSynthesis.getVoices();
-      const ukVoice = voices.find(v => v.lang.includes('uk') || v.lang.includes('UA') || v.name.includes('Ukrainian') || v.name.includes('Леся') || v.name.includes('Остап'));
-      if (ukVoice) {
-        utter.voice = ukVoice;
+      const matchedVoice = voices.find(v => v.lang.toLowerCase().includes(currentLang));
+      if (matchedVoice) {
+        utter.voice = matchedVoice;
       }
 
       window.speechSynthesis.speak(utter);
@@ -810,7 +865,7 @@
       }
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'uk-UA';
+      recognition.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
       recognition.interimResults = false;
 
       recognition.onstart = () => {
@@ -888,7 +943,7 @@
     setInterval(nextSlide, 5000);
 
     // ==========================================
-    // 6. АДМІН-ПАНЕЛЬ (ХОСТ: ANDREYROMANOV245@GMAIL.COM)
+    // 6. АДМІН-ПАНЕЛЬ
     // ==========================================
     let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || [];
     const superAdminEmail = "andreyromanov245@gmail.com";
@@ -1146,7 +1201,7 @@
     }
 
     // ==========================================
-    // 7. ЧАТ З АВТОМАТИЧНОЮ ЖИВОЮ ОЗВУЧКОЙ
+    // 7. ЧАТ З ОЗВУЧКОЮ
     // ==========================================
     function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
     function openChatWithPrompt(text) {
@@ -1179,16 +1234,20 @@
       const currentMentor = mentors[selectedMentorKey];
 
       setTimeout(() => {
-        let aiReply = `${currentMentor.name}: Дякую за звернення! Запит успішно опрацьовано. Ми завжди готові підтримати тебе.`;
-        if (message.toLowerCase().includes('реабілітаці')) {
-          aiReply = `${currentMentor.name}: Для реабілітації радимо проєкт «Морські леви» або контакти в каталозі. Також перейди в Telegram-бот @OkeanDruzhnikhBot для швидкого запису.`;
+        let aiReply = `${currentMentor.name}: Дякую за звернення! Запит успішно опрацьовано.`;
+        if (currentLang === 'ru') aiReply = `${currentMentor.name}: Спасибо за обращение! Запрос успешно обработан.`;
+        if (currentLang === 'en') aiReply = `${currentMentor.name}: Thank you for reaching out! Your request has been processed.`;
+
+        if (message.toLowerCase().includes('реабілітаці') || message.toLowerCase().includes('реабилитаци') || message.toLowerCase().includes('rehab')) {
+          if (currentLang === 'uk') aiReply = `${currentMentor.name}: Для реабілітації радимо проєкт «Морські леви» або контакти в каталозі.`;
+          if (currentLang === 'ru') aiReply = `${currentMentor.name}: Для реабилитации рекомендуем проект «Морские львы» или каталог.`;
+          if (currentLang === 'en') aiReply = `${currentMentor.name}: For rehabilitation, we recommend the "Sea Lions" project or our catalog.`;
         }
 
         chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
         lucide.createIcons();
         chatBody.scrollTop = chatBody.scrollHeight;
 
-        // Озвучка живим голосом супровідника
         speakText(aiReply, currentMentor);
 
         state.tickets.unshift({
@@ -1208,7 +1267,7 @@
     renderBanner();
     updateHeaderAuthUI();
     renderCatalog();
-    updateMentorUI();
+    setMentorLanguage(currentLang);
 
     if (!localStorage.getItem('okean_mentor_chosen')) {
       openMentorSelector();
