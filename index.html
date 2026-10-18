@@ -943,7 +943,7 @@
   </div>
 
   <script>
-    // Инициализация Supabase
+    // Ініціалізація Supabase
     const SUPABASE_URL = "https://dwlsbihtzmqqqxpuhvqh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_xxeca8IKqbCAn1K_zzjWUQ_E9klBWWh";
     const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -1122,7 +1122,6 @@
     }
     localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
 
-    // Постійна база зареєстрованих користувачів
     let defaultUsers = [
       { id: 1, name: "maksim", email: "maksimkopenko123@gmail.com", phone: "+380670001122", city: "Україна", interest: "Реабілітація та спорт", online: true, lastLogin: "18.10.2026, 15:42" },
       { id: 2, name: "Віктор", email: "viktor@gmail.com", phone: "+380931112233", city: "Одеса", interest: "Інженерія та розробка", online: false, lastLogin: "17.10.2026, 20:15" },
@@ -1152,7 +1151,7 @@
     function syncTicketsData() { localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); }
 
     // ==========================================
-    // 4. ЖИВІ ГОЛОСИ ТА МОВИ
+    // 4. ЖИВІ ГОЛОСИ ТА МОВИ (ВИПРАВЛЕНА ЛОГІКА ВИБОРУ)
     // ==========================================
     let currentLang = localStorage.getItem('okean_lang') || 'uk';
 
@@ -1197,23 +1196,49 @@
       updateMentorUI();
     }
 
-    function openMentorSelector() { document.getElementById('mentor-selector-modal').classList.remove('hidden'); }
-    function selectMentor(key) {
-      selectedMentorKey = key;
-      document.querySelectorAll('[id^="card-mentor-"]').forEach(el => el.classList.remove('ring-4', 'ring-sky-500/50'));
-      const activeCard = document.getElementById(`card-mentor-${key}`);
-      if (activeCard) activeCard.classList.add('ring-4', 'ring-sky-500/50');
+    function openMentorSelector() { 
+      document.getElementById('mentor-selector-modal').classList.remove('hidden');
+      if (!selectedMentorKey || !mentors[selectedMentorKey]) {
+        selectedMentorKey = 'lada';
+      }
+      selectMentor(selectedMentorKey);
     }
+
+    function selectMentor(key) {
+      if (!mentors[key]) return;
+      selectedMentorKey = key;
+      
+      document.querySelectorAll('[id^="card-mentor-"]').forEach(el => {
+        el.classList.remove('ring-4', 'ring-sky-500/50', 'border-sky-400', 'border-amber-400', 'border-emerald-400', 'border-purple-400');
+        el.classList.add('border-slate-800');
+      });
+
+      const activeCard = document.getElementById(`card-mentor-${key}`);
+      if (activeCard) {
+        activeCard.classList.remove('border-slate-800');
+        activeCard.classList.add('ring-4', 'ring-sky-500/50', 'border-sky-400');
+      }
+    }
+
     function confirmMentorChoice() {
+      if (!selectedMentorKey || !mentors[selectedMentorKey]) {
+        selectedMentorKey = 'lada';
+      }
+
       localStorage.setItem('okean_mentor', selectedMentorKey);
       localStorage.setItem('okean_mentor_chosen', 'true');
-      document.getElementById('mentor-selector-modal').classList.add('hidden');
+      
+      const modal = document.getElementById('mentor-selector-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+      }
+      
       updateMentorUI();
       speakMentorGreeting();
     }
 
     function updateMentorUI() {
-      const m = mentors[selectedMentorKey];
+      const m = mentors[selectedMentorKey] || mentors['lada'];
       document.getElementById('mentor-banner-avatar').textContent = m.emoji;
       document.getElementById('mentor-banner-name').textContent = m.name;
       document.getElementById('mentor-banner-desc').textContent = m.descs[currentLang];
@@ -1264,6 +1289,14 @@
       populateRoleSelects();
       registerUserInDatabase(currentUser);
       syncUserAndAdminState();
+      
+      // Проверка выбора супровідника при загрузке
+      if (!localStorage.getItem('okean_mentor_chosen')) {
+        openMentorSelector();
+      } else {
+        document.getElementById('mentor-selector-modal').classList.add('hidden');
+        updateMentorUI();
+      }
     };
 
     function parseJwt(token) {
@@ -1467,7 +1500,6 @@
       alert("Зміни успішно збережено у профілі!");
     }
 
-    // ТИКЕТИ НАДХОДЖУТЬ ВИКЛЮЧНО АДМІНІСТРАЦІЇ
     function submitUserTicket() {
       const topic = document.getElementById('user-ticket-topic').value.trim();
       const msg = document.getElementById('user-ticket-msg').value.trim();
@@ -2047,7 +2079,7 @@
       input.value = '';
       chatBody.scrollTop = chatBody.scrollHeight;
 
-      const currentMentor = mentors[selectedMentorKey];
+      const currentMentor = mentors[selectedMentorKey] || mentors['lada'];
 
       setTimeout(() => {
         let aiReply = `${currentMentor.name}: Дякую за звернення! Ваш запит передано адміністрації платформи.`;
@@ -2091,12 +2123,6 @@
     syncUserAndAdminState();
     renderCatalog();
     setMentorLanguage(currentLang);
-
-    if (!localStorage.getItem('okean_mentor_chosen')) {
-      openMentorSelector();
-    } else {
-      document.getElementById('mentor-selector-modal').classList.add('hidden');
-    }
   </script>
 </body>
 </html>
