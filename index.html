@@ -82,7 +82,7 @@
           <span id="nav-profile-name" class="hidden sm:inline">Кабінет</span>
         </button>
 
-        <!-- АДМІН-КНОПКА ТЕПЕР СХОВАНА ДЛЯ ЗВИЧАЙНИХ КОРИСТУВАЧІВ И ВИДНА ТОЛЬКО АДМІНАМ -->
+        <!-- АДМІН-КНОПКА СКРИТА ДЛЯ ОБЫЧНЫХ ПОЛЬЗОВАТЕЛЕЙ И ВИДНА ТОЛЬКО АДМІНАМ -->
         <button id="nav-admin-btn" onclick="showPage('admin')" class="hidden items-center gap-2 px-3 sm:px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-2xl transition-all shadow-md">
           <i data-lucide="shield" class="w-3.5 h-3.5 text-sky-400"></i>
           <span class="hidden sm:inline">Адмін Панель</span>
@@ -706,7 +706,8 @@
           <textarea id="prof-bio" rows="2" placeholder="Розкажіть трохи про себе..." class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none font-medium"></textarea>
         </div>
 
-        <div class="bg-slate-950/70 p-4 rounded-2xl border border-blue-900/40 space-y-1">
+        <!-- ТЕКСТ ДЛЯ АДМІНІСТРАТОРІВ (СКРИТ ДЛЯ ОБЫЧНЫХ ПОЛЬЗОВАТЕЛЕЙ) -->
+        <div id="admin-notice-box" class="hidden bg-slate-950/70 p-4 rounded-2xl border border-blue-900/40 space-y-1">
           <span class="font-bold text-slate-400 uppercase text-[10px]">Авторизована пошта:</span>
           <p id="prof-email-static" class="text-sky-400 font-bold text-xs">maksimkopenko123@gmail.com</p>
           <p class="text-slate-400 text-[10px]">Якщо ця пошта внесена адміністратором до списку адміністрації, вам автоматично надається доступ до Адмін Панелі.</p>
@@ -780,7 +781,7 @@
         </div>
       </div>
 
-      <!-- 2. ДІВЧИНКА -->
+      <!-- 2. ДІВЧИНКА (С ОБНОВЛЕННЫМ ТЕКСТОМ) -->
       <div onclick="selectMentor('olga')" id="card-mentor-olga" class="bg-slate-900/80 border-2 border-slate-800 hover:border-sky-400 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-sky-500/10 rounded-full blur-2xl group-hover:bg-sky-500/20"></div>
         <div>
@@ -790,7 +791,7 @@
           <span class="text-[10px] uppercase tracking-widest font-extrabold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">2. Дівчинка</span>
           <h3 class="text-lg sm:text-xl font-extrabold text-white mt-2">Дівчинка</h3>
           <p id="desc-mentor-olga" class="text-xs text-slate-300 mt-2 leading-relaxed">
-            «Вітаю, друже! Ти у потоці Океану Дружніх.»
+            «Вітаю тебе! Ти у чудовому потоці Океану Дружніх.»
           </p>
         </div>
         <div class="mt-4 pt-4 border-t border-slate-800/80">
@@ -801,7 +802,7 @@
         </div>
       </div>
 
-      <!-- 3. КОЗАК -->
+      <!-- 3. КОЗАК (С ОБНОВЛЕННЫМ ТЕКСТОМ) -->
       <div onclick="selectMentor('kozak')" id="card-mentor-kozak" class="bg-slate-900/80 border-2 border-slate-800 hover:border-emerald-400 rounded-3xl p-5 sm:p-6 flex flex-col justify-between transition-all cursor-pointer group hover:-translate-y-1 relative overflow-hidden">
         <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20"></div>
         <div>
@@ -811,7 +812,7 @@
           <span class="text-[10px] uppercase tracking-widest font-extrabold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">3. Козак</span>
           <h3 class="text-lg sm:text-xl font-extrabold text-white mt-2">Козак</h3>
           <p id="desc-mentor-kozak" class="text-xs text-slate-300 mt-2 leading-relaxed">
-            «Будь як вдома, побратиме!»
+            «Будь як вдома, раді вітати тебе.»
           </p>
         </div>
         <div class="mt-4 pt-4 border-t border-slate-800/80">
@@ -1166,7 +1167,7 @@
           localStorage.setItem('okean_admins_db', JSON.stringify(dbAdmins));
         }
       } catch (e) {
-        console.warn("Помилка завантаження з Supabase, використовуємо локальні дані:", e);
+        console.warn("Помилка завантаження з Supabase:", e);
       }
     }
 
@@ -1186,7 +1187,7 @@
     }
 
     // ==========================================
-    // 4. ЖИВІ ГОЛОСИ ТА МОВИ
+    // 4. ЖИВІ ГОЛОСИ ТА МОВИ (ТОЧНЫЕ ТЕКСТЫ ИЗ ВИДЕО)
     // ==========================================
     let currentLang = localStorage.getItem('okean_lang') || 'uk';
 
@@ -1198,13 +1199,29 @@
       },
       olga: {
         name: "Дівчинка", emoji: "👧", pitch: 1.35, rate: 1.02,
-        greetings: { uk: "Вітаю, друже! Ти у чудовому потоці Океану Дружніх.", ru: "Привет, друг! Ты в прекрасном потоке Океана Дружелюбных.", en: "Hello, my friend! You are in the wonderful flow of the Ocean of Friendly." },
-        descs: { uk: "Щира дівчинка, радість, дружба та світлий оптимізм", ru: "Искренняя девочка, радость, дружба и светлый оптимизм", en: "Joyful girl, cheerful and friendly energy" }
+        greetings: { 
+          uk: "Вітаю тебе! Ти у чудовому потоці Океану Дружніх.", 
+          ru: "Приветствую тебя! Ты в прекрасном потоке Океана Дружелюбных.", 
+          en: "Greetings to you! You are in the wonderful flow of the Ocean of Friendly." 
+        },
+        descs: { 
+          uk: "Вітаю тебе! Ти у чудовому потоці Океану Дружніх", 
+          ru: "Приветствую тебя! Ты в прекрасном потоке Океана Дружелюбных", 
+          en: "Greetings to you! You are in the wonderful flow of the Ocean of Friendly" 
+        }
       },
       kozak: {
         name: "Козак", emoji: "👨‍🦱", pitch: 0.8, rate: 1.05,
-        greetings: { uk: "Будь як вдома, побратиме! Раді вітати тебе.", ru: "Будь как дома, братишка! Рады приветствовать тебя.", en: "Make yourself at home, my friend! Glad to welcome you." },
-        descs: { uk: "Енергійний козацький дух, підтримка побратимів", ru: "Энергичный дух побратима, поддержка и сила", en: "Energetic companion, brave and supportive" }
+        greetings: { 
+          uk: "Будь як вдома, раді вітати тебе.", 
+          ru: "Будь как дома, рады приветствовать тебя.", 
+          en: "Make yourself at home, glad to welcome you." 
+        },
+        descs: { 
+          uk: "Будь як вдома, раді вітати тебе", 
+          ru: "Будь как дома, рады приветствовать тебя", 
+          en: "Make yourself at home, glad to welcome you" 
+        }
       },
       starets: {
         name: "Мудрець", emoji: "🧙‍♂️", pitch: 0.65, rate: 0.90,
@@ -1337,9 +1354,7 @@
 
       try {
         await supabaseClient.from('users').upsert(userData, { onConflict: 'email' });
-      } catch (err) {
-        console.error("Помилка відправки користувача в Supabase:", err);
-      }
+      } catch (err) {}
 
       let existing = state.registeredUsers.find(user => user.email.toLowerCase() === u.email.toLowerCase());
       if (!existing) {
@@ -1464,7 +1479,6 @@
       if (!currentUser) { openAuthModal(); return; }
       document.getElementById('profile-display-name').textContent = currentUser.name;
       document.getElementById('profile-display-email').textContent = currentUser.email;
-      document.getElementById('prof-email-static').textContent = currentUser.email;
       
       updateProfileAvatarDisplay();
 
@@ -1476,15 +1490,22 @@
 
       const adminTag = document.getElementById('profile-admin-access-tag');
       const adminLinkBtn = document.getElementById('profile-admin-link-btn');
+      const adminNoticeBox = document.getElementById('admin-notice-box');
 
-      if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
-        adminTag.innerHTML = getRoleBadgeHTML(state.currentUser.role);
+      // ПРОВЕРКА ДЛЯ ПОКАЗА ТЕКСТА И КНОПКИ АДМИНА (ТОЛЬКО ДЛЯ АДМИНИСТРАТОРОВ)
+      const isVerifiedAdmin = state.admins.some(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
+
+      if (isVerifiedAdmin) {
+        adminTag.innerHTML = getRoleBadgeHTML(state.currentUser ? state.currentUser.role : 'Адміністратор');
         adminLinkBtn.classList.remove('hidden');
         adminLinkBtn.classList.add('flex');
+        adminNoticeBox.classList.remove('hidden'); // Показываем текст только админам
+        document.getElementById('prof-email-static').textContent = currentUser.email;
       } else {
-        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач (Немає прав адміна)</span>`;
+        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
+        adminNoticeBox.classList.add('hidden'); // Скрываем текст от обычных пользователей
       }
 
       document.getElementById('profile-modal').classList.remove('hidden');
@@ -1512,7 +1533,6 @@
       alert("Зміни успішно збережено у профілі!");
     }
 
-    // ТИКЕТИ НАДХОДЖУТЬ ВИКЛЮЧНО АДМІНІСТРАЦІЇ
     async function submitUserTicket() {
       const topic = document.getElementById('user-ticket-topic').value.trim();
       const msg = document.getElementById('user-ticket-msg').value.trim();
@@ -1530,9 +1550,7 @@
 
       try {
         await supabaseClient.from('tickets').insert([newTicket]);
-      } catch(err) {
-        console.error("Помилка відправки тикету в Supabase:", err);
-      }
+      } catch(err) {}
 
       state.tickets.unshift(newTicket);
       syncTicketsData();
@@ -1638,7 +1656,6 @@
 
     function updateHeaderAuthUI() {
       const adminBtn = document.getElementById('nav-admin-btn');
-      // ПРОВЕРКА: Показываем кнопку админ-панели ТОЛЬКО если пользователь авторизован и он есть в списке админов
       if (state.currentUser && state.admins.some(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase())) {
         adminBtn.classList.remove('hidden'); adminBtn.classList.add('flex');
       } else {
@@ -1854,16 +1871,14 @@
             </td>
             <td class="p-3 text-center">
               <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                <button onclick="toggleAdminPermission(${a.id}, 'tickets')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.tickets ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="Доступ до тикетів">Тикети</button>
-                <button onclick="toggleAdminPermission(${a.id}, 'manageAdmins')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.manageAdmins ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="Керування персоналом">Персонал</button>
-                <button onclick="toggleAdminPermission(${a.id}, 'giveSanctions')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.giveSanctions ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="Видача доган">Догани</button>
+                <button onclick="toggleAdminPermission(${a.id}, 'tickets')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.tickets ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">Тикети</button>
+                <button onclick="toggleAdminPermission(${a.id}, 'manageAdmins')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.manageAdmins ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">Персонал</button>
+                <button onclick="toggleAdminPermission(${a.id}, 'giveSanctions')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.giveSanctions ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">Догани</button>
               </div>
             </td>
             <td class="p-3 text-right">
               <div class="flex items-center justify-end gap-2">
-                <button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-xl text-[11px] transition-all border border-amber-500/30 flex items-center gap-1">
-                  + Санкція
-                </button>
+                <button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-xl text-[11px] transition-all border border-amber-500/30">+ Санкція</button>
                 ${a.email.toLowerCase() === superAdminEmail.toLowerCase() ? 
                   `<span class="px-2.5 py-1 bg-slate-800 text-slate-500 font-bold rounded-xl text-[11px]">Захищено</span>` :
                   `<button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Видалити</button>`
