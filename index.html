@@ -9,6 +9,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Google Sign-In API -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -942,6 +944,14 @@
   <script>
     lucide.createIcons();
 
+    // ==========================================
+    // 0. SUPABASE CONFIGURATION
+    // ==========================================
+    const SUPABASE_URL = 'https://ВАШ_ПРОЕКТ.supabase.co'; // Впишите ваш Project URL
+    const SUPABASE_KEY = 'sb_publishable_execaIKQbCAn1K_zzjWlQ_E9K18'; // Публикуемый ключ с вашего скриншота
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       menu.classList.toggle('hidden');
@@ -1112,17 +1122,8 @@
     if (!savedAdmins.some(a => a.email.toLowerCase() === superAdminEmail.toLowerCase())) {
       savedAdmins.unshift(defaultAdmins[0]);
     }
-    localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
 
-    // Постійна база зареєстрованих користувачів
-    let defaultUsers = [
-      { id: 1, name: "maksim", email: "maksimkopenko123@gmail.com", phone: "+380670001122", city: "Україна", interest: "Реабілітація та спорт", online: true, lastLogin: "18.10.2026, 15:42" },
-      { id: 2, name: "Віктор", email: "viktor@gmail.com", phone: "+380931112233", city: "Одеса", interest: "Інженерія та розробка", online: false, lastLogin: "17.10.2026, 20:15" },
-      { id: 3, name: "Олена", email: "olena@gmail.com", phone: "+380509998877", city: "Київ", interest: "Волонтерство", online: false, lastLogin: "16.10.2026, 11:30" }
-    ];
-
-    let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || defaultUsers;
-    localStorage.setItem('okean_registered_users', JSON.stringify(savedUsers));
+    let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || [];
 
     const state = {
       currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
@@ -1133,15 +1134,47 @@
         { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
         { id: 3, name: "Інженерна майстерня 'Хаб 4.0'", city: "Львів", category: "Інженерія", verified: true }
       ],
-      tickets: JSON.parse(localStorage.getItem('okean_tickets_db')) || [
-        { id: "ТК-1082", date: "18.10.2026, 08:30", name: "Олександр Коваль", contact: "+380671112233", category: "Реабілітація", project: "Морські леви", status: "Новий" },
-        { id: "ТK-1081", date: "17.10.2026, 17:45", name: "Марія Петренко", contact: "telegram: @mariia_help", category: "Волонтерство", project: "Оберіг", status: "В роботі" }
-      ]
+      tickets: []
     };
 
-    function syncAdminsData() { localStorage.setItem('okean_admins_db', JSON.stringify(state.admins)); }
-    function syncUsersData() { localStorage.setItem('okean_registered_users', JSON.stringify(state.registeredUsers)); }
-    function syncTicketsData() { localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); }
+    async function loadDataFromSupabase() {
+      try {
+        const { data: dbUsers } = await supabaseClient.from('users').select('*');
+        if (dbUsers && dbUsers.length > 0) {
+          state.registeredUsers = dbUsers;
+          localStorage.setItem('okean_registered_users', JSON.stringify(dbUsers));
+        }
+
+        const { data: dbTickets } = await supabaseClient.from('tickets').select('*');
+        if (dbTickets && dbTickets.length > 0) {
+          state.tickets = dbTickets;
+          localStorage.setItem('okean_tickets_db', JSON.stringify(dbTickets));
+        }
+
+        const { data: dbAdmins } = await supabaseClient.from('admins').select('*');
+        if (dbAdmins && dbAdmins.length > 0) {
+          state.admins = dbAdmins;
+          localStorage.setItem('okean_admins_db', JSON.stringify(dbAdmins));
+        }
+      } catch (e) {
+        console.warn("Помилка завантаження з Supabase, використовуємо локальні дані:", e);
+      }
+    }
+
+    async function syncAdminsData() { 
+      localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+      try {
+        await supabaseClient.from('admins').upsert(state.admins);
+      } catch(e) {}
+    }
+
+    async function syncUsersData() { 
+      localStorage.setItem('okean_registered_users', JSON.stringify(state.registeredUsers)); 
+    }
+
+    async function syncTicketsData() { 
+      localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); 
+    }
 
     // ==========================================
     // 4. ЖИВІ ГОЛОСИ ТА МОВИ
@@ -1242,7 +1275,9 @@
       bio: "Авторизовано через систему."
     };
 
-    window.onload = function () {
+    window.onload = async function () {
+      await loadDataFromSupabase();
+
       if (window.google) {
         google.accounts.id.initialize({
           client_id: "1086603183359-1j4a468uartbu8da0irqp81g414vv1tk.apps.googleusercontent.com",
@@ -1254,7 +1289,7 @@
         );
       }
       populateRoleSelects();
-      registerUserInDatabase(currentUser);
+      await registerUserInDatabase(currentUser);
       syncUserAndAdminState();
     };
 
@@ -1266,36 +1301,43 @@
       } catch (e) { return null; }
     }
 
-    function handleGoogleSignInResponse(response) {
+    async function handleGoogleSignInResponse(response) {
       const payload = parseJwt(response.credential);
       if (payload) {
         currentUser = { name: payload.name, email: payload.email, avatar: payload.picture || "", phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        registerUserInDatabase(currentUser);
+        await registerUserInDatabase(currentUser);
         closeAuthModal();
         syncUserAndAdminState();
         openProfileModal();
       }
     }
 
-    function registerUserInDatabase(u) {
+    async function registerUserInDatabase(u) {
       if (!u || !u.email) return;
-      state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
+
+      const userData = {
+        name: u.name || "Гість",
+        email: u.email.toLowerCase(),
+        phone: u.phone || "Не вказано",
+        city: u.city || "Україна",
+        interest: u.interest || "Реабілітація",
+        online: true,
+        last_login: new Date().toLocaleString('uk-UA')
+      };
+
+      try {
+        await supabaseClient.from('users').upsert(userData, { onConflict: 'email' });
+      } catch (err) {
+        console.error("Ошибка отправки пользователя в Supabase:", err);
+      }
+
       let existing = state.registeredUsers.find(user => user.email.toLowerCase() === u.email.toLowerCase());
       if (!existing) {
-        state.registeredUsers.unshift({
-          id: Date.now(),
-          name: u.name || "Гість",
-          email: u.email,
-          phone: u.phone || "Не вказано",
-          city: u.city || "Україна",
-          interest: u.interest || "Реабілітація",
-          online: true,
-          lastLogin: new Date().toLocaleString('uk-UA')
-        });
+        state.registeredUsers.unshift(userData);
       } else {
         existing.online = true;
-        existing.lastLogin = new Date().toLocaleString('uk-UA');
+        existing.last_login = userData.last_login;
         if (u.name) existing.name = u.name;
       }
       syncUsersData();
@@ -1320,13 +1362,12 @@
       }
     }
 
-    function handleAuthSubmit(e) {
+    async function handleAuthSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('auth-email').value.trim().toLowerCase();
       const pass = document.getElementById('auth-pass').value.trim();
       const name = document.getElementById('auth-name').value.trim();
 
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const matchedAdmin = state.admins.find(a => a.email.toLowerCase() === email);
 
       currentUser = currentUser || { avatar: "" };
@@ -1335,17 +1376,22 @@
       currentUser.pass = pass;
 
       localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-      registerUserInDatabase(currentUser);
+      await registerUserInDatabase(currentUser);
       closeAuthModal();
       syncUserAndAdminState();
       openProfileModal();
     }
 
-    function handleUserLogout() {
+    async function handleUserLogout() {
       if (currentUser) {
-        state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
         let u = state.registeredUsers.find(x => x.email.toLowerCase() === currentUser.email.toLowerCase());
-        if (u) { u.online = false; syncUsersData(); }
+        if (u) { 
+          u.online = false; 
+          try {
+            await supabaseClient.from('users').update({ online: false }).eq('email', u.email);
+          } catch(e) {}
+          syncUsersData(); 
+        }
       }
       currentUser = null;
       state.currentUser = null;
@@ -1357,8 +1403,6 @@
     }
 
     function syncUserAndAdminState() {
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
-      
       if (currentUser) {
         const foundAdmin = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
         if (foundAdmin) {
@@ -1438,7 +1482,7 @@
     }
     function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
 
-    function saveUserProfile(e) {
+    async function saveUserProfile(e) {
       e.preventDefault();
       if (!currentUser) return;
       currentUser.name = document.getElementById('prof-name').value.trim();
@@ -1450,22 +1494,21 @@
       
       if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
         state.currentUser.name = currentUser.name;
-        syncAdminsData();
+        await syncAdminsData();
       }
 
-      registerUserInDatabase(currentUser);
+      await registerUserInDatabase(currentUser);
       updateHeaderUserUI();
       closeProfileModal();
       alert("Зміни успішно збережено у профілі!");
     }
 
     // ТИКЕТИ НАДХОДЖУТЬ ВИКЛЮЧНО АДМІНІСТРАЦІЇ
-    function submitUserTicket() {
+    async function submitUserTicket() {
       const topic = document.getElementById('user-ticket-topic').value.trim();
       const msg = document.getElementById('user-ticket-msg').value.trim();
       if (!topic || !msg) { alert("Будь ласка, заповніть тему та повідомлення тикету!"); return; }
 
-      state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || [];
       const newTicket = {
         id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
         date: new Date().toLocaleString('uk-UA'),
@@ -1475,6 +1518,12 @@
         project: msg,
         status: "Новий"
       };
+
+      try {
+        await supabaseClient.from('tickets').insert([newTicket]);
+      } catch(err) {
+        console.error("Помилка відправки тикету в Supabase:", err);
+      }
 
       state.tickets.unshift(newTicket);
       syncTicketsData();
@@ -1532,13 +1581,12 @@
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
-    function handleAdminLogin(e) {
+    async function handleAdminLogin(e) {
       e.preventDefault();
       const username = document.getElementById('admin-username').value.trim().toLowerCase();
       const password = document.getElementById('admin-password').value.trim();
       const errorMsg = document.getElementById('admin-login-error');
 
-      state.admins = JSON.parse(localStorage.getItem('okean_admins_db')) || state.admins;
       const foundAdmin = state.admins.find(a => a.email.trim().toLowerCase() === username && a.pass.trim() === password);
 
       if (foundAdmin) {
@@ -1552,8 +1600,8 @@
         currentUser.pass = foundAdmin.pass;
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
         
-        syncAdminsData();
-        registerUserInDatabase(currentUser);
+        await syncAdminsData();
+        await registerUserInDatabase(currentUser);
         errorMsg.classList.add('hidden');
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -1565,11 +1613,11 @@
       }
     }
 
-    function handleAdminLogout() {
+    async function handleAdminLogout() {
       if (state.currentUser) {
         const found = state.admins.find(a => a.id === state.currentUser.id);
         if (found) found.online = false;
-        syncAdminsData();
+        await syncAdminsData();
       }
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
@@ -1613,7 +1661,7 @@
       roleSelect.innerHTML = Object.keys(rolesConfig).map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
-    function handleAddAdmin(e) {
+    async function handleAddAdmin(e) {
       e.preventDefault();
       const name = document.getElementById('new-admin-name').value.trim();
       const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
@@ -1636,7 +1684,7 @@
       };
 
       state.admins.push(newAdmin);
-      syncAdminsData();
+      await syncAdminsData();
 
       document.getElementById('new-admin-name').value = '';
       document.getElementById('new-admin-email').value = '';
@@ -1654,7 +1702,7 @@
     }
     function closeSanctionModal() { document.getElementById('sanction-modal').classList.add('hidden'); }
 
-    function handleApplySanction(e) {
+    async function handleApplySanction(e) {
       e.preventDefault();
       const adminId = parseInt(document.getElementById('sanc-admin-id').value);
       const sancType = document.querySelector('input[name="sanc-type"]:checked').value;
@@ -1669,7 +1717,7 @@
           reason: reason,
           author: state.currentUser ? state.currentUser.name : "Адміністрація"
         });
-        syncAdminsData();
+        await syncAdminsData();
         closeSanctionModal();
         renderAdminDashboard();
       }
@@ -1706,7 +1754,7 @@
     }
     function closeAdminHistoryModal() { document.getElementById('admin-history-modal').classList.add('hidden'); }
 
-    function changeAdminRole(adminId, newRole) {
+    async function changeAdminRole(adminId, newRole) {
       const admin = state.admins.find(a => a.id === adminId);
       if (admin) {
         if (admin.email.toLowerCase() === superAdminEmail.toLowerCase() && newRole !== "Super Admin") {
@@ -1722,22 +1770,22 @@
           reason: `Посаду змінено на "${newRole}"`,
           author: state.currentUser ? state.currentUser.name : "System"
         });
-        syncAdminsData();
+        await syncAdminsData();
         renderAdminDashboard();
       }
     }
 
-    function toggleAdminPermission(adminId, permKey) {
+    async function toggleAdminPermission(adminId, permKey) {
       const admin = state.admins.find(a => a.id === adminId);
       if (admin) {
         if (!admin.permissions) admin.permissions = { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
         admin.permissions[permKey] = !admin.permissions[permKey];
-        syncAdminsData();
+        await syncAdminsData();
         renderAdminAdminsList();
       }
     }
 
-    function removeAdmin(id) {
+    async function removeAdmin(id) {
       const admin = state.admins.find(a => a.id === id);
       if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
         alert("Неможливо вилучити головного власника платформи!");
@@ -1745,7 +1793,10 @@
       }
       if (confirm(`Ви впевнені, що хочете видалити пошту "${admin ? admin.email : ''}" з бази адміністраторів?`)) {
         state.admins = state.admins.filter(a => a.id !== id);
-        syncAdminsData();
+        try {
+          await supabaseClient.from('admins').delete().eq('id', id);
+        } catch(e) {}
+        await syncAdminsData();
         renderAdminDashboard();
       }
     }
@@ -1851,7 +1902,6 @@
       const countDisplay = document.getElementById('user-count-display');
       if (!list) return;
 
-      state.registeredUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || state.registeredUsers;
       const filtered = state.registeredUsers.filter(u => u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query) || u.city.toLowerCase().includes(query));
 
       if (countDisplay) countDisplay.textContent = state.registeredUsers.length;
@@ -1880,7 +1930,7 @@
               ${u.online ? 'В мережі' : 'Офлайн'}
             </span>
           </td>
-          <td class="p-3 text-right text-slate-400 text-[11px]">${u.lastLogin || '—'}</td>
+          <td class="p-3 text-right text-slate-400 text-[11px]">${u.last_login || u.lastLogin || '—'}</td>
         </tr>
       `).join('');
     }
@@ -1929,9 +1979,8 @@
       const list = document.getElementById('admin-tickets-list');
       if (!list) return;
 
-      state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || state.tickets;
       const filtered = state.tickets.filter(t => {
-        const matchesQuery = t.name.toLowerCase().includes(query) || t.contact.toLowerCase().includes(query) || t.id.toLowerCase().includes(query);
+        const matchesQuery = (t.name || '').toLowerCase().includes(query) || (t.contact || '').toLowerCase().includes(query) || (t.id || '').toLowerCase().includes(query);
         const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
         return matchesQuery && matchesStatus;
       });
@@ -1953,11 +2002,13 @@
       lucide.createIcons();
     }
 
-    function toggleTicketStatus(id) {
-      state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || state.tickets;
+    async function toggleTicketStatus(id) {
       const ticket = state.tickets.find(t => t.id === id);
       if (ticket) {
         ticket.status = ticket.status === 'Новий' ? 'В роботі' : (ticket.status === 'В роботі' ? 'Завершено' : 'Новий');
+        try {
+          await supabaseClient.from('tickets').update({ status: ticket.status }).eq('id', id);
+        } catch(e) {}
         syncTicketsData();
         filterTickets();
       }
@@ -2028,7 +2079,7 @@
       handleSendMessage(new Event('submit'));
     }
 
-    function handleSendMessage(e) {
+    async function handleSendMessage(e) {
       e.preventDefault();
       const input = document.getElementById('chat-input');
       const message = input.value.trim();
@@ -2041,14 +2092,13 @@
 
       const currentMentor = mentors[selectedMentorKey];
 
-      setTimeout(() => {
+      setTimeout(async () => {
         let aiReply = `${currentMentor.name}: Дякую за звернення! Ваш запит передано адміністрації платформи.`;
         chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
         chatBody.scrollTop = chatBody.scrollHeight;
         speakText(aiReply, currentMentor);
 
-        state.tickets = JSON.parse(localStorage.getItem('okean_tickets_db')) || [];
-        state.tickets.unshift({
+        const chatTicket = {
           id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
           name: currentUser ? currentUser.name : "Гість чату",
@@ -2056,7 +2106,13 @@
           category: "Чат-запит",
           project: message,
           status: "Новий"
-        });
+        };
+
+        try {
+          await supabaseClient.from('tickets').insert([chatTicket]);
+        } catch(err) {}
+
+        state.tickets.unshift(chatTicket);
         syncTicketsData();
         if (state.currentUser) renderAdminDashboard();
       }, 750);
