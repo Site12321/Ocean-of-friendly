@@ -1456,6 +1456,10 @@
         } else {
           state.currentUser = null;
           localStorage.removeItem('okean_current_admin');
+          // СБРОС: если пользователя сняли с админов, автоматически выкидываем из админки на главную
+          if (!document.getElementById('page-admin').classList.contains('hidden')) {
+            showPage('home');
+          }
         }
       } else {
         state.currentUser = null;
@@ -1513,19 +1517,21 @@
       const adminLinkBtn = document.getElementById('profile-admin-link-btn');
       const adminNoticeBox = document.getElementById('admin-notice-box');
 
+      // Проверяем актуальный статус по текущему массиву админов
       const isVerifiedAdmin = state.admins.some(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
 
       if (isVerifiedAdmin) {
-        adminTag.innerHTML = getRoleBadgeHTML(state.currentUser ? state.currentUser.role : 'Адміністратор');
+        const currentAdminObj = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
+        adminTag.innerHTML = getRoleBadgeHTML(currentAdminObj ? currentAdminObj.role : 'Адміністратор');
         adminLinkBtn.classList.remove('hidden');
         adminLinkBtn.classList.add('flex');
-        adminNoticeBox.classList.remove('hidden');
+        adminNoticeBox.classList.remove('hidden'); // Показываем блок с текстом авторизованной почты
         document.getElementById('prof-email-static').textContent = currentUser.email;
       } else {
         adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
-        adminNoticeBox.classList.add('hidden');
+        adminNoticeBox.classList.add('hidden'); // УБИРАЕМ ТЕКСТ / БЛОК АДМІНІСТРАТОРА при снятии с поста!
       }
 
       document.getElementById('profile-modal').classList.remove('hidden');
@@ -1714,7 +1720,7 @@
       const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
       const pass = document.getElementById('new-admin-pass').value.trim();
       const tg = document.getElementById('new-admin-tg').value.trim();
-      const role = document.getElementById('new-admin-role').value;
+      const role = document.getElementById('new-admin-role').value; // Четко фиксируем выбранную должность
 
       if (email === superAdminEmail.toLowerCase()) {
         alert("Ця пошта вже є головним Super Admin!");
@@ -1733,7 +1739,7 @@
 
       const newAdmin = {
         id: Date.now(),
-        name, email, pass, role,
+        name, email, pass, role, // Сохраняем ту должность, которую выбрали в выпадающем списке
         telegram: tg ? (tg.startsWith('http') ? tg : `https://t.me/${tg.replace('@','')}`) : "https://t.me/telegram",
         online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
@@ -1748,7 +1754,7 @@
       document.getElementById('new-admin-pass').value = '';
       document.getElementById('new-admin-tg').value = '';
 
-      alert(`Пошту ${email} успішно зареєстровано в системі адміністрації!`);
+      alert(`Пошту ${email} успішно зареєстровано в системі адміністрації з посадою "${role}"!`);
       renderAdminDashboard();
     }
 
@@ -1828,6 +1834,7 @@
     }
     function closeAdminHistoryModal() { document.getElementById('admin-history-modal').classList.add('hidden'); }
 
+    // СТРОГОЕ ИЗМЕНЕНИЕ И СОХРАНЕНИЕ ВЫБРАННОЙ ДОЛЖНОСТИ
     async function changeAdminRole(adminId, newRole) {
       const admin = state.admins.find(a => a.id === adminId);
       if (admin) {
@@ -1837,12 +1844,12 @@
           return;
         }
         if (newRole === "Super Admin" && admin.email.toLowerCase() !== superAdminEmail.toLowerCase()) {
-          alert("Неможливо призначити іншу особу Super Admin! Ця посада доступна тільки для andreyromanov245@gmail.com");
+          alert("Неможливо призначити іншу особу Super Admin! Ця посада доступна тільки для владельца.");
           renderAdminAdminsList();
           return;
         }
 
-        admin.role = newRole;
+        admin.role = newRole; // Сохраняем ту должность, которую выбрали в выпадающем списке
         if (!admin.history) admin.history = [];
         admin.history.unshift({
           date: new Date().toLocaleString('uk-UA'),
@@ -1852,6 +1859,7 @@
         });
         await syncAdminsData();
         renderAdminDashboard();
+        syncUserAndAdminState();
       }
     }
 
@@ -1865,19 +1873,24 @@
       }
     }
 
+    // ПОЛНОЕ СНЯТИЕ С ПОСТА АДМИНА И УДАЛЕНИЕ ПРАВ
     async function removeAdmin(id) {
       const admin = state.admins.find(a => a.id === id);
       if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
         alert("Неможливо вилучити головного власника платформи (Super Admin)!");
         return;
       }
-      if (confirm(`Ви впевнені, що хочете видалити пошту "${admin ? admin.email : ''}" з бази адміністраторів?`)) {
+      if (confirm(`Ви впевнені, що хочете зняти з поста та видалити адміністратора "${admin ? admin.email : ''}"?`)) {
         state.admins = state.admins.filter(a => a.id !== id);
         try {
           await supabaseClient.from('admins').delete().eq('id', id);
         } catch(e) {}
         await syncAdminsData();
+        
+        // Сбрасываем права и проверяем сессию
+        syncUserAndAdminState();
         renderAdminDashboard();
+        alert("Адміністратора успішно знято з поста, права анульовано!");
       }
     }
 
@@ -1943,6 +1956,7 @@
         await syncAdminsData();
         alert(`Користувачу ${u.name} успішно надано права адміністратора!`);
         renderAdminDashboard();
+        syncUserAndAdminState();
       }
     }
 
@@ -2006,7 +2020,7 @@
                 ${isSuper ? 
                   `<span class="px-3 py-1 bg-amber-500/10 text-amber-300 font-bold rounded-xl text-[11px] border border-amber-500/20">Головний Власник</span>` :
                   `<button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-xl text-[11px] transition-all border border-amber-500/30">+ Санкція</button>
-                   <button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Видалити</button>`
+                   <button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Зняти з поста</button>`
                 }
               </div>
             </td>
@@ -2089,10 +2103,10 @@
           <td class="p-3 text-right">
             <div class="flex items-center justify-end gap-1.5 flex-wrap">
               <button onclick="toggleUserBan('${u.email}')" class="px-2.5 py-1 ${u.banned ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'} font-bold rounded-lg text-[10px]">${u.banned ? 'Розбанити' : 'Бан'}</button>
-              <button onclick="addUserWarn('${u.email}')" class="px-2 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold rounded-lg text-[10px]">+Варн</button>
-              <button onclick="removeUserWarn('${u.email}')" class="px-2 py-1 bg-slate-800 text-slate-300 border border-slate-700 font-bold rounded-lg text-[10px]">-Варн</button>
+              <button onclick="addUserWarn('${u.email}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold rounded-lg text-[10px]">+Варн</button>
+              <button onclick="removeUserWarn('${u.email}')" class="px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 font-bold rounded-lg text-[10px]">-Варн</button>
               <button onclick="grantAdminFromUser('${u.email}')" class="px-2.5 py-1 bg-sky-500/20 text-sky-300 border border-sky-500/30 font-bold rounded-lg text-[10px]">Адмінка</button>
-              <button onclick="deleteUserByEmail('${u.email}')" class="px-2 py-1 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-bold rounded-lg text-[10px]">Видалити</button>
+              <button onclick="deleteUserByEmail('${u.email}')" class="px-2.5 py-1 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-bold rounded-lg text-[10px]">Видалити</button>
             </div>
           </td>
         </tr>
