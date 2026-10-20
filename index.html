@@ -233,14 +233,12 @@
         </div>
       </section>
 
-      <!-- COMMUNITIES SECTION (ІНТЕРАКТИВНІ СНІПЕТИ) -->
+      <!-- COMMUNITIES SECTION -->
       <section id="communities" class="py-16 bg-slate-900/60 border-t border-slate-800/80 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 class="text-3xl font-extrabold text-white mb-4">Спільноти за інтересами</h2>
           <p class="text-slate-400 mb-8">Обирайте свій напрямок, переглядайте матеріали та долучайтеся до спільноти</p>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" id="communities-cards-grid">
-            <!-- Кликабельные сообщества генерируются через JS -->
-          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" id="communities-cards-grid"></div>
         </div>
       </section>
     </div>
@@ -267,14 +265,11 @@
           </button>
         </div>
 
-        <!-- ГАЛЕРЕЯ ФОТО И ПОСТОВ СПИЛЬНОТИ -->
         <div>
           <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
             <i data-lucide="image" class="w-5 h-5 text-sky-400"></i> Галерея та фото спільноти
           </h3>
-          <div id="comm-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- Динамически загружается фото и посты -->
-          </div>
+          <div id="comm-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
         </div>
       </div>
     </div>
@@ -399,7 +394,6 @@
                 <input type="text" id="new-admin-tg" placeholder="Telegram handle (@nikname)" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
                 
                 <select id="new-admin-role" class="px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
-                  <!-- Заповнюється JS -->
                 </select>
 
                 <div class="sm:col-span-2 lg:col-span-3 flex items-center gap-2">
@@ -437,7 +431,7 @@
 
           </div>
 
-          <!-- TAB 2: ПАНЕЛЬ АГЕНТІВ ПІДТРИМКИ (НОВИЙ РОЗДІЛ) -->
+          <!-- TAB 2: ПАНЕЛЬ АГЕНТІВ ПІДТРИМКИ -->
           <div id="admin-tab-support-agents" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl space-y-6">
               
@@ -453,7 +447,6 @@
                 </button>
               </div>
 
-              <!-- ТАБЛИЦЯ АГЕНТІВ ПІДТРИМКИ -->
               <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs min-w-[700px]">
                   <thead>
@@ -472,7 +465,7 @@
             </div>
           </div>
 
-          <!-- TAB 3: КАРТКИ АДМІНІСТРАТОРІВ (БЛОКИ З TELEGRAM) -->
+          <!-- TAB 3: КАРТКИ АДМІНІСТРАТОРІВ -->
           <div id="admin-tab-admin-cards" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
               <div class="mb-6">
@@ -583,7 +576,6 @@
         <div>
           <label class="block font-bold text-slate-300 uppercase mb-1">Оберіть співробітника / користувача</label>
           <select id="agent-user-select" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none">
-            <!-- Populated by JS -->
           </select>
         </div>
 
@@ -668,7 +660,6 @@
         <div>
           <label class="block font-bold text-slate-300 uppercase mb-1">Оберіть адміністратора</label>
           <select id="sanc-admin-id" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none">
-            <!-- Populated by JS -->
           </select>
         </div>
 
@@ -744,7 +735,6 @@
         <p class="text-xs text-slate-400 mt-1">Оберіть швидкий вхід через Google або стандартну форму</p>
       </div>
 
-      <!-- GOOGLE SIGN-IN BUTTON CONTAINER -->
       <div class="mb-6 flex justify-center">
         <div id="google-signin-btn-container"></div>
       </div>
@@ -1037,7 +1027,7 @@
     </div>
   </div>
 
-  <!-- AI CHAT WIDGET З ГОЛОСОВИМ ВВОДОМ ТА ОЗВУЧКОЮ -->
+  <!-- AI CHAT WIDGET -->
   <div id="chat-widget" class="fixed bottom-4 right-4 z-50 flex flex-col items-end">
     <div id="chat-window" class="hidden w-[92vw] sm:w-[400px] h-[520px] sm:h-[580px] bg-[#070d1e]/95 backdrop-blur-xl text-white rounded-3xl shadow-2xl border border-blue-900/60 flex flex-col overflow-hidden mb-3 transition-all relative">
       <div class="bg-[#0b1633]/90 backdrop-blur-md p-4 border-b border-blue-900/50 flex items-center justify-between">
@@ -1209,17 +1199,23 @@
     animateBg();
 
     // ==========================================
-    // 2. ДИНАМІЧНІ ПОСАДИ ТА СТИЛІ КОЛЬОРІВ
+    // 2. ДВІ ІЄРАРХІЧНІ СИСТЕМИ ПОСАД ТА СТИЛІ
     // ==========================================
     const defaultRolesConfig = {
-      "Super Admin": { name: "Super Admin", badgeStyle: "background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4);" },
-      "Головний Спеціаліст": { name: "Головний Спеціаліст", badgeStyle: "background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);" },
-      "Заступник Головного Спеціаліста": { name: "Заступник Головного Спеціаліста", badgeStyle: "background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4);" },
+      // Система адміністрації
+      "Супер Адміністратор": { name: "Супер Адміністратор", badgeStyle: "background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4);" },
+      "Головний Адміністратор": { name: "Головний Адміністратор", badgeStyle: "background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);" },
+      "Заступник Головного Адміністратора": { name: "Заступник Головного Адміністратора", badgeStyle: "background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.4);" },
+      "Старший Адміністратор": { name: "Старший Адміністратор", badgeStyle: "background: rgba(217, 70, 239, 0.2); color: #f5d0fe; border: 1px solid rgba(217, 70, 239, 0.4);" },
+      "Адміністратор": { name: "Адміністратор", badgeStyle: "background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);" },
+      "Молодший Адміністратор": { name: "Молодший Адміністратор", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
+      
+      // Система агентів підтримки
       "Головний Агент Підтримки": { name: "Головний Агент Підтримки", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
       "Заступник Головного Агента Підтримки": { name: "Заступник Головного Агента Підтримки", badgeStyle: "background: rgba(192, 132, 252, 0.2); color: #e9d5ff; border: 1px solid rgba(192, 132, 252, 0.4);" },
-      "Старший Агент Підтримки": { name: "Старший Агент Підтримки", badgeStyle: "background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);" },
-      "Агент Підтримки": { name: "Агент Підтримки", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
-      "Молодший Агент Підтримки": { name: "Молодший Агент Підтримки", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" }
+      "Старший Агент Підтримки": { name: "Старший Агент Підтримки", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4);" },
+      "Агент Підтримки": { name: "Агент Підтримки", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" },
+      "Молодший Агент Підтримки": { name: "Молодший Агент Підтримки", badgeStyle: "background: rgba(20, 184, 166, 0.2); color: #99f6e4; border: 1px solid rgba(20, 184, 166, 0.4);" }
     };
 
     let rolesConfig = JSON.parse(localStorage.getItem('okean_roles_config')) || defaultRolesConfig;
@@ -1240,13 +1236,13 @@
         name: "Андрій Романов",
         email: "andreyromanov245@gmail.com",
         pass: "admin123",
-        role: "Super Admin",
+        role: "Супер Адміністратор",
         subrole: "Керівник платформи",
         telegram: "https://t.me/telegram",
         online: true,
         permissions: { tickets: true, manageAdmins: true, giveSanctions: true, editRoles: true },
         history: [
-          { date: "18.10.2026, 09:00", type: "system", reason: "Призначено головним власником та Super Admin системи", author: "Система" }
+          { date: "18.10.2026, 09:00", type: "system", reason: "Призначено головним власником та Супер Адміністратором системи", author: "Система" }
         ]
       },
       {
@@ -1254,7 +1250,7 @@
         name: "Максим Копенко",
         email: "maksimkopenko123@gmail.com",
         pass: "admin123",
-        role: "Головний Спеціаліст",
+        role: "Головний Адміністратор",
         subrole: "Головний куратор проектів",
         telegram: "https://t.me/telegram",
         online: false,
@@ -1267,7 +1263,7 @@
         email: "mastega@gmail.com",
         pass: "123456",
         role: "Головний Агент Підтримки",
-        subrole: "Куратор проекту «Морські леви»",
+        subrole: "Куратор проєкту «Морські леви»",
         telegram: "https://t.me/telegram",
         online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
@@ -1279,14 +1275,13 @@
 
     savedAdmins.forEach(a => {
       if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-        a.role = "Super Admin";
+        a.role = "Супер Адміністратор";
         a.permissions = { tickets: true, manageAdmins: true, giveSanctions: true, editRoles: true };
       }
     });
 
     let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || [];
 
-    // База спильнот
     const communitiesData = [
       { id: 'sea', name: 'Море', icon: '⚓', desc: 'Спільнота реабілітації, водного спорту та морських ініціатив', photos: ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&auto=format&fit=crop'] },
       { id: 'engineering', name: 'Інженерія', icon: '⚙️', desc: 'Розробка, інновації, робототехніка та інженерні хаби', photos: ['https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&auto=format&fit=crop'] },
@@ -1328,7 +1323,7 @@
         if (dbAdmins && dbAdmins.length > 0) {
           dbAdmins.forEach(a => {
             if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-              a.role = "Super Admin";
+              a.role = "Супер Адміністратор";
             }
           });
           state.admins = dbAdmins;
@@ -1342,7 +1337,7 @@
     async function syncAdminsData() { 
       state.admins.forEach(a => {
         if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-          a.role = "Super Admin";
+          a.role = "Супер Адміністратор";
         }
       });
       localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
@@ -1756,7 +1751,7 @@
     }
 
     // ==========================================
-    // 6. КЛИКАБЕЛЬНЫЕ СПИЛЬНОТИ И ГАЛЕРЕЯ
+    // 6. КЛИКАБЕЛЬНІ СПІЛЬНОТИ ТА ГАЛЕРЕЯ
     // ==========================================
     function renderCommunitiesCards() {
       const grid = document.getElementById('communities-cards-grid');
@@ -1947,7 +1942,21 @@
     function populateRoleSelects() {
       const roleSelect = document.getElementById('new-admin-role');
       if (!roleSelect) return;
-      roleSelect.innerHTML = Object.keys(rolesConfig).filter(r => r !== "Super Admin").map(r => `<option value="${r}">${r}</option>`).join('');
+      // Включаємо обидві ієрархічні системи в селект додавання
+      const adminRoles = [
+        "Супер Адміністратор",
+        "Головний Адміністратор",
+        "Заступник Головного Адміністратора",
+        "Старший Адміністратор",
+        "Адміністратор",
+        "Молодший Адміністратор",
+        "Головний Агент Підтримки",
+        "Заступник Головного Агента Підтримки",
+        "Старший Агент Підтримки",
+        "Агент Підтримки",
+        "Молодший Агент Підтримки"
+      ];
+      roleSelect.innerHTML = adminRoles.filter(r => r !== "Супер Адміністратор").map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
     async function handleAddAdmin(e) {
@@ -1959,7 +1968,7 @@
       const role = document.getElementById('new-admin-role').value;
 
       if (email === superAdminEmail.toLowerCase()) {
-        alert("Ця пошта вже є головним Super Admin!");
+        alert("Ця пошта вже є Супер Адміністратором!");
         return;
       }
 
@@ -1971,7 +1980,7 @@
       const newAdmin = {
         id: Date.now(),
         name, email, pass, role,
-        subrole: "Агент підтримки платформи",
+        subrole: "Учасник команди платформи",
         telegram: tg ? (tg.startsWith('http') ? tg : `https://t.me/${tg.replace('@','')}`) : "https://t.me/telegram",
         online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
@@ -2019,7 +2028,7 @@
           date: new Date().toLocaleString('uk-UA'),
           type: "role_change",
           reason: `Призначено на посаду "${agentRole}" з підзванням "${subrole}"`,
-          author: state.currentUser ? state.currentUser.name : "Головний спеціаліст"
+          author: state.currentUser ? state.currentUser.name : "Адміністрація"
         });
       } else {
         const u = state.registeredUsers.find(x => x.email.toLowerCase() === userEmail.toLowerCase());
@@ -2034,7 +2043,7 @@
           telegram: "https://t.me/telegram",
           online: false,
           permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Призначено Агентом Підтримки: "${agentRole}" (${subrole})`, author: state.currentUser ? state.currentUser.name : "Головний спеціаліст" }]
+          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Призначено: "${agentRole}" (${subrole})`, author: state.currentUser ? state.currentUser.name : "Адміністрація" }]
         };
         state.admins.push(targetAdmin);
       }
@@ -2043,7 +2052,7 @@
       closeAssignAgentModal();
       renderSupportAgentsTable();
       renderAdminDashboard();
-      alert(`Агента ${targetAdmin.name} успішно призначено на посаду "${agentRole}"!`);
+      alert(`Співробітника ${targetAdmin.name} успішно призначено на посаду "${agentRole}"!`);
     }
 
     function renderSupportAgentsTable() {
@@ -2058,7 +2067,7 @@
         "Молодший Агент Підтримки"
       ];
 
-      const agentsList = state.admins.filter(a => supportRoles.includes(a.role) || a.subrole);
+      const agentsList = state.admins.filter(a => supportRoles.includes(a.role));
 
       if (agentsList.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Агентів підтримки поки не призначено. Натисніть кнопку "Призначити Агента Підтримки".</td></tr>`;
@@ -2121,7 +2130,7 @@
       const admin = state.admins.find(a => a.id === adminId);
       if (admin) {
         if (admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-          alert("Неможливо видати санкцію головному власнику (Super Admin)!");
+          alert("Неможливо видати санкцію Супер Адміністратору!");
           closeSanctionModal();
           return;
         }
@@ -2133,7 +2142,7 @@
             date: new Date().toLocaleString('uk-UA'),
             type: 'remove',
             reason: `Знято стягнення: ${reason}`,
-            author: state.currentUser ? state.currentUser.name : "Super Admin"
+            author: state.currentUser ? state.currentUser.name : "Супер Адміністратор"
           });
         } else {
           admin.history.unshift({
@@ -2184,8 +2193,8 @@
     async function changeAdminRole(adminId, newRole) {
       const admin = state.admins.find(a => a.id === adminId);
       if (admin) {
-        if (admin.email.toLowerCase() === superAdminEmail.toLowerCase() && newRole !== "Super Admin") {
-          alert("Посада Super Admin є незмінною та захищеною!");
+        if (admin.email.toLowerCase() === superAdminEmail.toLowerCase() && newRole !== "Супер Адміністратор") {
+          alert("Посада Супер Адміністратора є незмінною та захищеною!");
           renderAdminAdminsList();
           return;
         }
@@ -2217,7 +2226,7 @@
     async function removeAdmin(id) {
       const admin = state.admins.find(a => a.id === id);
       if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-        alert("Неможливо вилучити головного власника платформи (Super Admin)!");
+        alert("Неможливо вилучити Супер Адміністратора платформи!");
         return;
       }
       if (confirm(`Ви впевнені, що хочете зняти з поста та видалити адміністратора "${admin ? admin.email : ''}"?`)) {
@@ -2233,7 +2242,6 @@
       }
     }
 
-    // МЕТОДЫ УПРАВЛЕНИЯ ПОЛЬЗОВАТЕЛЯМИ
     async function deleteUserByEmail(email) {
       if (confirm(`Видалити користувача ${email} з платформи?`)) {
         state.registeredUsers = state.registeredUsers.filter(u => u.email.toLowerCase() !== email.toLowerCase());
@@ -2277,7 +2285,7 @@
       let u = state.registeredUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
       if (u) {
         if (state.admins.some(a => a.email.toLowerCase() === email.toLowerCase())) {
-          alert("Цей користувач вже є адміністратором!");
+          alert("Цей користувач вже є у складі адміністрації!");
           return;
         }
         const newAdmin = {
@@ -2290,11 +2298,11 @@
           telegram: "https://t.me/telegram",
           online: false,
           permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: "Надано права Агента Підтримки спец-адміном", author: state.currentUser ? state.currentUser.name : "Спец-адмін" }]
+          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: "Надано посаду Агента Підтримки", author: state.currentUser ? state.currentUser.name : "Адміністрація" }]
         };
         state.admins.push(newAdmin);
         await syncAdminsData();
-        alert(`Користувачу ${u.name} успішно надано права Агента Підтримки!`);
+        alert(`Користувачу ${u.name} успішно надано статус Агента Підтримки!`);
         renderAdminDashboard();
         syncUserAndAdminState();
       }
@@ -2312,6 +2320,11 @@
         const bansCount = (a.history || []).filter(h => h.type === 'ban').length;
         const perms = a.permissions || { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
         const isSuper = a.email.toLowerCase() === superAdminEmail.toLowerCase();
+
+        const allAvailableRoles = [
+          "Супер Адміністратор", "Головний Адміністратор", "Заступник Головного Адміністратора", "Старший Адміністратор", "Адміністратор", "Молодший Адміністратор",
+          "Головний Агент Підтримки", "Заступник Головного Агента Підтримки", "Старший Агент Підтримки", "Агент Підтримки", "Молодший Агент Підтримки"
+        ];
 
         return `
           <tr class="hover:bg-slate-800/40 transition-colors">
@@ -2334,9 +2347,9 @@
             </td>
             <td class="p-3">
               ${isSuper ? 
-                `<div class="mb-1"><span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">Super Admin (Захищено)</span></div>` :
+                `<div class="mb-1"><span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">Супер Адміністратор (Захищено)</span></div>` :
                 `<select onchange="changeAdminRole(${a.id}, this.value)" class="bg-slate-950/80 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white font-bold focus:outline-none">
-                  ${Object.keys(rolesConfig).filter(r => r !== "Super Admin").map(r => `<option value="${r}" ${r === a.role ? 'selected' : ''}>${r}</option>`).join('')}
+                  ${allAvailableRoles.filter(r => r !== "Супер Адміністратор").map(r => `<option value="${r}" ${r === a.role ? 'selected' : ''}>${r}</option>`).join('')}
                 </select>
                 <div class="mt-1">${getRoleBadgeHTML(a.role)}</div>`
               }
@@ -2388,7 +2401,7 @@
               </div>
               <h4 class="font-bold text-white text-base">${a.name}</h4>
               <p class="text-xs text-sky-400 mt-0.5 flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5"></i> ${a.email}</p>
-              <p class="text-[11px] text-purple-400 font-semibold mt-1">${a.subrole || 'Загальний куратор'}</p>
+              <p class="text-[11px] text-purple-400 font-semibold mt-1">${a.subrole || 'Куратор'}</p>
             </div>
             
             <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
