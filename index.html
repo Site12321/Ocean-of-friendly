@@ -260,7 +260,8 @@
               <p id="comm-desc-display" class="text-xs sm:text-sm text-slate-400 mt-1">Опис спільноти та головний напрямок діяльності.</p>
             </div>
           </div>
-          <button onclick="openUploadMediaModal()" class="px-5 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-sky-500/20">
+          <!-- КНОПКА ДОДАВАННЯ КОНТЕНТУ: ВИДИМА ТІЛЬКИ АДМІНІСТРАТОРАМ -->
+          <button id="comm-upload-btn" onclick="openUploadMediaModal()" class="hidden px-5 py-3 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-sky-500/20">
             <i data-lucide="upload-cloud" class="w-4 h-4"></i> Завантажити фото / контент
           </button>
         </div>
@@ -652,13 +653,13 @@
         </div>
         <div>
           <h3 class="text-lg font-bold text-white">Управління дисциплінарними санкціями</h3>
-          <p class="text-xs text-slate-400">Видача або зняття доган та стягнень</p>
+          <p class="text-xs text-slate-400">Видача або зняття доган та попереджень (Головний агент / Заступник)</p>
         </div>
       </div>
 
       <form onsubmit="handleApplySanction(event)" class="space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-300 uppercase mb-1">Оберіть адміністратора</label>
+          <label class="block font-bold text-slate-300 uppercase mb-1">Оберіть співробітника / агента / адміна</label>
           <select id="sanc-admin-id" class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-2xl text-white font-semibold focus:outline-none">
           </select>
         </div>
@@ -676,7 +677,7 @@
             </label>
             <label class="flex items-center justify-center gap-2 p-3 bg-slate-800 border border-slate-700 rounded-xl cursor-pointer">
               <input type="radio" name="sanc-type" value="remove" class="text-emerald-500">
-              <span class="font-bold text-emerald-400">Зняти стягнення</span>
+              <span class="font-bold text-emerald-400">Зняти санкцію</span>
             </label>
           </div>
         </div>
@@ -695,7 +696,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЕ ОКНО: ПЕРЕГЛЯД ІСТОРІЇ АДМІНІСТРАТОРА -->
+  <!-- МОДАЛЬНЕ ОКНО: ПЕРЕГЛЯД ІСТОРІЇ АДМІНІСТРАТОРА / АГЕНТА -->
   <div id="admin-history-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-sky-500/30 w-full max-w-2xl p-6 sm:p-7 rounded-3xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeAdminHistoryModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
@@ -714,7 +715,7 @@
       </div>
 
       <div class="space-y-4">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Історія постановки, доган, стягнень та знять:</h4>
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300">Історія підвищень, попереджень, доган та знять:</h4>
         <div id="hist-logs-list" class="space-y-2 text-xs"></div>
       </div>
     </div>
@@ -843,6 +844,14 @@
         <div class="bg-slate-950/50 p-3.5 rounded-2xl border border-blue-900/30">
           <label class="block font-bold text-slate-300 uppercase tracking-wider text-[10px] mb-1.5">Про себе / Біографія (Ваші цілі та проєкти)</label>
           <textarea id="prof-bio" rows="2" placeholder="Розкажіть трохи про себе..." class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none font-medium"></textarea>
+        </div>
+
+        <!-- ІСТОРІЯ САНКЦІЙ ТА ПІДВИЩЕНЬ У КАБІНЕТІ АГЕНТА/АДМІНА -->
+        <div id="profile-sanctions-history-box" class="hidden bg-slate-950/70 p-4 rounded-2xl border border-amber-500/30 space-y-2">
+          <h4 class="font-bold text-amber-300 text-xs flex items-center gap-2">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i> Ваша особиста історія санкцій, попереджень та підвищень
+          </h4>
+          <div id="profile-history-list" class="space-y-1.5 max-h-36 overflow-y-auto text-xs text-slate-300"></div>
         </div>
 
         <div id="admin-notice-box" class="hidden bg-slate-950/70 p-4 rounded-2xl border border-blue-900/40 space-y-1">
@@ -1199,7 +1208,7 @@
     animateBg();
 
     // ==========================================
-    // 2. ДВІ ІЄРАРХІЧНІ СИСТЕМИ ПОСАД ТА СТИЛІ
+    // 2. СИСТЕМА ПОСАД ТА СТИЛІВ
     // ==========================================
     const defaultRolesConfig = {
       // Система адміністрації
@@ -1210,12 +1219,12 @@
       "Адміністратор": { name: "Адміністратор", badgeStyle: "background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);" },
       "Молодший Адміністратор": { name: "Молодший Адміністратор", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
       
-      // Система агентів підтримки
-      "Головний Агент Підтримки": { name: "Головний Агент Підтримки", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
-      "Заступник Головного Агента Підтримки": { name: "Заступник Головного Агента Підтримки", badgeStyle: "background: rgba(192, 132, 252, 0.2); color: #e9d5ff; border: 1px solid rgba(192, 132, 252, 0.4);" },
-      "Старший Агент Підтримки": { name: "Старший Агент Підтримки", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4);" },
-      "Агент Підтримки": { name: "Агент Підтримки", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" },
-      "Молодший Агент Підтримки": { name: "Молодший Агент Підтримки", badgeStyle: "background: rgba(20, 184, 166, 0.2); color: #99f6e4; border: 1px solid rgba(20, 184, 166, 0.4);" }
+      // Система агентів підтримки (перенесено всі з розділу адміністрації)
+      "Головний агент підтримки": { name: "Головний агент підтримки", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
+      "Заступник головного агента підтримки": { name: "Заступник головного агента підтримки", badgeStyle: "background: rgba(192, 132, 252, 0.2); color: #e9d5ff; border: 1px solid rgba(192, 132, 252, 0.4);" },
+      "Старший агент підтримки": { name: "Старший агент підтримки", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4);" },
+      "Агент підтримки": { name: "Агент підтримки", badgeStyle: "background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4);" },
+      "Молодший агент підтримки": { name: "Молодший агент підтримки", badgeStyle: "background: rgba(20, 184, 166, 0.2); color: #99f6e4; border: 1px solid rgba(20, 184, 166, 0.4);" }
     };
 
     let rolesConfig = JSON.parse(localStorage.getItem('okean_roles_config')) || defaultRolesConfig;
@@ -1262,12 +1271,28 @@
         name: "Віктор Мастега",
         email: "mastega@gmail.com",
         pass: "123456",
-        role: "Головний Агент Підтримки",
+        role: "Головний агент підтримки",
         subrole: "Куратор проєкту «Морські леви»",
         telegram: "https://t.me/telegram",
         online: false,
+        permissions: { tickets: true, manageAdmins: false, giveSanctions: true, editRoles: false },
+        history: [
+          { date: "19.10.2026, 12:00", type: "role_change", reason: "Підвищено до посади Головного агента підтримки", author: "Андрій Романов" }
+        ]
+      },
+      {
+        id: 4,
+        name: "Сталін",
+        email: "stalin12156@gmail.com",
+        pass: "123456",
+        role: "Молодший агент підтримки",
+        subrole: "куратор",
+        telegram: "https://t.me/telegram",
+        online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-        history: []
+        history: [
+          { date: "20.10.2026, 10:00", type: "warn", reason: "Запізнення на зміну", author: "Віктор Мастега" }
+        ]
       }
     ];
 
@@ -1668,6 +1693,7 @@
       const adminTag = document.getElementById('profile-admin-access-tag');
       const adminLinkBtn = document.getElementById('profile-admin-link-btn');
       const adminNoticeBox = document.getElementById('admin-notice-box');
+      const sanctionsHistoryBox = document.getElementById('profile-sanctions-history-box');
 
       const isVerifiedAdmin = state.admins.some(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
 
@@ -1678,11 +1704,30 @@
         adminLinkBtn.classList.add('flex');
         adminNoticeBox.classList.remove('hidden');
         document.getElementById('prof-email-static').textContent = currentUser.email;
+
+        // Відображення особистої історії доган/попереджень для самого агента/адміна у його профілі
+        if (currentAdminObj && currentAdminObj.history && currentAdminObj.history.length > 0) {
+          sanctionsHistoryBox.classList.remove('hidden');
+          const historyListEl = document.getElementById('profile-history-list');
+          historyListEl.innerHTML = currentAdminObj.history.map(h => `
+            <div class="p-2.5 bg-slate-900 border ${h.type === 'ban' ? 'border-rose-500/30 text-rose-300' : h.type === 'warn' ? 'border-amber-500/30 text-amber-300' : h.type === 'remove' ? 'border-emerald-500/30 text-emerald-300' : 'border-slate-800 text-slate-300'} rounded-xl flex flex-col gap-0.5">
+              <div class="flex items-center justify-between font-bold text-[10px]">
+                <span>${h.type === 'ban' ? '⛔ ДОГАНА' : h.type === 'warn' ? '⚠️ ПОПЕРЕДЖЕННЯ' : h.type === 'remove' ? '✅ ЗНЯТО СТЯГНЕННЯ' : '📌 ПІДВИЩЕННЯ / ПОДІЯ'}</span>
+                <span class="text-slate-500">${h.date}</span>
+              </div>
+              <div>${h.reason}</div>
+            </div>
+          `).join('');
+        } else {
+          sanctionsHistoryBox.classList.add('hidden');
+        }
+
       } else {
         adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
         adminNoticeBox.classList.add('hidden');
+        sanctionsHistoryBox.classList.add('hidden');
       }
 
       document.getElementById('profile-modal').classList.remove('hidden');
@@ -1751,7 +1796,7 @@
     }
 
     // ==========================================
-    // 6. КЛИКАБЕЛЬНІ СПІЛЬНОТИ ТА ГАЛЕРЕЯ
+    // 6. КЛИКАБЕЛЬНІ СПІЛЬНОТИ ТА ГАЛЕРЕЯ (ПРАВА ДОСТУПУ)
     // ==========================================
     function renderCommunitiesCards() {
       const grid = document.getElementById('communities-cards-grid');
@@ -1776,6 +1821,17 @@
       document.getElementById('comm-title-display').textContent = `Спільнота: ${activeCommunity.name}`;
       document.getElementById('comm-desc-display').textContent = activeCommunity.desc;
 
+      // Кнопка завантаження/додавання контенту видима ТІЛЬКИ адміністраторам/агентам
+      const uploadBtn = document.getElementById('comm-upload-btn');
+      const isVerifiedAdmin = state.currentUser && state.admins.some(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
+      if (isVerifiedAdmin) {
+        uploadBtn.classList.remove('hidden');
+        uploadBtn.classList.add('flex');
+      } else {
+        uploadBtn.classList.add('hidden');
+        uploadBtn.classList.remove('flex');
+      }
+
       renderCommunityGallery();
       showPage('community-detail');
     }
@@ -1785,7 +1841,7 @@
       if (!grid || !activeCommunity) return;
 
       if (!activeCommunity.photos || activeCommunity.photos.length === 0) {
-        grid.innerHTML = `<div class="col-span-full p-8 text-center bg-slate-950/50 rounded-2xl border border-slate-800 text-slate-400 text-xs">У цій спільноті поки немає завантажених фотографій. Будьте першим, хто додасть матеріали!</div>`;
+        grid.innerHTML = `<div class="col-span-full p-8 text-center bg-slate-950/50 rounded-2xl border border-slate-800 text-slate-400 text-xs">У цій спільноті поки немає завантажених фотографій. Адміністратори можуть додавати матеріали.</div>`;
         return;
       }
 
@@ -1821,13 +1877,13 @@
         activeCommunity.photos.unshift(uploadEvent.target.result);
         renderCommunityGallery();
         closeUploadMediaModal();
-        alert("Фото успішно завантажено в спільноту!");
+        alert("Контент та фото успішно додано в спільноту!");
       };
       reader.readAsDataURL(file);
     }
 
     // ==========================================
-    // 7. ФУНКЦІОНАЛ АДМІНІСТРАТИВНОЇ ПАНЕЛІ ТА АГЕНТІВ
+    // 7. ФУНКЦІОНАЛ АДМІНІСТРАТИВНОЇ ПАНЕЛІ ТА АГЕНТІВ ПІДТРИМКИ
     // ==========================================
     function showPage(pageId) {
       document.getElementById('page-home').classList.add('hidden');
@@ -1942,21 +1998,21 @@
     function populateRoleSelects() {
       const roleSelect = document.getElementById('new-admin-role');
       if (!roleSelect) return;
-      // Включаємо обидві ієрархічні системи в селект додавання
-      const adminRoles = [
+      // Посади адміністрації та підтримки
+      const allRolesList = [
         "Супер Адміністратор",
         "Головний Адміністратор",
         "Заступник Головного Адміністратора",
         "Старший Адміністратор",
         "Адміністратор",
         "Молодший Адміністратор",
-        "Головний Агент Підтримки",
-        "Заступник Головного Агента Підтримки",
-        "Старший Агент Підтримки",
-        "Агент Підтримки",
-        "Молодший Агент Підтримки"
+        "Головний агент підтримки",
+        "Заступник головного агента підтримки",
+        "Старший агент підтримки",
+        "Агент підтримки",
+        "Молодший агент підтримки"
       ];
-      roleSelect.innerHTML = adminRoles.filter(r => r !== "Супер Адміністратор").map(r => `<option value="${r}">${r}</option>`).join('');
+      roleSelect.innerHTML = allRolesList.filter(r => r !== "Супер Адміністратор").map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
     async function handleAddAdmin(e) {
@@ -1980,11 +2036,11 @@
       const newAdmin = {
         id: Date.now(),
         name, email, pass, role,
-        subrole: "Учасник команди платформи",
+        subrole: "Загальна підтримка",
         telegram: tg ? (tg.startsWith('http') ? tg : `https://t.me/${tg.replace('@','')}`) : "https://t.me/telegram",
         online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-        history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Пошту вписано в систему з посадою "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
+        history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Внесено в систему з посадою "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
       };
 
       state.admins.push(newAdmin);
@@ -2000,7 +2056,7 @@
     }
 
     // ==========================================
-    // 8. ПАНЕЛЬ АГЕНТІВ ПІДТРИМКИ (ПРИЗНАЧЕННЯ, ДОГАНИ, СНЯТИЕ)
+    // 8. ПАНЕЛЬ АГЕНТІВ ПІДТРИМКИ ТА САНКЦІЇ
     // ==========================================
     function openAssignAgentModal() {
       const select = document.getElementById('agent-user-select');
@@ -2027,7 +2083,7 @@
         targetAdmin.history.unshift({
           date: new Date().toLocaleString('uk-UA'),
           type: "role_change",
-          reason: `Призначено на посаду "${agentRole}" з підзванням "${subrole}"`,
+          reason: `Призначено/переведено на посаду "${agentRole}" (проєкт: ${subrole})`,
           author: state.currentUser ? state.currentUser.name : "Адміністрація"
         });
       } else {
@@ -2043,7 +2099,7 @@
           telegram: "https://t.me/telegram",
           online: false,
           permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Призначено: "${agentRole}" (${subrole})`, author: state.currentUser ? state.currentUser.name : "Адміністрація" }]
+          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Призначено на посаду "${agentRole}" (${subrole})`, author: state.currentUser ? state.currentUser.name : "Адміністрація" }]
         };
         state.admins.push(targetAdmin);
       }
@@ -2060,14 +2116,21 @@
       if (!tbody) return;
 
       const supportRoles = [
-        "Головний Агент Підтримки",
-        "Заступник Головного Агента Підтримки",
-        "Старший Агент Підтримки",
-        "Агент Підтримки",
-        "Молодший Агент Підтримки"
+        "Головний агент підтримки",
+        "Заступник головного агента підтримки",
+        "Старший агент підтримки",
+        "Агент підтримки",
+        "Молодший агент підтримки"
       ];
 
       const agentsList = state.admins.filter(a => supportRoles.includes(a.role));
+
+      // Чи має поточний користувач права видавати догани/попередження (Головний агент або його Заступник, чи Супер Адмін)
+      const canManageSanctions = state.currentUser && (
+        state.currentUser.role === "Головний агент підтримки" || 
+        state.currentUser.role === "Заступник головного агента підтримки" ||
+        state.currentUser.role.includes("Адміністратор")
+      );
 
       if (agentsList.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Агентів підтримки поки не призначено. Натисніть кнопку "Призначити Агента Підтримки".</td></tr>`;
@@ -2101,12 +2164,13 @@
               <div class="flex items-center gap-2">
                 <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold text-[10px]">Варни: ${warnsCount}</span>
                 <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-300 font-bold text-[10px]">Догани: ${bansCount}</span>
+                <button onclick="openAdminHistoryModal(${a.id})" class="text-[10px] text-sky-400 hover:underline ml-1 font-semibold">Історія</button>
               </div>
             </td>
             <td class="p-3 text-right">
               <div class="flex items-center justify-end gap-1.5">
-                <button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-[10px]">+ Санкція</button>
-                <button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[10px]">Зняти з поста</button>
+                ${canManageSanctions ? `<button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-lg text-[10px]">+ Санкція</button>` : ''}
+                <button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-lg text-[10px]">Зняти</button>
               </div>
             </td>
           </tr>
@@ -2116,6 +2180,7 @@
 
     function openAddSanctionModal(targetAdminId) {
       const select = document.getElementById('sanc-admin-id');
+      // Дозволяємо видавати санкції і адмінам, і агентам підтримки
       select.innerHTML = state.admins.map(a => `<option value="${a.id}" ${a.id === targetAdminId ? 'selected' : ''}>${a.name} (${a.role})</option>`).join('');
       document.getElementById('sanction-modal').classList.remove('hidden');
     }
@@ -2141,21 +2206,23 @@
           admin.history.unshift({
             date: new Date().toLocaleString('uk-UA'),
             type: 'remove',
-            reason: `Знято стягнення: ${reason}`,
-            author: state.currentUser ? state.currentUser.name : "Супер Адміністратор"
+            reason: `Знято санкцію: ${reason}`,
+            author: state.currentUser ? state.currentUser.name : "Головний агент"
           });
         } else {
           admin.history.unshift({
             date: new Date().toLocaleString('uk-UA'),
             type: sancType,
             reason: reason,
-            author: state.currentUser ? state.currentUser.name : "Адміністрація"
+            author: state.currentUser ? state.currentUser.name : "Керівництво підтримки"
           });
         }
 
         await syncAdminsData();
         closeSanctionModal();
         renderAdminDashboard();
+        renderSupportAgentsTable();
+        alert("Дію успішно застосовано та зафіксовано в історії!");
       }
     }
 
@@ -2170,18 +2237,18 @@
 
       const logsList = document.getElementById('hist-logs-list');
       if (!admin.history || admin.history.length === 0) {
-        logsList.innerHTML = `<div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 text-slate-400 text-center">Історія порожня. Порушень не зафіксовано.</div>`;
+        logsList.innerHTML = `<div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 text-slate-400 text-center">Історія порожня. Попереджень та доган не зафіксовано.</div>`;
       } else {
         logsList.innerHTML = admin.history.map(h => `
           <div class="p-3.5 bg-slate-950/60 border ${h.type === 'ban' ? 'border-rose-500/30' : h.type === 'warn' ? 'border-amber-500/30' : h.type === 'remove' ? 'border-emerald-500/30' : 'border-slate-800'} rounded-2xl flex flex-col gap-1">
             <div class="flex items-center justify-between">
               <span class="font-bold text-[11px] ${h.type === 'ban' ? 'text-rose-400' : h.type === 'warn' ? 'text-amber-400' : h.type === 'remove' ? 'text-emerald-400' : 'text-sky-400'}">
-                ${h.type === 'ban' ? '⛔ ДОГАНА' : h.type === 'warn' ? '⚠️ ПОПЕРЕДЖЕННЯ' : h.type === 'remove' ? '✅ ЗНЯТТЯ СТЯГНЕННЯ' : 'ℹ️ СИСТЕМА'}
+                ${h.type === 'ban' ? '⛔ ДОГАНА' : h.type === 'warn' ? '⚠️ ПОПЕРЕДЖЕННЯ' : h.type === 'remove' ? '✅ ЗНЯТТЯ СТЯГНЕННЯ' : '📌 ПІДВИЩЕННЯ / ПОДІЯ'}
               </span>
               <span class="text-[10px] text-slate-500 font-semibold">${h.date}</span>
             </div>
             <p class="text-slate-200 text-xs">${h.reason}</p>
-            <span class="text-[10px] text-slate-400 mt-0.5">Видав/Зняв: ${h.author || 'Адміністратор'}</span>
+            <span class="text-[10px] text-slate-400 mt-0.5">Видав/Зняв/змінив: ${h.author || 'Адміністратор'}</span>
           </div>
         `).join('');
       }
@@ -2229,7 +2296,7 @@
         alert("Неможливо вилучити Супер Адміністратора платформи!");
         return;
       }
-      if (confirm(`Ви впевнені, що хочете зняти з поста та видалити адміністратора "${admin ? admin.email : ''}"?`)) {
+      if (confirm(`Ви впевнені, що хочете зняти з поста та видалити співробітника "${admin ? admin.email : ''}"?`)) {
         state.admins = state.admins.filter(a => a.id !== id);
         try {
           await supabaseClient.from('admins').delete().eq('id', id);
@@ -2238,7 +2305,8 @@
         
         syncUserAndAdminState();
         renderAdminDashboard();
-        alert("Співробітника успішно знято з поста, права доступу до панелі анульовано!");
+        renderSupportAgentsTable();
+        alert("Співробітника успішно знято з поста!");
       }
     }
 
@@ -2285,7 +2353,7 @@
       let u = state.registeredUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
       if (u) {
         if (state.admins.some(a => a.email.toLowerCase() === email.toLowerCase())) {
-          alert("Цей користувач вже є у складі адміністрації!");
+          alert("Цей користувач вже є у складі адміністрації/підтримки!");
           return;
         }
         const newAdmin = {
@@ -2293,16 +2361,16 @@
           name: u.name,
           email: u.email,
           pass: "admin123",
-          role: "Агент Підтримки",
+          role: "Агент підтримки",
           subrole: "Загальна підтримка",
           telegram: "https://t.me/telegram",
           online: false,
           permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: "Надано посаду Агента Підтримки", author: state.currentUser ? state.currentUser.name : "Адміністрація" }]
+          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: "Надано посаду Агента підтримки", author: state.currentUser ? state.currentUser.name : "Адміністрація" }]
         };
         state.admins.push(newAdmin);
         await syncAdminsData();
-        alert(`Користувачу ${u.name} успішно надано статус Агента Підтримки!`);
+        alert(`Користувачу ${u.name} успішно надано статус Агента підтримки!`);
         renderAdminDashboard();
         syncUserAndAdminState();
       }
@@ -2315,16 +2383,16 @@
 
       const filtered = state.admins.filter(a => a.name.toLowerCase().includes(query) || a.role.toLowerCase().includes(query) || a.email.toLowerCase().includes(query));
 
+      const allAvailableRoles = [
+        "Супер Адміністратор", "Головний Адміністратор", "Заступник Головного Адміністратора", "Старший Адміністратор", "Адміністратор", "Молодший Адміністратор",
+        "Головний агент підтримки", "Заступник головного агента підтримки", "Старший агент підтримки", "Агент підтримки", "Молодший агент підтримки"
+      ];
+
       list.innerHTML = filtered.map(a => {
         const warnsCount = (a.history || []).filter(h => h.type === 'warn').length;
         const bansCount = (a.history || []).filter(h => h.type === 'ban').length;
         const perms = a.permissions || { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
         const isSuper = a.email.toLowerCase() === superAdminEmail.toLowerCase();
-
-        const allAvailableRoles = [
-          "Супер Адміністратор", "Головний Адміністратор", "Заступник Головного Адміністратора", "Старший Адміністратор", "Адміністратор", "Молодший Адміністратор",
-          "Головний Агент Підтримки", "Заступник Головного Агента Підтримки", "Старший Агент Підтримки", "Агент Підтримки", "Молодший Агент Підтримки"
-        ];
 
         return `
           <tr class="hover:bg-slate-800/40 transition-colors">
