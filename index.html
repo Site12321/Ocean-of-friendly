@@ -419,7 +419,7 @@
             </div>
           </div>
 
-          <!-- TAB 3: ЗАРЕЄСТРОВАНІ КОРИСТУВАЧІ (ОНЛАЙН СТАТУС ТА КЕРУВАННЯ СТОРОНИ СПЕЦ-АДМІНА) -->
+          <!-- TAB 3: ЗАРЕЄСТРОВАНІ КОРИСТУВАЧІ -->
           <div id="admin-tab-users" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-xl space-y-4">
               <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -1144,7 +1144,7 @@
         { id: 2, name: "ГО 'Морські ініціативи'", city: "Одеса", category: "Спорт & Море", verified: true },
         { id: 3, name: "Інженерна майстерня 'Хаб 4.0'", city: "Львів", category: "Інженерія", verified: true }
       ],
-      tickets: []
+      tickets: JSON.parse(localStorage.getItem('okean_tickets_db')) || []
     };
 
     async function loadDataFromSupabase() {
@@ -1194,10 +1194,16 @@
 
     async function syncUsersData() { 
       localStorage.setItem('okean_registered_users', JSON.stringify(state.registeredUsers)); 
+      try {
+        await supabaseClient.from('users').upsert(state.registeredUsers);
+      } catch(e) {}
     }
 
     async function syncTicketsData() { 
       localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); 
+      try {
+        await supabaseClient.from('tickets').upsert(state.tickets);
+      } catch(e) {}
     }
 
     // ==========================================
@@ -1221,26 +1227,18 @@
         descs: { 
           uk: "Вітаю тебе! Ти у чудовому потоці Океану Дружніх", 
           ru: "Приветствую тебя! Ты в прекрасном потоке Океана Дружелюбных", 
-          en: "Greetings to you! You are in the wonderful flow of the Ocean of Friendly" 
+          en: "Greetings to you! Friendly and energetic spirit." 
         }
       },
       kozak: {
-        name: "Козак", emoji: "👨‍🦱", pitch: 0.8, rate: 1.05,
-        greetings: { 
-          uk: "Будь як вдома, раді вітати тебе.", 
-          ru: "Будь как дома, рады приветствовать тебя.", 
-          en: "Make yourself at home, glad to welcome you." 
-        },
-        descs: { 
-          uk: "Будь як вдома, раді вітати тебе", 
-          ru: "Будь как дома, рады приветствовать тебя", 
-          en: "Make yourself at home, glad to welcome you" 
-        }
+        name: "Козак", emoji: "👨‍🦱", pitch: 0.85, rate: 0.98,
+        greetings: { uk: "Будь як вдома, раді вітати тебе.", ru: "Будь как дома, рады приветствовать тебя.", en: "Feel at home, glad to welcome you." },
+        descs: { uk: "Будь як вдома, раді вітати тебе.", ru: "Будь как дома, рады приветствовать тебя.", en: "Strong and friendly mentor voice." }
       },
       starets: {
-        name: "Мудрець", emoji: "🧙‍♂️", pitch: 0.65, rate: 0.90,
-        greetings: { uk: "Нехай життєва мудрість та спокій ведуть тебе вперед.", ru: "Пусть житейская мудрость и покой ведут тебя вперед.", en: "May life's wisdom and peace guide your way forward." },
-        descs: { uk: "Спокій, вікова мудрість предків та глибока виваженість", ru: "Покой, вековая мудрость предков и глубокая выверенность", en: "Peace, ancient wisdom, and deep calm guidance" }
+        name: "Мудрець", emoji: "🧙‍♂️", pitch: 0.70, rate: 0.90,
+        greetings: { uk: "Нехай мудрість веде тебе.", ru: "Пусть мудрость ведет тебя.", en: "May wisdom guide your steps." },
+        descs: { uk: "Нехай мудрість веде тебе.", ru: "Пусть мудрость ведет тебя.", en: "Deep and wise guiding mentor." }
       }
     };
 
@@ -1249,1080 +1247,1088 @@
     function setMentorLanguage(lang) {
       currentLang = lang;
       localStorage.setItem('okean_lang', lang);
-
-      document.getElementById('lang-btn-uk').className = `px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'uk' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
-      document.getElementById('lang-btn-ru').className = `px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'ru' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
-      document.getElementById('lang-btn-en').className = `px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all ${lang === 'en' ? 'bg-sky-500 text-slate-950 border-sky-400' : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'}`;
-
-      document.getElementById('desc-mentor-lada').textContent = `«${mentors.lada.greetings[lang]}»`;
-      document.getElementById('desc-mentor-olga').textContent = `«${mentors.olga.greetings[lang]}»`;
-      document.getElementById('desc-mentor-kozak').textContent = `«${mentors.kozak.greetings[lang]}»`;
-      document.getElementById('desc-mentor-starets').textContent = `«${mentors.starets.greetings[lang]}»`;
-
-      updateMentorUI();
+      ['uk', 'ru', 'en'].forEach(l => {
+        const btn = document.getElementById(`lang-btn-${l}`);
+        if (btn) {
+          if (l === lang) {
+            btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-sky-500 text-slate-950 border-sky-400";
+          } else {
+            btn.className = "px-3 sm:px-4 py-2 rounded-xl text-xs font-extrabold border transition-all bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700";
+          }
+        }
+      });
+      for (const k in mentors) {
+        const descEl = document.getElementById(`desc-mentor-${k}`);
+        if (descEl) descEl.textContent = `«${mentors[k].greetings[lang]}»`;
+      }
+      updateMentorBanner();
     }
 
-    function openMentorSelector() { document.getElementById('mentor-selector-modal').classList.remove('hidden'); }
     function selectMentor(key) {
       selectedMentorKey = key;
-      document.querySelectorAll('[id^="card-mentor-"]').forEach(el => el.classList.remove('ring-4', 'ring-sky-500/50'));
-      const activeCard = document.getElementById(`card-mentor-${key}`);
-      if (activeCard) activeCard.classList.add('ring-4', 'ring-sky-500/50');
+      localStorage.setItem('okean_mentor', key);
+      for (const k in mentors) {
+        const card = document.getElementById(`card-mentor-${k}`);
+        if (card) {
+          if (k === key) {
+            card.classList.add('border-amber-400', 'ring-2', 'ring-amber-400/50');
+            card.classList.remove('border-slate-800');
+          } else {
+            card.classList.remove('border-amber-400', 'ring-2', 'ring-amber-400/50');
+            card.classList.add('border-slate-800');
+          }
+        }
+      }
+      updateMentorBanner();
     }
+
+    function updateMentorBanner() {
+      const m = mentors[selectedMentorKey] || mentors.lada;
+      const avatarEl = document.getElementById('mentor-banner-avatar');
+      const nameEl = document.getElementById('mentor-banner-name');
+      const descEl = document.getElementById('mentor-banner-desc');
+      
+      if (avatarEl) avatarEl.textContent = m.emoji;
+      if (nameEl) nameEl.textContent = m.name;
+      if (descEl) descEl.textContent = m.descs[currentLang] || m.descs.uk;
+
+      const chatAvatar = document.getElementById('chat-mentor-avatar');
+      const chatTitle = document.getElementById('chat-mentor-title');
+      const msgIcon = document.getElementById('msg-mentor-icon');
+      const welcomeText = document.getElementById('chat-welcome-text');
+
+      if (chatAvatar) chatAvatar.textContent = m.emoji;
+      if (chatTitle) chatTitle.textContent = m.name;
+      if (msgIcon) msgIcon.textContent = m.emoji;
+      if (welcomeText) welcomeText.textContent = m.greetings[currentLang] || m.greetings.uk;
+    }
+
+    function previewVoice(key) {
+      const m = mentors[key];
+      if (!m) return;
+      speakText(m.greetings[currentLang] || m.greetings.uk, m.pitch, m.rate);
+    }
+
+    function speakMentorGreeting() {
+      previewVoice(selectedMentorKey);
+    }
+
+    function speakText(text, pitch = 1, rate = 1) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.pitch = pitch;
+      utterance.rate = rate;
+      utterance.lang = currentLang === 'uk' ? 'uk-UA' : currentLang === 'ru' ? 'ru-RU' : 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function openMentorSelector() {
+      const modal = document.getElementById('mentor-selector-modal');
+      if (modal) modal.classList.remove('hidden');
+      selectMentor(selectedMentorKey);
+      setMentorLanguage(currentLang);
+    }
+
     function confirmMentorChoice() {
-      localStorage.setItem('okean_mentor', selectedMentorKey);
-      localStorage.setItem('okean_mentor_chosen', 'true');
-      document.getElementById('mentor-selector-modal').classList.add('hidden');
-      updateMentorUI();
+      const modal = document.getElementById('mentor-selector-modal');
+      if (modal) modal.classList.add('hidden');
       speakMentorGreeting();
     }
 
-    function updateMentorUI() {
-      const m = mentors[selectedMentorKey];
-      document.getElementById('mentor-banner-avatar').textContent = m.emoji;
-      document.getElementById('mentor-banner-name').textContent = m.name;
-      document.getElementById('mentor-banner-desc').textContent = m.descs[currentLang];
-      document.getElementById('chat-mentor-avatar').textContent = m.emoji;
-      document.getElementById('chat-mentor-title').textContent = `${m.name} (${currentLang.toUpperCase()})`;
-      document.getElementById('msg-mentor-icon').textContent = m.emoji;
-      document.getElementById('chat-welcome-text').textContent = m.greetings[currentLang];
+    // ==========================================
+    // 5. SLIDER LOGIC
+    // ==========================================
+    const slides = [
+      {
+        title: "Ласкаво просимо до Океану Дружніх",
+        subtitle: "Єдина екосистема реабілітації, підтримки та взаємодопомоги",
+        buttonText: "Дізнатися більше",
+        action: () => scrollToSection('catalog')
+      },
+      {
+        title: "Проєкт 'Морські Леви'",
+        subtitle: "Адаптивний спорт, плавання та психологічне відновлення",
+        buttonText: "Приєднатися",
+        action: () => openChatWithPrompt('Розпочнімо з реабілітації через проєкт Морські леви')
+      },
+      {
+        title: "Upgradeus Mechanicus",
+        subtitle: "Високотехнологічні рішення, інженерія та розробка обладнання",
+        buttonText: "Хаб розробок",
+        action: () => scrollToSection('projects')
+      }
+    ];
+
+    let currentSlide = 0;
+
+    function renderSlide(index) {
+      const container = document.getElementById('banner-slider-container');
+      if (!container) return;
+      const s = slides[index];
+      container.innerHTML = `
+        <div class="msg-animate max-w-2xl mx-auto">
+          <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-full text-[11px] font-extrabold uppercase tracking-widest inline-block mb-3">Океан Дружніх</span>
+          <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight">${s.title}</h2>
+          <p class="text-slate-300 text-xs sm:text-sm mt-3 leading-relaxed">${s.subtitle}</p>
+          <div class="mt-6 flex justify-center">
+            <button onclick="slides[${index}].action()" class="px-6 py-3 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-300 hover:to-blue-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition-all transform active:scale-95">
+              ${s.buttonText}
+            </button>
+          </div>
+        </div>
+      `;
     }
 
-    function speakMentorGreeting() { speakText(mentors[selectedMentorKey].greetings[currentLang], mentors[selectedMentorKey]); }
-    function previewVoice(key) { speakText(mentors[key].greetings[currentLang], mentors[key]); }
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides.length;
+      renderSlide(currentSlide);
+    }
 
-    function speakText(text, mentorObj) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const m = mentorObj || mentors[selectedMentorKey];
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
-      utter.pitch = m.pitch;
-      utter.rate = m.rate;
-      window.speechSynthesis.speak(utter);
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      renderSlide(currentSlide);
+    }
+
+    setInterval(nextSlide, 7000);
+
+    // ==========================================
+    // 6. UI PAGES & MODALS
+    // ==========================================
+    function showPage(pageId) {
+      const home = document.getElementById('page-home');
+      const admin = document.getElementById('page-admin');
+      if (pageId === 'admin') {
+        if (home) home.classList.add('hidden');
+        if (admin) admin.classList.remove('hidden');
+        checkAdminLoginState();
+      } else {
+        if (admin) admin.classList.add('hidden');
+        if (home) home.classList.remove('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function scrollToSection(id) {
+      showPage('home');
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+
+    function openTelegramModal() {
+      const modal = document.getElementById('telegram-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeTelegramModal() {
+      const modal = document.getElementById('telegram-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
     // ==========================================
-    // 5. АВТОРИЗАЦІЯ ТА КОРИСТУВАЧІ
+    // 7. AUTH & USER PROFILE MODALS
     // ==========================================
     let isRegisterMode = true;
-    let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || {
-      name: "Андрій Романов",
-      email: "andreyromanov245@gmail.com",
-      phone: "",
-      city: "Україна",
-      interest: "Реабілітація та спорт",
-      bio: "Авторизовано через систему."
-    };
 
-    window.onload = async function () {
-      await loadDataFromSupabase();
-
-      if (window.google) {
-        google.accounts.id.initialize({
-          client_id: "1086603183359-1j4a468uartbu8da0irqp81g414vv1tk.apps.googleusercontent.com",
-          callback: handleGoogleSignInResponse
-        });
-        google.accounts.id.renderButton(
-          document.getElementById("google-signin-btn-container"),
-          { theme: "outline", size: "large", width: "280", text: "continue_with", locale: "uk" }
-        );
-      }
-      populateRoleSelects();
-      await registerUserInDatabase(currentUser);
-      syncUserAndAdminState();
-    };
-
-    function parseJwt(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-      } catch (e) { return null; }
+    function openAuthModal() {
+      const modal = document.getElementById('auth-modal');
+      if (modal) modal.classList.remove('hidden');
+      initGoogleSignIn();
     }
 
-    async function handleGoogleSignInResponse(response) {
-      const payload = parseJwt(response.credential);
-      if (payload) {
-        currentUser = { name: payload.name, email: payload.email, avatar: payload.picture || "", phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
-        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        await registerUserInDatabase(currentUser);
-        closeAuthModal();
-        syncUserAndAdminState();
-        openProfileModal();
-      }
+    function closeAuthModal() {
+      const modal = document.getElementById('auth-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
-    async function registerUserInDatabase(u) {
-      if (!u || !u.email) return;
-
-      const userData = {
-        name: u.name || "Гість",
-        email: u.email.toLowerCase(),
-        phone: u.phone || "Не вказано",
-        city: u.city || "Україна",
-        interest: u.interest || "Реабілітація",
-        avatar: u.avatar || "",
-        online: true,
-        banned: u.banned || false,
-        warns: u.warns || 0,
-        last_login: new Date().toLocaleString('uk-UA')
-      };
-
-      try {
-        await supabaseClient.from('users').upsert(userData, { onConflict: 'email' });
-      } catch (err) {}
-
-      let existing = state.registeredUsers.find(user => user.email.toLowerCase() === u.email.toLowerCase());
-      if (!existing) {
-        state.registeredUsers.unshift(userData);
-      } else {
-        existing.online = true;
-        existing.last_login = userData.last_login;
-        if (u.name) existing.name = u.name;
-        if (u.avatar) existing.avatar = u.avatar;
-        if (u.banned !== undefined) existing.banned = u.banned;
-        if (u.warns !== undefined) existing.warns = u.warns;
-      }
-      syncUsersData();
-    }
-
-    function openAuthModal() { isRegisterMode = true; updateAuthModalUI(); document.getElementById('auth-modal').classList.remove('hidden'); }
-    function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-    function toggleAuthMode() { isRegisterMode = !isRegisterMode; updateAuthModalUI(); }
-
-    function updateAuthModalUI() {
+    function toggleAuthMode() {
+      isRegisterMode = !isRegisterMode;
       const title = document.getElementById('auth-title');
-      const nameBox = document.getElementById('name-field-box');
       const submitBtn = document.getElementById('auth-submit-btn');
+      const nameBox = document.getElementById('name-field-box');
+      const switchText = document.getElementById('auth-switch-text');
+      const switchBtn = document.getElementById('auth-switch-btn');
+
       if (isRegisterMode) {
-        title.textContent = "Реєстрація в кабінеті";
-        nameBox.style.display = "block";
-        submitBtn.textContent = "Зареєструватися";
+        if (title) title.textContent = "Реєстрація в кабінеті";
+        if (submitBtn) submitBtn.textContent = "Зареєструватися";
+        if (nameBox) nameBox.classList.remove('hidden');
+        if (switchText) switchText.textContent = "Вже є акаунт?";
+        if (switchBtn) switchBtn.textContent = "Увійти";
       } else {
-        title.textContent = "Вхід до кабінету";
-        nameBox.style.display = "none";
-        submitBtn.textContent = "Увійти до акаунта";
+        if (title) title.textContent = "Вхід до кабінету";
+        if (submitBtn) submitBtn.textContent = "Увійти";
+        if (nameBox) nameBox.classList.add('hidden');
+        if (switchText) switchText.textContent = "Немає акаунта?";
+        if (switchBtn) switchBtn.textContent = "Зареєструватися";
       }
     }
 
     async function handleAuthSubmit(e) {
       e.preventDefault();
-      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const email = document.getElementById('auth-email').value.trim();
       const pass = document.getElementById('auth-pass').value.trim();
-      const name = document.getElementById('auth-name').value.trim();
+      const name = document.getElementById('auth-name').value.trim() || "Користувач";
+      const errBox = document.getElementById('auth-error');
 
-      const matchedAdmin = state.admins.find(a => a.email.toLowerCase() === email);
+      if (!email || !pass) return;
 
-      currentUser = currentUser || { avatar: "" };
-      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "Користувач");
-      currentUser.email = email;
-      currentUser.pass = pass;
+      if (isRegisterMode) {
+        let user = state.registeredUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+        if (user) {
+          if (errBox) {
+            errBox.textContent = "Користувач з таким email вже існує!";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+        user = {
+          id: Date.now(),
+          name,
+          email,
+          pass,
+          phone: "",
+          city: "Україна",
+          interest: "Реабілітація та спорт",
+          bio: "",
+          warns: 0,
+          isBanned: false,
+          avatar: ""
+        };
+        state.registeredUsers.push(user);
+        await syncUsersData();
+        state.currentUser = user;
+      } else {
+        let user = state.registeredUsers.find(u => u.email.toLowerCase() === email.toLowerCase() && u.pass === pass);
+        if (!user) {
+          let admin = state.admins.find(a => a.email.toLowerCase() === email.toLowerCase() && a.pass === pass);
+          if (admin) {
+            user = {
+              id: admin.id,
+              name: admin.name,
+              email: admin.email,
+              pass: admin.pass,
+              phone: admin.phone || "",
+              city: "Адміністрація",
+              interest: "Керування платформою",
+              bio: `Адміністратор платформи (${admin.role})`,
+              warns: 0,
+              isBanned: false,
+              avatar: ""
+            };
+          }
+        }
+        if (!user) {
+          if (errBox) {
+            errBox.textContent = "Невірна пошта або пароль!";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+        if (user.isBanned) {
+          if (errBox) {
+            errBox.textContent = "Ваш акаунт заблоковано адміністрацією!";
+            errBox.classList.remove('hidden');
+          }
+          return;
+        }
+        state.currentUser = user;
+      }
 
-      localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-      await registerUserInDatabase(currentUser);
+      localStorage.setItem('okean_user_session', JSON.stringify(state.currentUser));
       closeAuthModal();
-      syncUserAndAdminState();
+      updateNavAuthUI();
       openProfileModal();
     }
 
-    async function handleUserLogout() {
-      if (currentUser) {
-        let u = state.registeredUsers.find(x => x.email.toLowerCase() === currentUser.email.toLowerCase());
-        if (u) { 
-          u.online = false; 
-          try {
-            await supabaseClient.from('users').update({ online: false }).eq('email', u.email);
-          } catch(e) {}
-          syncUsersData(); 
+    function initGoogleSignIn() {
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.initialize({
+          client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+          callback: handleGoogleCredentialResponse
+        });
+        const container = document.getElementById('google-signin-btn-container');
+        if (container) {
+          google.accounts.id.renderButton(container, { theme: "outline", size: "large", text: "continue_with" });
         }
       }
-      currentUser = null;
-      state.currentUser = null;
-      localStorage.removeItem('okean_logged_user');
-      localStorage.removeItem('okean_current_admin');
-      closeProfileModal();
-      syncUserAndAdminState();
-      showPage('home');
     }
 
-    function syncUserAndAdminState() {
-      if (currentUser) {
-        const foundAdmin = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
-        if (foundAdmin) {
-          foundAdmin.online = true;
-          state.currentUser = foundAdmin;
-          localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
-        } else {
-          state.currentUser = null;
-          localStorage.removeItem('okean_current_admin');
-          // СБРОС: если пользователя сняли с админов, автоматически выкидываем из админки на главную
-          if (!document.getElementById('page-admin').classList.contains('hidden')) {
-            showPage('home');
-          }
+    async function handleGoogleCredentialResponse(response) {
+      try {
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        const payload = JSON.parse(jsonPayload);
+
+        let user = state.registeredUsers.find(u => u.email.toLowerCase() === payload.email.toLowerCase());
+        if (!user) {
+          user = {
+            id: Date.now(),
+            name: payload.name || "Користувач Google",
+            email: payload.email,
+            pass: "google_oauth",
+            phone: "",
+            city: "Україна",
+            interest: "Реабілітація та спорт",
+            bio: "",
+            warns: 0,
+            isBanned: false,
+            avatar: payload.picture || ""
+          };
+          state.registeredUsers.push(user);
+          await syncUsersData();
+        }
+        state.currentUser = user;
+        localStorage.setItem('okean_user_session', JSON.stringify(state.currentUser));
+        closeAuthModal();
+        updateNavAuthUI();
+        openProfileModal();
+      } catch (err) {
+        console.error("Google Auth error:", err);
+      }
+    }
+
+    function updateNavAuthUI() {
+      const loginBtn = document.getElementById('nav-login-btn');
+      const profileBtn = document.getElementById('nav-profile-btn');
+      const profileName = document.getElementById('nav-profile-name');
+      const adminBtn = document.getElementById('nav-admin-btn');
+
+      const userSession = JSON.parse(localStorage.getItem('okean_user_session'));
+      const adminSession = state.currentUser || JSON.parse(localStorage.getItem('okean_current_admin'));
+
+      if (userSession || adminSession) {
+        const activeUser = userSession || adminSession;
+        if (loginBtn) loginBtn.classList.add('hidden');
+        if (profileBtn) profileBtn.classList.remove('hidden');
+        if (profileName) profileName.textContent = activeUser.name || "Кабінет";
+
+        const isAdmin = state.admins.some(a => a.email.toLowerCase() === (activeUser.email || '').toLowerCase());
+        if (isAdmin && adminBtn) {
+          adminBtn.classList.remove('hidden');
+        } else if (adminBtn) {
+          adminBtn.classList.add('hidden');
         }
       } else {
-        state.currentUser = null;
-        localStorage.removeItem('okean_current_admin');
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (profileBtn) profileBtn.classList.add('hidden');
+        if (adminBtn) adminBtn.classList.add('hidden');
       }
+    }
+
+    function openProfileModal() {
+      const user = JSON.parse(localStorage.getItem('okean_user_session')) || state.currentUser;
+      if (!user) {
+        openAuthModal();
+        return;
+      }
+
+      const modal = document.getElementById('profile-modal');
+      if (modal) modal.classList.remove('hidden');
+
+      const nameDisplay = document.getElementById('profile-display-name');
+      const emailDisplay = document.getElementById('profile-display-email');
+      const lettersAvatar = document.getElementById('profile-avatar-letters');
+      const imgAvatar = document.getElementById('profile-avatar-img');
+
+      if (nameDisplay) nameDisplay.textContent = user.name || "Користувач";
+      if (emailDisplay) emailDisplay.textContent = user.email || "";
       
-      updateHeaderAuthUI();
-      updateHeaderUserUI();
+      const initials = (user.name || "АР").split(' ').map(n => n[0]).join('').toUpperCase();
+      if (lettersAvatar) lettersAvatar.textContent = initials.substring(0, 2);
+
+      if (user.avatar && imgAvatar) {
+        imgAvatar.src = user.avatar;
+        imgAvatar.classList.remove('hidden');
+        if (lettersAvatar) lettersAvatar.classList.add('hidden');
+      } else if (imgAvatar && lettersAvatar) {
+        imgAvatar.classList.add('hidden');
+        lettersAvatar.classList.remove('hidden');
+      }
+
+      document.getElementById('prof-name').value = user.name || "";
+      document.getElementById('prof-phone').value = user.phone || "";
+      document.getElementById('prof-city').value = user.city || "";
+      document.getElementById('prof-interest').value = user.interest || "Реабілітація та спорт";
+      document.getElementById('prof-bio').value = user.bio || "";
+      document.getElementById('prof-email-static').textContent = user.email || "";
+
+      const isAdmin = state.admins.some(a => a.email.toLowerCase() === (user.email || '').toLowerCase());
+      const adminBtn = document.getElementById('profile-admin-link-btn');
+      const noticeBox = document.getElementById('admin-notice-box');
+
+      if (isAdmin) {
+        if (adminBtn) adminBtn.classList.remove('hidden');
+        if (noticeBox) noticeBox.classList.remove('hidden');
+      } else {
+        if (adminBtn) adminBtn.classList.add('hidden');
+        if (noticeBox) noticeBox.classList.add('hidden');
+      }
+    }
+
+    function closeProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function handleAvatarUpload(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = async function(uploadEvent) {
-        currentUser = currentUser || {};
-        currentUser.avatar = uploadEvent.target.result;
-        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        updateProfileAvatarDisplay();
-        await registerUserInDatabase(currentUser);
+      reader.onload = function(evt) {
+        const user = JSON.parse(localStorage.getItem('okean_user_session')) || state.currentUser;
+        if (user) {
+          user.avatar = evt.target.result;
+          state.currentUser = user;
+          localStorage.setItem('okean_user_session', JSON.stringify(user));
+          
+          let dbUser = state.registeredUsers.find(u => u.email.toLowerCase() === user.email.toLowerCase());
+          if (dbUser) dbUser.avatar = user.avatar;
+          syncUsersData();
+
+          openProfileModal();
+        }
       };
       reader.readAsDataURL(file);
     }
 
-    function updateProfileAvatarDisplay() {
-      const avatarImg = document.getElementById('profile-avatar-img');
-      const avatarLetters = document.getElementById('profile-avatar-letters');
-      if (currentUser && currentUser.avatar) {
-        avatarImg.src = currentUser.avatar;
-        avatarImg.classList.remove('hidden');
-        avatarLetters.classList.add('hidden');
-      } else {
-        avatarImg.classList.add('hidden');
-        avatarLetters.classList.remove('hidden');
-        if (currentUser && currentUser.name) {
-          avatarLetters.textContent = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-        }
-      }
-    }
-
-    function openProfileModal() {
-      if (!currentUser) { openAuthModal(); return; }
-      document.getElementById('profile-display-name').textContent = currentUser.name;
-      document.getElementById('profile-display-email').textContent = currentUser.email;
-      
-      updateProfileAvatarDisplay();
-
-      document.getElementById('prof-name').value = currentUser.name || '';
-      document.getElementById('prof-phone').value = currentUser.phone || '';
-      document.getElementById('prof-city').value = currentUser.city || '';
-      document.getElementById('prof-bio').value = currentUser.bio || '';
-      if (currentUser.interest) document.getElementById('prof-interest').value = currentUser.interest;
-
-      const adminTag = document.getElementById('profile-admin-access-tag');
-      const adminLinkBtn = document.getElementById('profile-admin-link-btn');
-      const adminNoticeBox = document.getElementById('admin-notice-box');
-
-      // Проверяем актуальный статус по текущему массиву админов
-      const isVerifiedAdmin = state.admins.some(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
-
-      if (isVerifiedAdmin) {
-        const currentAdminObj = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
-        adminTag.innerHTML = getRoleBadgeHTML(currentAdminObj ? currentAdminObj.role : 'Адміністратор');
-        adminLinkBtn.classList.remove('hidden');
-        adminLinkBtn.classList.add('flex');
-        adminNoticeBox.classList.remove('hidden'); // Показываем блок с текстом авторизованной почты
-        document.getElementById('prof-email-static').textContent = currentUser.email;
-      } else {
-        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
-        adminLinkBtn.classList.add('hidden');
-        adminLinkBtn.classList.remove('flex');
-        adminNoticeBox.classList.add('hidden'); // УБИРАЕМ ТЕКСТ / БЛОК АДМІНІСТРАТОРА при снятии с поста!
-      }
-
-      document.getElementById('profile-modal').classList.remove('hidden');
-    }
-    function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
-
     async function saveUserProfile(e) {
       e.preventDefault();
-      if (!currentUser) return;
-      currentUser.name = document.getElementById('prof-name').value.trim();
-      currentUser.phone = document.getElementById('prof-phone').value.trim();
-      currentUser.city = document.getElementById('prof-city').value.trim();
-      currentUser.interest = document.getElementById('prof-interest').value;
-      currentUser.bio = document.getElementById('prof-bio').value.trim();
-      localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-      
-      if (state.currentUser && state.currentUser.email.toLowerCase() === currentUser.email.toLowerCase()) {
-        state.currentUser.name = currentUser.name;
-        await syncAdminsData();
+      const user = JSON.parse(localStorage.getItem('okean_user_session')) || state.currentUser;
+      if (!user) return;
+
+      user.name = document.getElementById('prof-name').value.trim();
+      user.phone = document.getElementById('prof-phone').value.trim();
+      user.city = document.getElementById('prof-city').value.trim();
+      user.interest = document.getElementById('prof-interest').value;
+      user.bio = document.getElementById('prof-bio').value.trim();
+
+      state.currentUser = user;
+      localStorage.setItem('okean_user_session', JSON.stringify(user));
+
+      let idx = state.registeredUsers.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+      if (idx !== -1) {
+        state.registeredUsers[idx] = { ...state.registeredUsers[idx], ...user };
+        await syncUsersData();
       }
 
-      await registerUserInDatabase(currentUser);
-      updateHeaderUserUI();
+      updateNavAuthUI();
       closeProfileModal();
-      alert("Зміни успішно збережено у профілі!");
+    }
+
+    function handleUserLogout() {
+      localStorage.removeItem('okean_user_session');
+      state.currentUser = null;
+      closeProfileModal();
+      updateNavAuthUI();
     }
 
     async function submitUserTicket() {
       const topic = document.getElementById('user-ticket-topic').value.trim();
       const msg = document.getElementById('user-ticket-msg').value.trim();
-      if (!topic || !msg) { alert("Будь ласка, заповніть тему та повідомлення тикету!"); return; }
+      const user = JSON.parse(localStorage.getItem('okean_user_session')) || { name: "Гість", email: "guest@okean.ua" };
 
-      const newTicket = {
-        id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
-        date: new Date().toLocaleString('uk-UA'),
-        name: currentUser ? currentUser.name : "Гість",
-        contact: currentUser ? currentUser.email : "Сайт",
+      if (!topic || !msg) {
+        alert("Будь ласка, заповніть тему та текст звернення!");
+        return;
+      }
+
+      const ticket = {
+        id: "TCK-" + Math.floor(1000 + Math.random() * 9000),
+        name: user.name,
+        contact: user.email + (user.phone ? ` (${user.phone})` : ""),
         category: topic,
-        project: msg,
-        status: "Новий"
+        message: msg,
+        status: "Новий",
+        date: new Date().toLocaleDateString('uk-UA')
       };
 
-      try {
-        await supabaseClient.from('tickets').insert([newTicket]);
-      } catch(err) {}
+      state.tickets.unshift(ticket);
+      await syncTicketsData();
 
-      state.tickets.unshift(newTicket);
-      syncTicketsData();
-
-      document.getElementById('user-ticket-topic').value = '';
-      document.getElementById('user-ticket-msg').value = '';
-      alert("Ваш тикет успішно надіслано адміністрації платформи!");
-    }
-
-    function updateHeaderUserUI() {
-      const profileBtn = document.getElementById('nav-profile-btn');
-      const loginBtn = document.getElementById('nav-login-btn');
-      if (currentUser) {
-        profileBtn.classList.remove('hidden'); profileBtn.classList.add('flex');
-        document.getElementById('nav-profile-name').textContent = currentUser.name ? currentUser.name.split(' ')[0] : 'Кабінет';
-        loginBtn.classList.add('hidden');
-      } else {
-        profileBtn.classList.add('hidden');
-        loginBtn.classList.remove('hidden');
-      }
+      document.getElementById('user-ticket-topic').value = "";
+      document.getElementById('user-ticket-msg').value = "";
+      alert("Дякуємо! Ваше звернення надіслано адміністрації.");
     }
 
     // ==========================================
-    // 6. ФУНКЦІОНАЛ АДМІНІСТРАТИВНОЇ ПАНЕЛІ ТА СПЕЦ-АДМІНА
+    // 8. ADMIN PANEL FUNCTIONALITY
     // ==========================================
-    function showPage(pageId) {
-      document.getElementById('page-home').classList.add('hidden');
-      document.getElementById('page-admin').classList.add('hidden');
+    function checkAdminLoginState() {
+      const currentAdmin = state.currentUser;
+      const loginBox = document.getElementById('admin-login-box');
+      const dashboard = document.getElementById('admin-dashboard');
 
-      if (pageId === 'admin') {
-        document.getElementById('page-admin').classList.remove('hidden');
-        
-        if (!state.currentUser) {
-          document.getElementById('admin-login-box').classList.remove('hidden');
-          document.getElementById('admin-dashboard').classList.add('hidden');
-        } else {
-          const verifiedAdmin = state.admins.find(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
-          if (verifiedAdmin) {
-            document.getElementById('admin-login-box').classList.add('hidden');
-            document.getElementById('admin-dashboard').classList.remove('hidden');
-            renderAdminDashboard();
-          } else {
-            alert("Доступ заборонено! Ваш акаунт не має прав адміністратора.");
-            document.getElementById('admin-login-box').classList.remove('hidden');
-            document.getElementById('admin-dashboard').classList.add('hidden');
-          }
-        }
+      if (currentAdmin && state.admins.some(a => a.email.toLowerCase() === currentAdmin.email.toLowerCase())) {
+        if (loginBox) loginBox.classList.add('hidden');
+        if (dashboard) dashboard.classList.remove('hidden');
+        renderAdminHeader();
+        renderAdminAdminsList();
+        renderAdminCards();
+        renderRegisteredUsersList();
+        renderTicketsList();
+        renderRolesConfig();
       } else {
-        document.getElementById('page-home').classList.remove('hidden');
+        if (loginBox) loginBox.classList.remove('hidden');
+        if (dashboard) dashboard.classList.add('hidden');
       }
     }
 
-    function scrollToSection(id) {
-      showPage('home');
-      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-    }
-
-    async function handleAdminLogin(e) {
+    function handleAdminLogin(e) {
       e.preventDefault();
-      const username = document.getElementById('admin-username').value.trim().toLowerCase();
-      const password = document.getElementById('admin-password').value.trim();
-      const errorMsg = document.getElementById('admin-login-error');
+      const email = document.getElementById('admin-username').value.trim();
+      const pass = document.getElementById('admin-password').value.trim();
+      const err = document.getElementById('admin-login-error');
 
-      const foundAdmin = state.admins.find(a => a.email.trim().toLowerCase() === username && a.pass.trim() === password);
+      const admin = state.admins.find(a => a.email.toLowerCase() === email.toLowerCase() && a.pass === pass);
 
-      if (foundAdmin) {
-        foundAdmin.online = true;
-        state.currentUser = foundAdmin;
-        localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
-        
-        currentUser = currentUser || { avatar: "" };
-        currentUser.name = foundAdmin.name;
-        currentUser.email = foundAdmin.email;
-        currentUser.pass = foundAdmin.pass;
-        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        
-        await syncAdminsData();
-        await registerUserInDatabase(currentUser);
-        errorMsg.classList.add('hidden');
-        document.getElementById('admin-login-box').classList.add('hidden');
-        document.getElementById('admin-dashboard').classList.remove('hidden');
-        updateHeaderAuthUI();
-        updateHeaderUserUI();
-        renderAdminDashboard();
+      if (admin) {
+        if (err) err.classList.add('hidden');
+        state.currentUser = admin;
+        localStorage.setItem('okean_current_admin', JSON.stringify(admin));
+        checkAdminLoginState();
+        updateNavAuthUI();
       } else {
-        errorMsg.classList.remove('hidden');
+        if (err) {
+          err.textContent = "Помилка! Дана пошта не внесена до списку адміністрації або пароль невірно.";
+          err.classList.remove('hidden');
+        }
       }
     }
 
-    async function handleAdminLogout() {
-      if (state.currentUser) {
-        const found = state.admins.find(a => a.id === state.currentUser.id);
-        if (found) found.online = false;
-        await syncAdminsData();
-      }
+    function handleAdminLogout() {
       state.currentUser = null;
       localStorage.removeItem('okean_current_admin');
-      document.getElementById('admin-login-box').classList.add('hidden');
-      document.getElementById('admin-dashboard').classList.add('hidden');
-      updateHeaderAuthUI();
-      showPage('home');
+      checkAdminLoginState();
+      updateNavAuthUI();
     }
 
-    function updateHeaderAuthUI() {
-      const adminBtn = document.getElementById('nav-admin-btn');
-      if (state.currentUser && state.admins.some(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase())) {
-        adminBtn.classList.remove('hidden'); adminBtn.classList.add('flex');
-      } else {
-        adminBtn.classList.add('hidden');
-      }
-    }
-
-    function switchAdminTab(tabName) {
-      ['admins', 'admin-cards', 'users', 'tickets', 'roles'].forEach(t => {
-        const panel = document.getElementById(`admin-tab-${t}`);
-        const btn = document.getElementById(`tab-btn-${t}`);
-        if (panel) panel.classList.add('hidden');
-        if (btn) btn.className = "px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
-      });
-
-      const activePanel = document.getElementById(`admin-tab-${tabName}`);
-      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
-      if (activePanel) activePanel.classList.remove('hidden');
-      if (activeBtn) activeBtn.className = "px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
-
-      if (tabName === 'roles') renderRolesConfigGrid();
-      if (tabName === 'admin-cards') renderAdminCardsGrid();
-      if (tabName === 'users') renderRegisteredUsersList();
-      if (tabName === 'tickets') filterTickets();
-    }
-
-    function populateRoleSelects() {
-      const roleSelect = document.getElementById('new-admin-role');
-      if (!roleSelect) return;
-      roleSelect.innerHTML = Object.keys(rolesConfig).filter(r => r !== "Super Admin").map(r => `<option value="${r}">${r}</option>`).join('');
-    }
-
-    async function handleAddAdmin(e) {
-      e.preventDefault();
-      const name = document.getElementById('new-admin-name').value.trim();
-      const email = document.getElementById('new-admin-email').value.trim().toLowerCase();
-      const pass = document.getElementById('new-admin-pass').value.trim();
-      const tg = document.getElementById('new-admin-tg').value.trim();
-      const role = document.getElementById('new-admin-role').value; // Четко фиксируем выбранную должность
-
-      if (email === superAdminEmail.toLowerCase()) {
-        alert("Ця пошта вже є головним Super Admin!");
-        return;
-      }
-
-      if (role === "Super Admin") {
-        alert("Посада Super Admin недоступна для призначення!");
-        return;
-      }
-
-      if (state.admins.some(a => a.email.toLowerCase() === email)) {
-        alert("Цей email вже внесено до системи адміністраторів!");
-        return;
-      }
-
-      const newAdmin = {
-        id: Date.now(),
-        name, email, pass, role, // Сохраняем ту должность, которую выбрали в выпадающем списке
-        telegram: tg ? (tg.startsWith('http') ? tg : `https://t.me/${tg.replace('@','')}`) : "https://t.me/telegram",
-        online: false,
-        permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-        history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: `Пошту вписано в систему адміністрації з посадою "${role}"`, author: state.currentUser ? state.currentUser.name : "System" }]
-      };
-
-      state.admins.push(newAdmin);
-      await syncAdminsData();
-
-      document.getElementById('new-admin-name').value = '';
-      document.getElementById('new-admin-email').value = '';
-      document.getElementById('new-admin-pass').value = '';
-      document.getElementById('new-admin-tg').value = '';
-
-      alert(`Пошту ${email} успішно зареєстровано в системі адміністрації з посадою "${role}"!`);
-      renderAdminDashboard();
-    }
-
-    function openAddSanctionModal(targetAdminId) {
-      const select = document.getElementById('sanc-admin-id');
-      select.innerHTML = state.admins.map(a => `<option value="${a.id}" ${a.id === targetAdminId ? 'selected' : ''}>${a.name} (${a.role})</option>`).join('');
-      document.getElementById('sanction-modal').classList.remove('hidden');
-    }
-    function closeSanctionModal() { document.getElementById('sanction-modal').classList.add('hidden'); }
-
-    async function handleApplySanction(e) {
-      e.preventDefault();
-      const adminId = parseInt(document.getElementById('sanc-admin-id').value);
-      const sancType = document.querySelector('input[name="sanc-type"]:checked').value;
-      const reason = document.getElementById('sanc-reason').value.trim();
-
-      const admin = state.admins.find(a => a.id === adminId);
-      if (admin) {
-        if (admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-          alert("Неможливо видати санкцію головному власнику (Super Admin)!");
-          closeSanctionModal();
-          return;
-        }
-
-        if (!admin.history) admin.history = [];
-        
-        if (sancType === 'remove') {
-          admin.history.unshift({
-            date: new Date().toLocaleString('uk-UA'),
-            type: 'remove',
-            reason: `Знято стягнення: ${reason}`,
-            author: state.currentUser ? state.currentUser.name : "Super Admin"
-          });
-        } else {
-          admin.history.unshift({
-            date: new Date().toLocaleString('uk-UA'),
-            type: sancType,
-            reason: reason,
-            author: state.currentUser ? state.currentUser.name : "Адміністрація"
-          });
-        }
-
-        await syncAdminsData();
-        closeSanctionModal();
-        renderAdminDashboard();
-      }
-    }
-
-    function openAdminHistoryModal(adminId) {
-      const admin = state.admins.find(a => a.id === adminId);
+    function renderAdminHeader() {
+      const admin = state.currentUser;
       if (!admin) return;
 
-      document.getElementById('hist-name').textContent = admin.name;
-      document.getElementById('hist-email').textContent = admin.email;
-      document.getElementById('hist-avatar').textContent = admin.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-      document.getElementById('hist-role-badge').innerHTML = getRoleBadgeHTML(admin.role);
+      const nameEl = document.getElementById('admin-welcome-name');
+      const badgeEl = document.getElementById('admin-role-badge');
 
-      const logsList = document.getElementById('hist-logs-list');
-      if (!admin.history || admin.history.length === 0) {
-        logsList.innerHTML = `<div class="p-4 bg-slate-950/50 rounded-2xl border border-slate-800 text-slate-400 text-center">Історія порожня. Порушень не зафіксовано.</div>`;
-      } else {
-        logsList.innerHTML = admin.history.map(h => `
-          <div class="p-3.5 bg-slate-950/60 border ${h.type === 'ban' ? 'border-rose-500/30' : h.type === 'warn' ? 'border-amber-500/30' : h.type === 'remove' ? 'border-emerald-500/30' : 'border-slate-800'} rounded-2xl flex flex-col gap-1">
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-[11px] ${h.type === 'ban' ? 'text-rose-400' : h.type === 'warn' ? 'text-amber-400' : h.type === 'remove' ? 'text-emerald-400' : 'text-sky-400'}">
-                ${h.type === 'ban' ? '⛔ ДОГАНА' : h.type === 'warn' ? '⚠️ ПОПЕРЕДЖЕННЯ' : h.type === 'remove' ? '✅ ЗНЯТТЯ СТЯГНЕННЯ' : 'ℹ️ СИСТЕМА'}
-              </span>
-              <span class="text-[10px] text-slate-500 font-semibold">${h.date}</span>
-            </div>
-            <p class="text-slate-200 text-xs">${h.reason}</p>
-            <span class="text-[10px] text-slate-400 mt-0.5">Видав/Зняв: ${h.author || 'Адміністратор'}</span>
-          </div>
-        `).join('');
-      }
-
-      document.getElementById('admin-history-modal').classList.remove('hidden');
+      if (nameEl) nameEl.textContent = admin.name;
+      if (badgeEl) badgeEl.innerHTML = getRoleBadgeHTML(admin.role);
     }
-    function closeAdminHistoryModal() { document.getElementById('admin-history-modal').classList.add('hidden'); }
 
-    // СТРОГОЕ ИЗМЕНЕНИЕ И СОХРАНЕНИЕ ВЫБРАННОЙ ДОЛЖНОСТИ
-    async function changeAdminRole(adminId, newRole) {
-      const admin = state.admins.find(a => a.id === adminId);
-      if (admin) {
-        if (admin.email.toLowerCase() === superAdminEmail.toLowerCase() && newRole !== "Super Admin") {
-          alert("Посада Super Admin є незмінною та захищеною!");
-          renderAdminAdminsList();
-          return;
+    function switchAdminTab(tab) {
+      ['admins', 'admin-cards', 'users', 'tickets', 'roles'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const content = document.getElementById(`admin-tab-${t}`);
+        if (btn && content) {
+          if (t === tab) {
+            btn.className = "px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
+            content.classList.remove('hidden');
+          } else {
+            btn.className = "px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2";
+            content.classList.add('hidden');
+          }
         }
-        if (newRole === "Super Admin" && admin.email.toLowerCase() !== superAdminEmail.toLowerCase()) {
-          alert("Неможливо призначити іншу особу Super Admin! Ця посада доступна тільки для владельца.");
-          renderAdminAdminsList();
-          return;
-        }
-
-        admin.role = newRole; // Сохраняем ту должность, которую выбрали в выпадающем списке
-        if (!admin.history) admin.history = [];
-        admin.history.unshift({
-          date: new Date().toLocaleString('uk-UA'),
-          type: "role_change",
-          reason: `Посаду змінено на "${newRole}"`,
-          author: state.currentUser ? state.currentUser.name : "System"
-        });
-        await syncAdminsData();
-        renderAdminDashboard();
-        syncUserAndAdminState();
-      }
-    }
-
-    async function toggleAdminPermission(adminId, permKey) {
-      const admin = state.admins.find(a => a.id === adminId);
-      if (admin) {
-        if (!admin.permissions) admin.permissions = { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
-        admin.permissions[permKey] = !admin.permissions[permKey];
-        await syncAdminsData();
-        renderAdminAdminsList();
-      }
-    }
-
-    // ПОЛНОЕ СНЯТИЕ С ПОСТА АДМИНА И УДАЛЕНИЕ ПРАВ
-    async function removeAdmin(id) {
-      const admin = state.admins.find(a => a.id === id);
-      if (admin && admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
-        alert("Неможливо вилучити головного власника платформи (Super Admin)!");
-        return;
-      }
-      if (confirm(`Ви впевнені, що хочете зняти з поста та видалити адміністратора "${admin ? admin.email : ''}"?`)) {
-        state.admins = state.admins.filter(a => a.id !== id);
-        try {
-          await supabaseClient.from('admins').delete().eq('id', id);
-        } catch(e) {}
-        await syncAdminsData();
-        
-        // Сбрасываем права и проверяем сессию
-        syncUserAndAdminState();
-        renderAdminDashboard();
-        alert("Адміністратора успішно знято з поста, права анульовано!");
-      }
-    }
-
-    // МЕТОДЫ УПРАВЛЕНИЯ ПОЛЬЗОВАТЕЛЯМИ ДЛЯ СПЕЦ-АДМІНА
-    async function deleteUserByEmail(email) {
-      if (confirm(`Видалити користувача ${email} з платформи?`)) {
-        state.registeredUsers = state.registeredUsers.filter(u => u.email.toLowerCase() !== email.toLowerCase());
-        try { await supabaseClient.from('users').delete().eq('email', email); } catch(e){}
-        syncUsersData();
-        renderRegisteredUsersList();
-      }
-    }
-
-    async function toggleUserBan(email) {
-      let u = state.registeredUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
-      if (u) {
-        u.banned = !u.banned;
-        try { await supabaseClient.from('users').update({ banned: u.banned }).eq('email', email); } catch(e){}
-        syncUsersData();
-        renderRegisteredUsersList();
-      }
-    }
-
-    async function addUserWarn(email) {
-      let u = state.registeredUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
-      if (u) {
-        u.warns = (u.warns || 0) + 1;
-        try { await supabaseClient.from('users').update({ warns: u.warns }).eq('email', email); } catch(e){}
-        syncUsersData();
-        renderRegisteredUsersList();
-      }
-    }
-
-    async function removeUserWarn(email) {
-      let u = state.registeredUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
-      if (u && (u.warns || 0) > 0) {
-        u.warns -= 1;
-        try { await supabaseClient.from('users').update({ warns: u.warns }).eq('email', email); } catch(e){}
-        syncUsersData();
-        renderRegisteredUsersList();
-      }
-    }
-
-    async function grantAdminFromUser(email) {
-      let u = state.registeredUsers.find(x => x.email.toLowerCase() === email.toLowerCase());
-      if (u) {
-        if (state.admins.some(a => a.email.toLowerCase() === email.toLowerCase())) {
-          alert("Цей користувач вже є адміністратором!");
-          return;
-        }
-        const newAdmin = {
-          id: Date.now(),
-          name: u.name,
-          email: u.email,
-          pass: "admin123",
-          role: "Адміністратор",
-          telegram: "https://t.me/telegram",
-          online: false,
-          permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-          history: [{ date: new Date().toLocaleString('uk-UA'), type: "created", reason: "Надано права адміністратора спец-адміном", author: state.currentUser ? state.currentUser.name : "Спец-адмін" }]
-        };
-        state.admins.push(newAdmin);
-        await syncAdminsData();
-        alert(`Користувачу ${u.name} успішно надано права адміністратора!`);
-        renderAdminDashboard();
-        syncUserAndAdminState();
-      }
+      });
     }
 
     function renderAdminAdminsList() {
-      const query = (document.getElementById('admin-search')?.value || '').toLowerCase();
       const list = document.getElementById('admin-team-list');
+      const search = (document.getElementById('admin-search')?.value || "").toLowerCase();
       if (!list) return;
 
-      const filtered = state.admins.filter(a => a.name.toLowerCase().includes(query) || a.role.toLowerCase().includes(query) || a.email.toLowerCase().includes(query));
+      let filtered = state.admins.filter(a => a.name.toLowerCase().includes(search) || a.role.toLowerCase().includes(search));
+
+      document.getElementById('stat-admins-total').textContent = state.admins.length;
+      document.getElementById('stat-admins-warns').textContent = state.admins.filter(a => a.history && a.history.some(h => h.type === 'warn')).length;
+      document.getElementById('stat-admins-bans').textContent = state.admins.filter(a => a.history && a.history.some(h => h.type === 'ban')).length;
+      document.getElementById('stat-admins-online').textContent = state.admins.filter(a => a.online).length;
+
+      const selectRole = document.getElementById('new-admin-role');
+      if (selectRole) {
+        selectRole.innerHTML = Object.keys(rolesConfig).map(r => `<option value="${r}">${r}</option>`).join('');
+      }
 
       list.innerHTML = filtered.map(a => {
-        const warnsCount = (a.history || []).filter(h => h.type === 'warn').length;
-        const bansCount = (a.history || []).filter(h => h.type === 'ban').length;
-        const perms = a.permissions || { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
         const isSuper = a.email.toLowerCase() === superAdminEmail.toLowerCase();
+        const warns = (a.history || []).filter(h => h.type === 'warn').length;
+        const bans = (a.history || []).filter(h => h.type === 'ban').length;
 
         return `
           <tr class="hover:bg-slate-800/40 transition-colors">
             <td class="p-3">
-              <div class="flex items-center gap-3">
-                <div class="relative">
-                  <div class="w-9 h-9 rounded-xl bg-slate-800 text-white font-bold flex items-center justify-center border border-slate-700 overflow-hidden">
-                    ${a.avatar || (() => {
-                      const uMatch = state.registeredUsers.find(u => u.email.toLowerCase() === a.email.toLowerCase());
-                      return uMatch && uMatch.avatar ? `<img src="${uMatch.avatar}" class="w-full h-full object-cover">` : a.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
-                    })()}
-                  </div>
-                  <span class="w-3 h-3 rounded-full absolute -bottom-0.5 -right-0.5 border-2 border-slate-900 ${a.online ? 'bg-emerald-500' : 'bg-slate-600'}"></span>
-                </div>
-                <div>
-                  <span class="font-bold text-white block leading-snug">${a.name}</span>
-                  <span class="text-[11px] text-sky-400">${a.email}</span>
-                </div>
-              </div>
+              <div class="font-bold text-white">${a.name}</div>
+              <div class="text-[11px] text-sky-400">${a.email}</div>
             </td>
+            <td class="p-3">${getRoleBadgeHTML(a.role)}</td>
             <td class="p-3">
-              ${isSuper ? 
-                `<div class="mb-1"><span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40">Super Admin (Захищено)</span></div>` :
-                `<select onchange="changeAdminRole(${a.id}, this.value)" class="bg-slate-950/80 border border-slate-700 rounded-xl px-2.5 py-1 text-xs text-white font-bold focus:outline-none">
-                  ${Object.keys(rolesConfig).filter(r => r !== "Super Admin").map(r => `<option value="${r}" ${r === a.role ? 'selected' : ''}>${r}</option>`).join('')}
-                </select>
-                <div class="mt-1">${getRoleBadgeHTML(a.role)}</div>`
-              }
-            </td>
-            <td class="p-3">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2 py-1 rounded-lg bg-amber-500/10 text-amber-300 font-bold text-[11px] border border-amber-500/20">Попереджень: ${warnsCount}</span>
-                <span class="px-2 py-1 rounded-lg bg-rose-500/10 text-rose-300 font-bold text-[11px] border border-rose-500/20">Доган: ${bansCount}</span>
-                <button onclick="openAdminHistoryModal(${a.id})" class="text-[11px] text-sky-400 hover:underline font-semibold ml-1">Історія (${(a.history || []).length})</button>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${warns > 0 ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-500'}">
+                  ${warns} варнів
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${bans > 0 ? 'bg-rose-500/20 text-rose-300' : 'bg-slate-800 text-slate-500'}">
+                  ${bans} доган
+                </span>
               </div>
             </td>
             <td class="p-3 text-center">
-              <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                <button onclick="toggleAdminPermission(${a.id}, 'tickets')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.tickets ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">Тикети</button>
-                <button onclick="toggleAdminPermission(${a.id}, 'manageAdmins')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.manageAdmins ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">Персонал</button>
-                <button onclick="toggleAdminPermission(${a.id}, 'giveSanctions')" class="px-2 py-0.5 rounded text-[10px] font-bold ${perms.giveSanctions ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}">Догани</button>
-              </div>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${a.online ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-500'}">
+                ${a.online ? 'Онлайн' : 'Офлайн'}
+              </span>
             </td>
             <td class="p-3 text-right">
-              <div class="flex items-center justify-end gap-2">
-                ${isSuper ? 
-                  `<span class="px-3 py-1 bg-amber-500/10 text-amber-300 font-bold rounded-xl text-[11px] border border-amber-500/20">Головний Власник</span>` :
-                  `<button onclick="openAddSanctionModal(${a.id})" class="px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold rounded-xl text-[11px] transition-all border border-amber-500/30">+ Санкція</button>
-                   <button onclick="removeAdmin(${a.id})" class="px-2.5 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold rounded-xl text-[11px] transition-all border border-rose-500/30">Зняти з поста</button>`
-                }
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="openAdminHistoryModal(${a.id})" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-sky-400 rounded-lg text-xs" title="Історія">
+                  <i data-lucide="history" class="w-4 h-4"></i>
+                </button>
+                ${!isSuper ? `
+                  <button onclick="deleteAdmin(${a.id})" class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs" title="Видалити">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                ` : '<span class="text-[10px] text-amber-400 font-bold px-2">Захищено</span>'}
               </div>
             </td>
           </tr>
         `;
       }).join('');
+
+      lucide.createIcons();
     }
 
-    function renderAdminCardsGrid() {
-      const container = document.getElementById('admin-cards-grid');
-      if (!container) return;
+    async function handleAddAdmin(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-admin-name').value.trim();
+      const email = document.getElementById('new-admin-email').value.trim();
+      const pass = document.getElementById('new-admin-pass').value.trim();
+      const tg = document.getElementById('new-admin-tg').value.trim();
+      const role = document.getElementById('new-admin-role').value;
 
-      container.innerHTML = state.admins.map(a => {
-        const uMatch = state.registeredUsers.find(u => u.email.toLowerCase() === a.email.toLowerCase());
-        const avatarSrc = uMatch && uMatch.avatar ? uMatch.avatar : (a.avatar || '');
+      if (!name || !email || !pass) return;
 
-        return `
-          <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between gap-4 shadow-lg hover:border-sky-500/30 transition-all">
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <div class="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-black text-lg flex items-center justify-center overflow-hidden">
-                  ${avatarSrc ? `<img src="${avatarSrc}" class="w-full h-full object-cover">` : a.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
-                </div>
-                <div>${getRoleBadgeHTML(a.role)}</div>
-              </div>
-              <h4 class="font-bold text-white text-base">${a.name}</h4>
-              <p class="text-xs text-sky-400 mt-1 flex items-center gap-1.5"><i data-lucide="mail" class="w-3.5 h-3.5"></i> ${a.email}</p>
+      const newAdmin = {
+        id: Date.now(),
+        name,
+        email,
+        pass,
+        role,
+        telegram: tg.startsWith('http') ? tg : (tg ? `https://t.me/${tg.replace('@', '')}` : "https://t.me/telegram"),
+        online: false,
+        permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
+        history: [
+          { date: new Date().toLocaleString('uk-UA'), type: "add", reason: `Зареєстровано пошту в системі (${role})`, author: state.currentUser ? state.currentUser.name : "Адмін" }
+        ]
+      };
+
+      state.admins.push(newAdmin);
+      await syncAdminsData();
+      renderAdminAdminsList();
+      renderAdminCards();
+
+      document.getElementById('new-admin-name').value = "";
+      document.getElementById('new-admin-email').value = "";
+      document.getElementById('new-admin-pass').value = "";
+      document.getElementById('new-admin-tg').value = "";
+      alert("Нового адміністратора успішно додано!");
+    }
+
+    async function deleteAdmin(id) {
+      const admin = state.admins.find(a => a.id === id);
+      if (!admin) return;
+      if (admin.email.toLowerCase() === superAdminEmail.toLowerCase()) {
+        alert("Помилка! Головного власника (Super Admin) неможливо видалити!");
+        return;
+      }
+      if (confirm(`Ви впевнені, що хочете видалити адміністратора ${admin.name}?`)) {
+        state.admins = state.admins.filter(a => a.id !== id);
+        await syncAdminsData();
+        renderAdminAdminsList();
+        renderAdminCards();
+      }
+    }
+
+    function renderAdminCards() {
+      const grid = document.getElementById('admin-cards-grid');
+      if (!grid) return;
+
+      grid.innerHTML = state.admins.map(a => `
+        <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-3xl flex flex-col justify-between shadow-lg hover:border-sky-500/50 transition-all">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              ${getRoleBadgeHTML(a.role)}
+              <span class="w-2.5 h-2.5 rounded-full ${a.online ? 'bg-emerald-400 shadow-lg shadow-emerald-400/50' : 'bg-slate-600'}"></span>
             </div>
-            
-            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-              <a href="${a.telegram || 'https://t.me/telegram'}" target="_blank" class="px-3 py-1.5 bg-[#0088cc] hover:bg-[#0077b5] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md">
-                <i data-lucide="send" class="w-3.5 h-3.5"></i> Telegram
-              </a>
-              <span class="text-[10px] font-bold ${a.online ? 'text-emerald-400' : 'text-slate-500'} flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full ${a.online ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}"></span>
-                ${a.online ? 'В мережі' : 'Офлайн'}
-              </span>
-            </div>
+            <h4 class="font-black text-white text-base">${a.name}</h4>
+            <p class="text-xs text-sky-400 font-medium mt-0.5">${a.email}</p>
           </div>
-        `;
-      }).join('');
+          <div class="mt-5 pt-4 border-t border-slate-700/60 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400">Telegram контакт:</span>
+            <a href="${a.telegram || 'https://t.me/telegram'}" target="_blank" class="px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-bold text-xs rounded-xl border border-sky-500/30 flex items-center gap-1.5 transition-colors">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i> Написати
+            </a>
+          </div>
+        </div>
+      `).join('');
+
       lucide.createIcons();
     }
 
     function renderRegisteredUsersList() {
-      const query = (document.getElementById('user-search')?.value || '').toLowerCase();
       const list = document.getElementById('registered-users-list');
-      const countDisplay = document.getElementById('user-count-display');
+      const search = (document.getElementById('user-search')?.value || "").toLowerCase();
       if (!list) return;
 
-      const filtered = state.registeredUsers.filter(u => u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query) || u.city.toLowerCase().includes(query));
+      document.getElementById('user-count-display').textContent = state.registeredUsers.length;
 
-      if (countDisplay) countDisplay.textContent = state.registeredUsers.length;
+      let filtered = state.registeredUsers.filter(u => 
+        (u.name || "").toLowerCase().includes(search) || 
+        (u.email || "").toLowerCase().includes(search)
+      );
 
       list.innerHTML = filtered.map(u => `
         <tr class="hover:bg-slate-800/40 transition-colors">
           <td class="p-3">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-xl bg-slate-800 text-sky-400 font-bold flex items-center justify-center border border-slate-700 text-xs overflow-hidden">
-                ${u.avatar ? `<img src="${u.avatar}" class="w-full h-full object-cover">` : u.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
-              </div>
-              <div>
-                <span class="font-bold text-white block">${u.name}</span>
-                <span class="text-[11px] text-sky-400">${u.email}</span>
-              </div>
-            </div>
+            <div class="font-bold text-white">${u.name || "Користувач"}</div>
+            <div class="text-[11px] text-sky-400">${u.email}</div>
           </td>
-          <td class="p-3 text-slate-300">
-            <div>${u.phone || 'Телефон не вказано'}</div>
-            <div class="text-[10px] text-slate-400">${u.city} • ${u.interest}</div>
-          </td>
+          <td class="p-3 text-slate-300">${u.phone || "Не вказано"}</td>
           <td class="p-3 text-center">
-            <div class="flex items-center justify-center gap-2 flex-wrap">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.banned ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
-                ${u.banned ? '⛔ ЗАБАНЕНИЙ' : 'Активний'}
-              </span>
-              <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold text-[10px]">Варни: ${u.warns || 0}</span>
-            </div>
+            ${u.isBanned ? `
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30">Заблоковано</span>
+            ` : `
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний</span>
+            `}
           </td>
           <td class="p-3 text-right">
-            <div class="flex items-center justify-end gap-1.5 flex-wrap">
-              <button onclick="toggleUserBan('${u.email}')" class="px-2.5 py-1 ${u.banned ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'} font-bold rounded-lg text-[10px]">${u.banned ? 'Розбанити' : 'Бан'}</button>
-              <button onclick="addUserWarn('${u.email}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold rounded-lg text-[10px]">+Варн</button>
-              <button onclick="removeUserWarn('${u.email}')" class="px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 font-bold rounded-lg text-[10px]">-Варн</button>
-              <button onclick="grantAdminFromUser('${u.email}')" class="px-2.5 py-1 bg-sky-500/20 text-sky-300 border border-sky-500/30 font-bold rounded-lg text-[10px]">Адмінка</button>
-              <button onclick="deleteUserByEmail('${u.email}')" class="px-2.5 py-1 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 font-bold rounded-lg text-[10px]">Видалити</button>
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="toggleUserBan('${u.email}')" class="px-2.5 py-1.5 ${u.isBanned ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'} rounded-xl text-[11px] font-bold">
+                ${u.isBanned ? 'Розбанити' : 'Забанити'}
+              </button>
+              <button onclick="deleteUser('${u.email}')" class="p-1.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-xl" title="Видалити">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
             </div>
           </td>
         </tr>
       `).join('');
+
+      lucide.createIcons();
     }
 
-    function renderRolesConfigGrid() {
-      const container = document.getElementById('roles-config-grid');
-      container.innerHTML = Object.keys(rolesConfig).map(rName => {
-        const r = rolesConfig[rName];
+    async function toggleUserBan(email) {
+      let user = state.registeredUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!user) return;
+      user.isBanned = !user.isBanned;
+      await syncUsersData();
+      renderRegisteredUsersList();
+    }
+
+    async function deleteUser(email) {
+      if (confirm(`Видалити користувача ${email}?`)) {
+        state.registeredUsers = state.registeredUsers.filter(u => u.email.toLowerCase() !== email.toLowerCase());
+        await syncUsersData();
+        renderRegisteredUsersList();
+      }
+    }
+
+    function renderTicketsList() {
+      const list = document.getElementById('admin-tickets-list');
+      if (!list) return;
+
+      filterTickets();
+    }
+
+    function filterTickets() {
+      const list = document.getElementById('admin-tickets-list');
+      const search = (document.getElementById('ticket-search')?.value || "").toLowerCase();
+      const status = document.getElementById('status-filter')?.value || "all";
+      if (!list) return;
+
+      let filtered = state.tickets.filter(t => {
+        const matchesSearch = (t.name || "").toLowerCase().includes(search) || 
+                              (t.contact || "").toLowerCase().includes(search) || 
+                              (t.category || "").toLowerCase().includes(search);
+        const matchesStatus = status === "all" || t.status === status;
+        return matchesSearch && matchesStatus;
+      });
+
+      list.innerHTML = filtered.map(t => `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          <td class="p-4">
+            <div class="font-extrabold text-sky-400">${t.id}</div>
+            <div class="text-[10px] text-slate-500">${t.date || "Сьогодні"}</div>
+          </td>
+          <td class="p-4">
+            <div class="font-bold text-white">${t.name}</div>
+            <div class="text-[11px] text-slate-400">${t.contact}</div>
+          </td>
+          <td class="p-4">
+            <div class="font-semibold text-slate-200">${t.category}</div>
+            <div class="text-[11px] text-slate-400 truncate max-w-xs">${t.message}</div>
+          </td>
+          <td class="p-4">
+            <select onchange="updateTicketStatus('${t.id}', this.value)" class="px-2.5 py-1 bg-slate-800 border border-slate-700 rounded-xl text-xs font-bold text-sky-300">
+              <option value="Новий" ${t.status === 'Новий' ? 'selected' : ''}>Новий</option>
+              <option value="В роботі" ${t.status === 'В роботі' ? 'selected' : ''}>В роботі</option>
+              <option value="Завершено" ${t.status === 'Завершено' ? 'selected' : ''}>Завершено</option>
+            </select>
+          </td>
+          <td class="p-4 text-right">
+            <button onclick="deleteTicket('${t.id}')" class="p-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-xl" title="Видалити тикет">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    async function updateTicketStatus(id, newStatus) {
+      let t = state.tickets.find(x => x.id === id);
+      if (t) {
+        t.status = newStatus;
+        await syncTicketsData();
+      }
+    }
+
+    async function deleteTicket(id) {
+      if (confirm("Видалити цей тикет?")) {
+        state.tickets = state.tickets.filter(x => x.id !== id);
+        await syncTicketsData();
+        filterTickets();
+      }
+    }
+
+    function renderRolesConfig() {
+      const grid = document.getElementById('roles-config-grid');
+      if (!grid) return;
+
+      grid.innerHTML = Object.keys(rolesConfig).map(key => {
+        const r = rolesConfig[key];
         return `
-          <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between gap-3">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-300">${rName}</span>
-                <div style="${r.badgeStyle}" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold">Прев'ю</div>
-              </div>
-              <p class="text-[11px] text-slate-400">Автоматичний стилізований шильдик посади</p>
+          <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-white text-xs">${r.name}</span>
+              ${getRoleBadgeHTML(r.name)}
             </div>
-            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-              <span class="text-emerald-400 font-bold">● Колір активний</span>
-              <span class="text-slate-500">Авто-синхронізація</span>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">CSS Стиль бейджа</label>
+              <input type="text" value="${r.badgeStyle}" onchange="updateRoleStyle('${key}', this.value)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-sky-300 focus:outline-none">
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function renderAdminDashboard() {
-      if (!state.currentUser) return;
-
-      document.getElementById('admin-welcome-name').textContent = state.currentUser.name;
-      document.getElementById('admin-role-badge').innerHTML = getRoleBadgeHTML(state.currentUser.role);
-
-      document.getElementById('stat-admins-total').textContent = state.admins.length;
-      document.getElementById('stat-admins-warns').textContent = state.admins.filter(a => (a.history || []).some(h => h.type === 'warn')).length;
-      document.getElementById('stat-admins-bans').textContent = state.admins.filter(a => (a.history || []).some(h => h.type === 'ban')).length;
-      document.getElementById('stat-admins-online').textContent = state.admins.filter(a => a.online).length;
-
-      populateRoleSelects();
-      renderAdminAdminsList();
-      filterTickets();
+    function updateRoleStyle(key, newStyle) {
+      if (rolesConfig[key]) {
+        rolesConfig[key].badgeStyle = newStyle;
+        localStorage.setItem('okean_roles_config', JSON.stringify(rolesConfig));
+        renderRolesConfig();
+        renderAdminAdminsList();
+        renderAdminCards();
+      }
     }
 
-    function filterTickets() {
-      const query = (document.getElementById('ticket-search')?.value || '').toLowerCase();
-      const statusFilter = document.getElementById('status-filter')?.value || 'all';
-      const list = document.getElementById('admin-tickets-list');
-      if (!list) return;
+    // SANCTION MODAL
+    function openAddSanctionModal() {
+      const modal = document.getElementById('sanction-modal');
+      const select = document.getElementById('sanc-admin-id');
+      if (!modal || !select) return;
 
-      const filtered = state.tickets.filter(t => {
-        const matchesQuery = (t.name || '').toLowerCase().includes(query) || (t.contact || '').toLowerCase().includes(query) || (t.id || '').toLowerCase().includes(query);
-        const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
-        return matchesQuery && matchesStatus;
+      select.innerHTML = state.admins.map(a => `<option value="${a.id}">${a.name} (${a.role})</option>`).join('');
+      modal.classList.remove('hidden');
+    }
+
+    function closeSanctionModal() {
+      const modal = document.getElementById('sanction-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function handleApplySanction(e) {
+      e.preventDefault();
+      const adminId = parseInt(document.getElementById('sanc-admin-id').value);
+      const type = document.querySelector('input[name="sanc-type"]:checked').value;
+      const reason = document.getElementById('sanc-reason').value.trim();
+
+      const admin = state.admins.find(a => a.id === adminId);
+      if (!admin) return;
+
+      if (!admin.history) admin.history = [];
+
+      admin.history.unshift({
+        date: new Date().toLocaleString('uk-UA'),
+        type,
+        reason,
+        author: state.currentUser ? state.currentUser.name : "Адмін"
       });
 
-      if (filtered.length === 0) {
-        list.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Вхідних тикетів поки немає. Вони з'являться тут відразу після звернення користувачів.</td></tr>`;
-        return;
-      }
-
-      list.innerHTML = filtered.map(t => `
-        <tr class="hover:bg-slate-800/50 transition-colors">
-          <td class="p-4"><span class="font-bold text-white">${t.id}</span><div class="text-[11px] text-slate-400 mt-0.5">${t.date}</div></td>
-          <td class="p-4"><span class="font-bold text-slate-200">${t.name}</span><div class="text-[11px] text-sky-400 mt-0.5">${t.contact}</div></td>
-          <td class="p-4"><span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-semibold text-[11px]">${t.category}</span><div class="text-[11px] text-purple-400 mt-1 font-medium">${t.project}</div></td>
-          <td class="p-4"><span class="px-2.5 py-1 rounded-full font-bold text-[10px] ${t.status === 'Новий' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">${t.status}</span></td>
-          <td class="p-4 text-right"><button onclick="toggleTicketStatus('${t.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-400 font-semibold rounded-xl text-xs transition-colors">Змінити статус</button></td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
+      await syncAdminsData();
+      renderAdminAdminsList();
+      closeSanctionModal();
+      alert("Санкцію / зміну успішно внесено до журналу!");
     }
 
-    async function toggleTicketStatus(id) {
-      const ticket = state.tickets.find(t => t.id === id);
-      if (ticket) {
-        ticket.status = ticket.status === 'Новий' ? 'В роботі' : (ticket.status === 'В роботі' ? 'Завершено' : 'Новий');
-        try {
-          await supabaseClient.from('tickets').update({ status: ticket.status }).eq('id', id);
-        } catch(e) {}
-        syncTicketsData();
-        filterTickets();
-      }
-    }
+    function openAdminHistoryModal(id) {
+      const admin = state.admins.find(a => a.id === id);
+      if (!admin) return;
 
-    // ==========================================
-    // 7. СЛАЙДЕР ТА КАТАЛОГ
-    // ==========================================
-    const banners = [
-      { tag: "Спільнота & Підтримка", title: "Знайди своїх, отримай допомогу та втілюй ідеї", desc: "Платформа взаємодопомоги та розвитку людей і громад.", btnText: "Дізнатися більше", action: "scrollToSection('projects')" },
-      { tag: "Telegram Бот", title: "Миттєвий зв'язок та допомога у вашому смартфоні", desc: "Отримай персонального координатора без реєстрації.", btnText: "Перейти до Telegram", action: "openTelegramModal()" },
-      { tag: "Проєкт «Морські леви»", title: "Реабілітація та водний спорт для захисників", desc: "Відновлення сили та рівноваги через тренування.", btnText: "Підтримати проєкт", action: "openChatWithPrompt('Хочу дізнатися більше про проєкт Морські леви')" }
-    ];
-    let currentSlide = 0;
+      const modal = document.getElementById('admin-history-modal');
+      if (!modal) return;
 
-    function renderBanner() {
-      const container = document.getElementById('banner-slider-container');
-      const b = banners[currentSlide];
-      container.innerHTML = `
-        <div class="slider-transition opacity-100 flex flex-col items-center max-w-3xl mx-auto">
-          <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-400/30 mb-3">${b.tag}</span>
-          <h2 class="text-xl sm:text-4xl font-black text-white tracking-tight leading-snug mb-3">${b.title}</h2>
-          <p class="text-xs sm:text-sm text-slate-300 mb-6 max-w-xl">${b.desc}</p>
-          <button onclick="${b.action}" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs rounded-2xl transition-all shadow-lg flex items-center gap-2">
-            <span>${b.btnText}</span> <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-        </div>
-      `;
-      lucide.createIcons();
-    }
-    function nextSlide() { currentSlide = (currentSlide + 1) % banners.length; renderBanner(); }
-    function prevSlide() { currentSlide = (currentSlide - 1 + banners.length) % banners.length; renderBanner(); }
-    setInterval(nextSlide, 5000);
+      document.getElementById('hist-name').textContent = admin.name;
+      document.getElementById('hist-email').textContent = admin.email;
+      document.getElementById('hist-role-badge').innerHTML = getRoleBadgeHTML(admin.role);
 
-    function renderCatalog() {
-      const container = document.getElementById('catalog-grid');
-      container.innerHTML = state.organizations.map(org => `
-        <div class="bg-slate-900/80 border border-slate-700 p-5 rounded-3xl shadow-sm flex flex-col justify-between backdrop-blur-md">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-lg border border-sky-500/20">${org.category}</span>
-              <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3 h-3"></i> Перевірено</span>
+      const logsList = document.getElementById('hist-logs-list');
+      if (logsList) {
+        logsList.innerHTML = (admin.history || []).map(h => `
+          <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700/80 flex flex-col gap-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-bold text-sky-400">${h.type === 'warn' ? '⚠️ Попередження' : h.type === 'ban' ? '⛔ Догана' : h.type === 'remove' ? '✅ Зняття стягнення' : 'ℹ️ Запис'}</span>
+              <span class="text-slate-500">${h.date}</span>
             </div>
-            <h4 class="font-bold text-white text-base">${org.name}</h4>
-            <p class="text-xs text-slate-400 mt-1">Локація: ${org.city}</p>
+            <p class="text-slate-200">${h.reason}</p>
+            <span class="text-[10px] text-slate-400">Автор: ${h.author || "Система"}</span>
           </div>
-          <button onclick="openChatWithPrompt('Хочу отримати контакти організації: ${org.name}')" class="mt-5 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs rounded-2xl transition-colors border border-slate-700">
-            Зв'язатися через координатора
-          </button>
-        </div>
-      `).join('');
-      lucide.createIcons();
+        `).join('') || '<div class="text-slate-500 italic">Історія порожня</div>';
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeAdminHistoryModal() {
+      const modal = document.getElementById('admin-history-modal');
+      if (modal) modal.classList.add('hidden');
     }
 
     // ==========================================
-    // 8. ІНТЕРАКТИВНИЙ AI CHAT WIDGET
+    // 9. AI CHAT & VOICE INPUT
     // ==========================================
-    function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
-    function openChatWithPrompt(text) {
-      document.getElementById('chat-window').classList.remove('hidden');
-      const input = document.getElementById('chat-input');
-      input.value = text;
-      input.focus();
+    let isChatOpen = false;
+
+    function toggleChat() {
+      isChatOpen = !isChatOpen;
+      const win = document.getElementById('chat-window');
+      if (win) {
+        if (isChatOpen) win.classList.remove('hidden');
+        else win.classList.add('hidden');
+      }
     }
+
+    function openChatWithPrompt(promptText) {
+      if (!isChatOpen) toggleChat();
+      const input = document.getElementById('chat-input');
+      if (input) {
+        input.value = promptText;
+      }
+    }
+
     function sendQuickChip(text) {
-      if (text.includes('Телеграм')) { openTelegramModal(); return; }
-      document.getElementById('chat-input').value = text;
+      openChatWithPrompt(text);
       handleSendMessage(new Event('submit'));
     }
 
-    async function handleSendMessage(e) {
-      e.preventDefault();
+    function handleSendMessage(e) {
+      if (e) e.preventDefault();
       const input = document.getElementById('chat-input');
-      const message = input.value.trim();
-      if (!message) return;
+      const body = document.getElementById('chat-body');
+      if (!input || !body) return;
 
-      const chatBody = document.getElementById('chat-body');
-      chatBody.innerHTML += `<div class="flex justify-end msg-animate"><div class="bg-gradient-to-r from-sky-500 to-sky-600 text-white p-3.5 rounded-2xl rounded-tr-xs max-w-[85%] shadow-md leading-relaxed font-medium">${message}</div></div>`;
-      input.value = '';
-      chatBody.scrollTop = chatBody.scrollHeight;
+      const text = input.value.trim();
+      if (!text) return;
 
-      const currentMentor = mentors[selectedMentorKey];
+      body.innerHTML += `
+        <div class="flex gap-2.5 items-start justify-end msg-animate">
+          <div class="bg-sky-500 text-slate-950 font-medium p-3.5 rounded-2xl rounded-tr-xs max-w-[85%] shadow-md">
+            ${text}
+          </div>
+        </div>
+      `;
 
-      setTimeout(async () => {
-        let aiReply = `${currentMentor.name}: Дякую за звернення! Ваш запит передано адміністрації платформи.`;
-        chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
-        chatBody.scrollTop = chatBody.scrollHeight;
-        speakText(aiReply, currentMentor);
+      input.value = "";
+      body.scrollTop = body.scrollHeight;
 
-        const chatTicket = {
-          id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
-          date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
-          name: currentUser ? currentUser.name : "Гість чату",
-          contact: currentUser ? currentUser.email : "Веб-чат",
-          category: "Чат-запит",
-          project: message,
-          status: "Новий"
-        };
+      setTimeout(() => {
+        let reply = "Дякую за звернення! Наш живий супровідник та команда зв'яжуться з вами у найближчий час.";
+        
+        if (text.toLowerCase().includes('реабілітаці') || text.toLowerCase().includes('допомога')) {
+          reply = "Для отримання допомоги та реабілітації оберіть один із закладів у Каталозі або залишіть тикет у Кабінеті.";
+        } else if (text.toLowerCase().includes('телеграм') || text.toLowerCase().includes('бот')) {
+          reply = "Ви можете скористатися нашим сервісним ботом у Telegram: @Ocean_friendly_bot";
+        }
 
-        try {
-          await supabaseClient.from('tickets').insert([chatTicket]);
-        } catch(err) {}
+        const m = mentors[selectedMentorKey] || mentors.lada;
 
-        state.tickets.unshift(chatTicket);
-        syncTicketsData();
-        if (state.currentUser) renderAdminDashboard();
-      }, 750);
+        body.innerHTML += `
+          <div class="flex gap-2.5 items-start msg-animate">
+            <div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+              ${m.emoji}
+            </div>
+            <div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">
+              ${reply}
+            </div>
+          </div>
+        `;
+        body.scrollTop = body.scrollHeight;
+
+        speakText(reply, m.pitch, m.rate);
+      }, 600);
     }
 
     function toggleVoiceInput() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) { alert("Ваш браузер не підтримує голосовий ввід."); return; }
+      if (!SpeechRecognition) {
+        alert("Голосовий ввід не підтримується вашим браузером.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = currentLang === 'uk' ? 'uk-UA' : currentLang === 'ru' ? 'ru-RU' : 'en-US';
+      recognition.start();
 
       const micBtn = document.getElementById('mic-btn');
-      const recognition = new SpeechRecognition();
-      recognition.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
+      if (micBtn) micBtn.classList.add('bg-rose-500', 'text-white');
 
-      recognition.onstart = () => micBtn.classList.add('bg-rose-500', 'text-white', 'animate-pulse');
-      recognition.onresult = (e) => { document.getElementById('chat-input').value = e.results[0][0].transcript; micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse'); };
-      recognition.onerror = () => micBtn.classList.remove('bg-rose-500', 'text-white', 'animate-pulse');
-      recognition.start();
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('chat-input');
+        if (input) input.value = transcript;
+        if (micBtn) micBtn.classList.remove('bg-rose-500', 'text-white');
+      };
+
+      recognition.onerror = function() {
+        if (micBtn) micBtn.classList.remove('bg-rose-500', 'text-white');
+      };
     }
 
-    function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
-    function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
+    function renderCatalog() {
+      const grid = document.getElementById('catalog-grid');
+      if (!grid) return;
 
-    renderBanner();
-    syncUserAndAdminState();
-    renderCatalog();
-    setMentorLanguage(currentLang);
-
-    if (!localStorage.getItem('okean_mentor_chosen')) {
-      openMentorSelector();
-    } else {
-      document.getElementById('mentor-selector-modal').classList.add('hidden');
+      grid.innerHTML = state.organizations.map(o => `
+        <div class="bg-slate-900/80 border border-slate-800 hover:border-sky-500/50 p-6 rounded-3xl transition-all shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20">${o.category}</span>
+            <span class="text-xs text-slate-400">${o.city}</span>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2">${o.name}</h3>
+          <p class="text-xs text-slate-400 mb-4">Офіційно верифікований партнер платформи взаємодопомоги.</p>
+          <button onclick="openChatWithPrompt('Дізнатися більше про ${o.name}')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-xs rounded-xl transition-colors">
+            Зв'язатися
+          </button>
+        </div>
+      `).join('');
     }
+
+    // INIT
+    window.onload = async function() {
+      await loadDataFromSupabase();
+      renderSlide(0);
+      updateMentorBanner();
+      updateNavAuthUI();
+      renderCatalog();
+    };
   </script>
 </body>
 </html>
