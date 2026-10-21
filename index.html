@@ -334,7 +334,7 @@
               </div>
               <div>
                 <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h2 id="admin-welcome-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h2>
+                  <h2 id="admin-welcome-name" class="text-lg sm:text-xl font-bold text-white">Океан Дружніх</h2>
                   <div id="admin-role-badge"></div>
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5">Керування складом адміністрації, Агентами Підтримки, тикетами та доганами</p>
@@ -444,7 +444,7 @@
 
           </div>
 
-          <!-- TAB 2: ПАНЕЛЬ АГЕНТІВ ПІДТРИМКИ (З ПЕРЕНЕСЕНИМИ ПОСАДАМИ ТА ІСТОРІЄЮ) -->
+          <!-- TAB 2: ПАНЕЛЬ АГЕНТІВ ПІДТРИМКИ -->
           <div id="admin-tab-support-agents" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl space-y-6">
               
@@ -652,7 +652,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЕ ОКНО: ДОДАТИ ТЕКСТ ( ОКРЕМО ВІД КОНТЕНТУ ) -->
+  <!-- МОДАЛЬНЕ ОКНО: ДОДАТИ ТЕКСТ -->
   <div id="add-text-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-lg p-6 sm:p-7 rounded-3xl shadow-2xl relative">
       <button onclick="closeAddTextModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white p-1">
@@ -700,7 +700,7 @@
         </div>
         <div>
           <h3 class="text-lg font-bold text-white">Управління дисциплінарними санкціями</h3>
-          <p class="text-xs text-slate-400">Видача або зняття доган та попереджень (Головний агент / Заступник / Адмін)</p>
+          <p class="text-xs text-slate-400">Видача або зняття доган та попереджень</p>
         </div>
       </div>
 
@@ -752,10 +752,10 @@
 
       <div class="flex items-center gap-4 mb-6 pb-4 border-b border-slate-800">
         <div id="hist-avatar" class="w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center font-black text-xl shrink-0">
-          АР
+          ОД
         </div>
         <div>
-          <h3 id="hist-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h3>
+          <h3 id="hist-name" class="text-lg sm:text-xl font-bold text-white">Океан Дружніх</h3>
           <p id="hist-email" class="text-xs text-sky-400">okeandruznih@gmail.com</p>
           <div id="hist-role-badge" class="mt-1"></div>
         </div>
@@ -796,7 +796,7 @@
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div id="name-field-box">
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Ваше ім'я</label>
-          <input type="text" id="auth-name" placeholder="Андрій" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="text" id="auth-name" placeholder="Океан Дружніх" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email (пошта)</label>
@@ -833,7 +833,7 @@
           <div class="w-24 h-24 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-sky-400 via-indigo-500 to-emerald-400 p-0.5 shadow-xl shadow-sky-500/10">
             <div class="w-full h-full rounded-[22px] bg-slate-950 flex items-center justify-center overflow-hidden relative">
               <img id="profile-avatar-img" src="" alt="Аватарка" class="w-full h-full object-cover hidden" />
-              <span id="profile-avatar-letters" class="text-3xl font-black gradient-text">АР</span>
+              <span id="profile-avatar-letters" class="text-3xl font-black gradient-text">ОД</span>
             </div>
           </div>
           <label for="avatar-file-input" class="absolute inset-0 bg-slate-950/70 rounded-3xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center cursor-pointer transition-all text-white text-[11px] font-bold gap-1 backdrop-blur-xs">
@@ -846,7 +846,7 @@
         <div class="flex-grow w-full">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 class="text-xl sm:text-2xl font-black tracking-tight gradient-text" id="profile-display-name">Андрій Романов</h2>
+              <h2 class="text-xl sm:text-2xl font-black tracking-tight gradient-text" id="profile-display-name">Океан Дружніх</h2>
               <p class="text-xs text-sky-400/90 font-medium mt-0.5" id="profile-display-email">okeandruznih@gmail.com</p>
             </div>
             <button id="profile-admin-link-btn" onclick="closeProfileModal(); showPage('admin')" class="hidden px-4 py-2.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-sky-500/20 transition-all items-center justify-center gap-1.5 self-center sm:self-start">
@@ -1282,14 +1282,14 @@
     }
 
     // ==========================================
-    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ ТА АГЕНТІВ (НОВА ПОШТА ВЛАСНИКА)
+    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ ТА АГЕНТІВ (ОКЕАН ДРУЖНІХ / SUPER ADMIN)
     // ==========================================
     const superAdminEmail = "okeandruznih@gmail.com";
     
     let defaultAdmins = [
       {
         id: 1,
-        name: "Андрій Романов",
+        name: "Океан Дружніх",
         email: "okeandruznih@gmail.com",
         pass: "admin123",
         role: "Супер Адміністратор",
@@ -1324,7 +1324,7 @@
         online: false,
         permissions: { tickets: true, manageAdmins: false, giveSanctions: true, editRoles: false },
         history: [
-          { date: "19.10.2026, 12:00", type: "role_change", reason: "Підвищено до посади Головного агента підтримки", author: "Андрій Романов" }
+          { date: "19.10.2026, 12:00", type: "role_change", reason: "Підвищено до посади Головного агента підтримки", author: "Океан Дружніх" }
         ]
       },
       {
@@ -1576,7 +1576,7 @@
     // ==========================================
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || {
-      name: "Андрій Романов",
+      name: "Океан Дружніх",
       email: "okeandruznih@gmail.com",
       phone: "",
       city: "Україна",
@@ -1724,7 +1724,7 @@
           if (!superAdminObj) {
             superAdminObj = {
               id: 1,
-              name: currentUser.name || "Андрій Романов",
+              name: currentUser.name || "Океан Дружніх",
               email: superAdminEmail,
               pass: "admin123",
               role: "Супер Адміністратор",
@@ -1843,7 +1843,7 @@
         }
 
       } else {
-        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ззвичайний користувач</span>`;
+        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
         adminNoticeBox.classList.add('hidden');
@@ -1941,7 +1941,6 @@
       document.getElementById('comm-title-display').textContent = `Спільнота: ${activeCommunity.name}`;
       document.getElementById('comm-desc-display').textContent = activeCommunity.desc;
 
-      // Кнопки управління (додавання контенту і тексту) видимі ТІЛЬКИ адміністраторам та співробітникам підтримки
       const adminControls = document.getElementById('comm-admin-controls');
       const isVerifiedAdminOrSupport = state.currentUser && state.admins.some(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase());
       if (isVerifiedAdminOrSupport) {
@@ -2386,7 +2385,6 @@
     }
     function closeSanctionModal() { document.getElementById('sanction-modal').classList.add('hidden'); }
 
-    // ПОЛНОЦЕННОЕ ИСПРАВЛЕНИЕ СНЯТИЯ И ВЫДАЧИ САНКЦИЙ
     async function handleApplySanction(e) {
       e.preventDefault();
       const adminId = parseInt(document.getElementById('sanc-admin-id').value);
@@ -2404,7 +2402,6 @@
         if (!admin.history) admin.history = [];
         
         if (sancType === 'remove') {
-          // Ищем и удаляем активное предупреждение или выговор для сброса счетчика
           const activeIndex = admin.history.findIndex(h => h.type === 'warn' || h.type === 'ban');
           if (activeIndex !== -1) {
             admin.history.splice(activeIndex, 1);
