@@ -1345,7 +1345,7 @@
 
     let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || defaultAdmins;
 
-    // Гарантований защитный чек для владельца
+    // Гарантований захисний чек для власника
     savedAdmins.forEach(a => {
       if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
         a.role = "Супер Адміністратор";
