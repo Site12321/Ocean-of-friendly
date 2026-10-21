@@ -304,7 +304,7 @@
           <form onsubmit="handleAdminLogin(event)" class="space-y-4">
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email / Логін</label>
-              <input type="text" id="admin-username" required placeholder="andreyromanov245@gmail.com" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
+              <input type="text" id="admin-username" required placeholder="okeandruznih@gmail.com" class="w-full px-4 py-3 text-sm bg-slate-900 border border-slate-700 rounded-2xl text-white focus:ring-2 focus:ring-sky-500 focus:outline-none placeholder-slate-500">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
@@ -756,7 +756,7 @@
         </div>
         <div>
           <h3 id="hist-name" class="text-lg sm:text-xl font-bold text-white">Андрій Романов</h3>
-          <p id="hist-email" class="text-xs text-sky-400">andreyromanov245@gmail.com</p>
+          <p id="hist-email" class="text-xs text-sky-400">okeandruznih@gmail.com</p>
           <div id="hist-role-badge" class="mt-1"></div>
         </div>
       </div>
@@ -800,7 +800,7 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email (пошта)</label>
-          <input type="email" id="auth-email" required placeholder="andreyromanov245@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="email" id="auth-email" required placeholder="okeandruznih@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
@@ -847,7 +847,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 class="text-xl sm:text-2xl font-black tracking-tight gradient-text" id="profile-display-name">Андрій Романов</h2>
-              <p class="text-xs text-sky-400/90 font-medium mt-0.5" id="profile-display-email">andreyromanov245@gmail.com</p>
+              <p class="text-xs text-sky-400/90 font-medium mt-0.5" id="profile-display-email">okeandruznih@gmail.com</p>
             </div>
             <button id="profile-admin-link-btn" onclick="closeProfileModal(); showPage('admin')" class="hidden px-4 py-2.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-extrabold text-xs rounded-2xl shadow-lg shadow-sky-500/20 transition-all items-center justify-center gap-1.5 self-center sm:self-start">
               <i data-lucide="shield" class="w-4 h-4 text-amber-300"></i>
@@ -903,7 +903,7 @@
 
         <div id="admin-notice-box" class="hidden bg-slate-950/70 p-4 rounded-2xl border border-blue-900/40 space-y-1">
           <span class="font-bold text-slate-400 uppercase text-[10px]">Авторизована пошта:</span>
-          <p id="prof-email-static" class="text-sky-400 font-bold text-xs">andreyromanov245@gmail.com</p>
+          <p id="prof-email-static" class="text-sky-400 font-bold text-xs">okeandruznih@gmail.com</p>
           <p class="text-slate-400 text-[10px]">Якщо ця пошта внесена адміністратором до списку адміністрації або підтримки, вам автоматично надається відповідний статус та доступ.</p>
         </div>
 
@@ -1266,7 +1266,7 @@
       "Адміністратор": { name: "Адміністратор", badgeStyle: "background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4);" },
       "Молодший Адміністратор": { name: "Молодший Адміністратор", badgeStyle: "background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.4);" },
       
-      // Система агентів підтримки (перенесено всі з розділу адміністрації у підтримку)
+      // Система агентів підтримки
       "Головний агент підтримки": { name: "Головний агент підтримки", badgeStyle: "background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);" },
       "Заступник головного агента підтримки": { name: "Заступник головного агента підтримки", badgeStyle: "background: rgba(192, 132, 252, 0.2); color: #e9d5ff; border: 1px solid rgba(192, 132, 252, 0.4);" },
       "Старший агент підтримки": { name: "Старший агент підтримки", badgeStyle: "background: rgba(99, 102, 241, 0.2); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.4);" },
@@ -1282,15 +1282,15 @@
     }
 
     // ==========================================
-    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ ТА АГЕНТІВ
+    // 3. БАЗА ДАНИХ АДМІНІСТРАЦІЇ ТА АГЕНТІВ (НОВА ПОШТА ВЛАСНИКА)
     // ==========================================
-    const superAdminEmail = "andreyromanov245@gmail.com";
+    const superAdminEmail = "okeandruznih@gmail.com";
     
     let defaultAdmins = [
       {
         id: 1,
         name: "Андрій Романов",
-        email: "andreyromanov245@gmail.com",
+        email: "okeandruznih@gmail.com",
         pass: "admin123",
         role: "Супер Адміністратор",
         subrole: "Керівник платформи",
@@ -1345,6 +1345,7 @@
 
     let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || defaultAdmins;
 
+    // Гарантований защитный чек для владельца
     savedAdmins.forEach(a => {
       if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
         a.role = "Супер Адміністратор";
@@ -1576,7 +1577,7 @@
     let isRegisterMode = true;
     let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || {
       name: "Андрій Романов",
-      email: "andreyromanov245@gmail.com",
+      email: "okeandruznih@gmail.com",
       phone: "",
       city: "Україна",
       interest: "Реабілітація та спорт",
@@ -2296,7 +2297,6 @@
 
       const agentsList = state.admins.filter(a => supportRoles.includes(a.role));
 
-      // Головний агент, його заступник та адміністратори можуть видавати санкції
       const canManageSanctions = state.currentUser && (
         state.currentUser.role === "Головний агент підтримки" || 
         state.currentUser.role === "Заступник головного агента підтримки" ||
@@ -2356,6 +2356,7 @@
     }
     function closeSanctionModal() { document.getElementById('sanction-modal').classList.add('hidden'); }
 
+    // ПОЛНОЦЕННОЕ ИСПРАВЛЕНИЕ СНЯТИЯ И ВЫДАЧИ САНКЦИЙ
     async function handleApplySanction(e) {
       e.preventDefault();
       const adminId = parseInt(document.getElementById('sanc-admin-id').value);
@@ -2373,6 +2374,11 @@
         if (!admin.history) admin.history = [];
         
         if (sancType === 'remove') {
+          // Ищем и удаляем активное предупреждение или выговор для сброса счетчика
+          const activeIndex = admin.history.findIndex(h => h.type === 'warn' || h.type === 'ban');
+          if (activeIndex !== -1) {
+            admin.history.splice(activeIndex, 1);
+          }
           admin.history.unshift({
             date: new Date().toLocaleString('uk-UA'),
             type: 'remove',
@@ -2392,7 +2398,7 @@
         closeSanctionModal();
         renderAdminDashboard();
         renderSupportAgentsTable();
-        alert("Дію успішно застосовано та зафіксовано в історії!");
+        alert("Дію успішно застосовано та зафіксовано в системі!");
       }
     }
 
