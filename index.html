@@ -854,7 +854,6 @@
               <span>Адмін-панель</span>
             </button>
           </div>
-          <!-- Поддержка отображения основного статуса и дополнительных должностей в профиле -->
           <div id="profile-admin-access-tag" class="mt-3 flex items-center gap-2 flex-wrap justify-center sm:justify-start">
             <span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Активний користувач</span>
           </div>
@@ -1295,7 +1294,7 @@
         pass: "admin123",
         role: "Супер Адміністратор",
         subrole: "Керівник платформи",
-        additionalRoles: ["Агент підтримки"], // Дополнительные должности
+        additionalRoles: ["Агент підтримки"],
         telegram: "https://t.me/telegram",
         online: true,
         permissions: { tickets: true, manageAdmins: true, giveSanctions: true, editRoles: true },
@@ -1352,7 +1351,8 @@
 
     let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || [];
 
-    const communitiesData = [
+    // ХРАНЕНИЕ СООБЩЕСТВ С ПОДДЕРЖКОЙ СОХРАНЕНИЯ УДАЛЕНИЙ И ДОБАВЛЕНИЙ
+    const defaultCommunitiesData = [
       { 
         id: 'sea', name: 'Море', icon: '⚓', 
         desc: 'Спільнота реабілітації, водного спорту та морських ініціатив', 
@@ -1390,7 +1390,7 @@
         desc: 'Творчість, мистецтво, заходи та культурні проекти', 
         photos: ['https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=500&auto=format&fit=crop'],
         texts: [
-          { id: 1, title: 'Культурні ініціативи', body: 'Створення пісень, віршів та творчих проєктів на підтримку захисників.' }
+          { id: 1, title: 'Культурні ініціати', body: 'Створення пісень, віршів та творчих проєктів на підтримку захисників.' }
         ]
       },
       { 
@@ -1402,6 +1402,12 @@
         ]
       }
     ];
+
+    let communitiesData = JSON.parse(localStorage.getItem('okean_communities_data')) || defaultCommunitiesData;
+
+    function saveCommunitiesData() {
+      localStorage.setItem('okean_communities_data', JSON.stringify(communitiesData));
+    }
 
     let activeCommunity = null;
 
@@ -1443,6 +1449,9 @@
           });
           state.admins = filteredDbAdmins;
           localStorage.setItem('okean_admins_db', JSON.stringify(filteredDbAdmins));
+        } else {
+          // Если база была пуста, отправляем дефолтных админов в Supabase
+          await syncAdminsData();
         }
       } catch (e) {
         console.warn("Помилка завантаження з Supabase:", e);
@@ -1459,9 +1468,26 @@
         if (!a.additionalRoles) a.additionalRoles = [];
       });
       localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
+      
       try {
-        await supabaseClient.from('admins').upsert(state.admins);
-      } catch(e) {}
+        // Подготовка чистых данных для сохранения в БД без конфликтов
+        const dbReadyAdmins = state.admins.map(a => ({
+          id: a.id,
+          name: a.name,
+          email: a.email.toLowerCase(),
+          pass: a.pass || 'admin123',
+          role: a.role,
+          subrole: a.subrole || '',
+          additionalRoles: a.additionalRoles || [],
+          telegram: a.telegram || '',
+          online: !!a.online,
+          permissions: a.permissions || {},
+          history: a.history || []
+        }));
+        await supabaseClient.from('admins').upsert(dbReadyAdmins, { onConflict: 'id' });
+      } catch(e) {
+        console.warn("Ошибка сохранения админов в Supabase:", e);
+      }
     }
 
     async function syncUsersData() { 
@@ -1825,7 +1851,6 @@
       if (isVerifiedAdmin) {
         const currentAdminObj = state.admins.find(a => a.email.toLowerCase() === currentUser.email.toLowerCase());
         
-        // Рендерим основной статус и дополнительные должности в профиле
         let rolesHtml = getRoleBadgeHTML(currentAdminObj ? currentAdminObj.role : 'Супер Адміністратор');
         if (currentAdminObj && currentAdminObj.additionalRoles && currentAdminObj.additionalRoles.length > 0) {
           currentAdminObj.additionalRoles.forEach(addRole => {
@@ -1856,7 +1881,7 @@
         }
 
       } else {
-        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
+        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ззвичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
         adminNoticeBox.classList.add('hidden');
@@ -2042,6 +2067,7 @@
       reader.onload = function(uploadEvent) {
         if (!activeCommunity.photos) activeCommunity.photos = [];
         activeCommunity.photos.unshift(uploadEvent.target.result);
+        saveCommunitiesData(); // СОХРАНЯЕМ В ПАМЯТЬ
         renderCommunityGallery();
         closeUploadMediaModal();
         alert("Контент та фото успішно додано в спільноту!");
@@ -2057,6 +2083,7 @@
 
       if (!activeCommunity.texts) activeCommunity.texts = [];
       activeCommunity.texts.unshift({ id: Date.now(), title, body });
+      saveCommunitiesData(); // СОХРАНЯЕМ В ПАМЯТЬ
       
       renderCommunityTexts();
       closeAddTextModal();
@@ -2068,6 +2095,7 @@
     function deleteMediaItem(idx) {
       if (confirm("Видалити цей контент/фото?")) {
         activeCommunity.photos.splice(idx, 1);
+        saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ УДАЛЕНИЯ
         renderCommunityGallery();
       }
     }
@@ -2076,6 +2104,7 @@
       const newUrl = prompt("Введіть нове посилання або залиште поточне:", activeCommunity.photos[idx]);
       if (newUrl) {
         activeCommunity.photos[idx] = newUrl;
+        saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ ИЗМЕНЕНИЯ
         renderCommunityGallery();
       }
     }
@@ -2083,6 +2112,7 @@
     function deleteTextItem(id) {
       if (confirm("Видалити цей текстовий матеріал?")) {
         activeCommunity.texts = activeCommunity.texts.filter(t => t.id !== id);
+        saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ УДАЛЕНИЯ
         renderCommunityTexts();
       }
     }
@@ -2094,6 +2124,7 @@
       const newBody = prompt("Змінити текст:", t.body);
       if (newTitle !== null) t.title = newTitle;
       if (newBody !== null) t.body = newBody;
+      saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ РЕДАКТИРОВАНИЯ
       renderCommunityTexts();
     }
 
@@ -2292,7 +2323,6 @@
       let targetAdmin = state.admins.find(a => a.email.toLowerCase() === userEmail.toLowerCase());
 
       if (targetAdmin) {
-        // Если у админа уже есть основная роль, а назначается новая дополнительная или меняется роль
         if (!targetAdmin.additionalRoles) targetAdmin.additionalRoles = [];
         if (targetAdmin.role && targetAdmin.role !== agentRole && !targetAdmin.additionalRoles.includes(agentRole)) {
           targetAdmin.additionalRoles.push(agentRole);
@@ -2360,7 +2390,6 @@
         const warnsCount = (a.history || []).filter(h => h.type === 'warn').length;
         const bansCount = (a.history || []).filter(h => h.type === 'ban').length;
 
-        // Формирование отображения основной и дополнительных должностей
         let rolesBadgesHTML = getRoleBadgeHTML(a.role);
         if (a.additionalRoles && a.additionalRoles.length > 0) {
           a.additionalRoles.forEach(addRole => {
@@ -2632,7 +2661,6 @@
         const perms = a.permissions || { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false };
         const isSuper = a.email.toLowerCase() === superAdminEmail.toLowerCase();
 
-        // Отображение основной роли и дополнительных должностей в таблице администраторов
         let rolesBadgesHTML = getRoleBadgeHTML(a.role);
         if (a.additionalRoles && a.additionalRoles.length > 0) {
           a.additionalRoles.forEach(addRole => {
@@ -2704,7 +2732,6 @@
         const uMatch = state.registeredUsers.find(u => u.email.toLowerCase() === a.email.toLowerCase());
         const avatarSrc = uMatch && uMatch.avatar ? uMatch.avatar : (a.avatar || '');
 
-        // Отображение ролей в интерактивных карточках
         let rolesBadgesHTML = getRoleBadgeHTML(a.role);
         if (a.additionalRoles && a.additionalRoles.length > 0) {
           a.additionalRoles.forEach(addRole => {
