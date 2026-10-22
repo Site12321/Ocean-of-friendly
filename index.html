@@ -1326,24 +1326,17 @@
         history: [
           { date: "19.10.2026, 12:00", type: "role_change", reason: "Підвищено до посади Головного агента підтримки", author: "Океан Дружніх" }
         ]
-      },
-      {
-        id: 4,
-        name: "Сталін",
-        email: "stalin12156@gmail.com",
-        pass: "123456",
-        role: "Молодший агент підтримки",
-        subrole: "куратор підтримки",
-        telegram: "https://t.me/telegram",
-        online: false,
-        permissions: { tickets: true, manageAdmins: false, giveSanctions: false, editRoles: false },
-        history: [
-          { date: "20.10.2026, 10:00", type: "warn", reason: "Запізнення на зміну", author: "Віктор Мастега" }
-        ]
       }
     ];
 
-    let savedAdmins = JSON.parse(localStorage.getItem('okean_admins_db')) || defaultAdmins;
+    // Автоматическая очистка localStorage от старых записей Андрея Романова
+    let loadedAdmins = JSON.parse(localStorage.getItem('okean_admins_db'));
+    if (loadedAdmins) {
+      loadedAdmins = loadedAdmins.filter(a => a.email.toLowerCase() !== 'andreyromanov245@gmail.com');
+      localStorage.setItem('okean_admins_db', JSON.stringify(loadedAdmins));
+    }
+
+    let savedAdmins = loadedAdmins || defaultAdmins;
 
     // Гарантований захисний чек для власника
     savedAdmins.forEach(a => {
@@ -1436,13 +1429,14 @@
 
         const { data: dbAdmins } = await supabaseClient.from('admins').select('*');
         if (dbAdmins && dbAdmins.length > 0) {
-          dbAdmins.forEach(a => {
+          const filteredDbAdmins = dbAdmins.filter(a => a.email.toLowerCase() !== 'andreyromanov245@gmail.com');
+          filteredDbAdmins.forEach(a => {
             if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
               a.role = "Супер Адміністратор";
             }
           });
-          state.admins = dbAdmins;
-          localStorage.setItem('okean_admins_db', JSON.stringify(dbAdmins));
+          state.admins = filteredDbAdmins;
+          localStorage.setItem('okean_admins_db', JSON.stringify(filteredDbAdmins));
         }
       } catch (e) {
         console.warn("Помилка завантаження з Supabase:", e);
@@ -1450,6 +1444,7 @@
     }
 
     async function syncAdminsData() { 
+      state.admins = state.admins.filter(a => a.email.toLowerCase() !== 'andreyromanov245@gmail.com');
       state.admins.forEach(a => {
         if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
           a.role = "Супер Адміністратор";
@@ -1718,7 +1713,6 @@
       if (currentUser && currentUser.email) {
         const userEmail = currentUser.email.trim().toLowerCase();
         
-        // Принудительно проверяем, является ли почта почтой владельца
         if (userEmail === superAdminEmail.toLowerCase()) {
           let superAdminObj = state.admins.find(a => a.email.toLowerCase() === superAdminEmail.toLowerCase());
           if (!superAdminObj) {
@@ -1825,7 +1819,6 @@
         adminNoticeBox.classList.remove('hidden');
         document.getElementById('prof-email-static').textContent = currentUser.email;
 
-        // Відображення особистої історії санкцій/попереджень у профілі
         if (currentAdminObj && currentAdminObj.history && currentAdminObj.history.length > 0) {
           sanctionsHistoryBox.classList.remove('hidden');
           const historyListEl = document.getElementById('profile-history-list');
@@ -1843,7 +1836,7 @@
         }
 
       } else {
-        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
+        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ззвичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
         adminNoticeBox.classList.add('hidden');
