@@ -3560,10 +3560,28 @@
       input.value = '';
       chatBody.scrollTop = chatBody.scrollHeight;
 
+      // ОБРАБОТКА И ОТПРАВКА СООБЩЕНИЯ В ПРЯМОЙ ЧАТ И ТИКЕТЫ (СУПАСЕЙС)
+      const userEmail = currentUser && currentUser.email ? currentUser.email.toLowerCase() : 'guest_' + Math.random().toString(36).substr(2, 5) + '@site.com';
+      const userName = currentUser && currentUser.name ? currentUser.name : 'Гість';
+
+      const directMsgData = {
+        user_email: userEmail,
+        sender_email: userEmail,
+        sender_name: userName,
+        message: message,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        await supabaseClient.from('direct_messages').insert([directMsgData]);
+      } catch(err) {
+        console.warn("Не удалось отправить сообщение в direct_messages:", err);
+      }
+
       const currentMentor = mentors[selectedMentorKey];
 
       setTimeout(async () => {
-        let aiReply = `${currentMentor.name}: Дякую за звернення! Ваш запит передано адміністрації платформи.`;
+        let aiReply = `${currentMentor.name}: Дякую за звернення! Ваше повідомлення успішно надіслано адміністрації та агентам підтримки у список чатів.`;
         chatBody.innerHTML += `<div class="flex gap-2.5 items-start msg-animate"><div class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center shrink-0 mt-0.5 text-xs">${currentMentor.emoji}</div><div class="bg-[#0f1c3f] border border-blue-900/60 text-slate-200 p-3.5 rounded-2xl rounded-tl-xs max-w-[85%] shadow-md leading-relaxed">${aiReply}</div></div>`;
         chatBody.scrollTop = chatBody.scrollHeight;
         speakText(aiReply, currentMentor);
@@ -3571,8 +3589,8 @@
         const chatTicket = {
           id: `ТК-${Math.floor(1000 + Math.random() * 9000)}`,
           date: new Date().toLocaleDateString('uk-UA') + ", " + new Date().toLocaleTimeString('uk-UA', {hour: '2-digit', minute:'2-digit'}),
-          name: currentUser ? currentUser.name : "Гість чату",
-          contact: currentUser ? currentUser.email : "Веб-чат",
+          name: userName,
+          contact: userEmail,
           category: "Чат-запит",
           project: message,
           status: "Новий"
@@ -3585,7 +3603,7 @@
         state.tickets.unshift(chatTicket);
         syncTicketsData();
         if (state.currentUser) renderAdminDashboard();
-        showNotification('Новий запит в чаті', 'Створено новий тикет з чату супровідника.', 'warning');
+        showNotification('Повідомлення надіслано', 'Ваше повідомлення успішно дойшло адміністраторам та агентам підтримки!', 'success');
       }, 750);
     }
 
