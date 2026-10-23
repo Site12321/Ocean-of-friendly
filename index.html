@@ -82,6 +82,12 @@
 
       <!-- Desktop & Mobile Controls -->
       <div class="flex items-center gap-2 sm:gap-3">
+        <!-- КНОПКА ПРЯМОГО ЧАТУ -->
+        <button onclick="openDirectChatModal()" class="hidden sm:flex items-center gap-2 px-3 py-2 text-xs font-bold text-sky-300 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-2xl transition-all">
+          <i data-lucide="message-square" class="w-4 h-4 text-emerald-400"></i>
+          <span>Прямий чат</span>
+        </button>
+
         <button id="nav-profile-btn" onclick="openProfileModal()" class="hidden items-center gap-2 px-3 py-2 text-xs font-bold text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-2xl transition-all">
           <i data-lucide="user-check" class="w-4 h-4 text-sky-400"></i>
           <span id="nav-profile-name" class="hidden sm:inline">Кабінет</span>
@@ -109,6 +115,9 @@
       <a href="#projects" onclick="scrollToSection('projects'); toggleMobileMenu()" class="block py-1 hover:text-sky-400">Проєкти</a>
       <a href="#catalog" onclick="scrollToSection('catalog'); toggleMobileMenu()" class="block py-1 hover:text-sky-400">Каталог</a>
       <a href="#communities" onclick="scrollToSection('communities'); toggleMobileMenu()" class="block py-1 hover:text-sky-400">Спільноти</a>
+      <button onclick="openDirectChatModal(); toggleMobileMenu()" class="w-full text-left py-1 text-emerald-400 font-bold flex items-center gap-2">
+        <i data-lucide="message-square" class="w-4 h-4"></i> Прямий чат з агентом
+      </button>
       <button onclick="openMentorSelector(); toggleMobileMenu()" class="w-full text-left py-1 text-amber-300 font-bold flex items-center gap-2">
         <i data-lucide="crown" class="w-4 h-4"></i> Обрати Супровідника
       </button>
@@ -469,6 +478,9 @@
             <button onclick="switchAdminTab('support-agents')" id="tab-btn-support-agents" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
               <i data-lucide="headphone" class="w-4 h-4"></i> Панель Агентів Підтримки
             </button>
+            <button onclick="switchAdminTab('direct-chats')" id="tab-btn-direct-chats" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+              <i data-lucide="message-square" class="w-4 h-4"></i> Прямі чати
+            </button>
             <button onclick="switchAdminTab('admin-cards')" id="tab-btn-admin-cards" class="px-4 py-2.5 bg-slate-800 text-slate-300 hover:bg-slate-700 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
               <i data-lucide="users" class="w-4 h-4"></i> Картки Адмінів (TG)
             </button>
@@ -589,6 +601,32 @@
             </div>
           </div>
 
+          <!-- TAB: ПРЯМІ ЧАТИ ДЛЯ АДМІНІСТРАТОРІВ -->
+          <div id="admin-tab-direct-chats" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl grid grid-cols-1 md:grid-cols-3 h-[600px]">
+              <div class="border-r border-slate-800 p-4 overflow-y-auto space-y-2 bg-slate-950/40">
+                <h4 class="font-bold text-xs text-slate-400 uppercase tracking-wider mb-3">Користувачі в чаті</h4>
+                <div id="admin-chat-users-list" class="space-y-1.5"></div>
+              </div>
+              <div class="md:col-span-2 flex flex-col justify-between bg-slate-900/50">
+                <div id="admin-active-chat-header" class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+                  <span class="text-xs font-bold text-slate-400">Оберіть користувача зліва для початку діалогу</span>
+                </div>
+                <div id="admin-active-chat-body" class="p-4 flex-grow overflow-y-auto chat-scroll space-y-3 text-xs flex flex-col justify-center items-center text-slate-500">
+                  <p>Жодного діалогу не обрано</p>
+                </div>
+                <form id="admin-chat-form" onsubmit="sendAdminDirectMessage(event)" class="p-3 border-t border-slate-800 bg-slate-950 hidden">
+                  <div class="flex gap-2">
+                    <input type="text" id="admin-chat-input" placeholder="Введіть відповідь користувачу..." required class="flex-grow bg-slate-900 border border-slate-700 text-white px-3.5 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button type="submit" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-md">
+                      Надіслати
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
           <!-- TAB 3: КАРТКИ АДМІНІСТРАТОРІВ -->
           <div id="admin-tab-admin-cards" class="hidden space-y-6">
             <div class="bg-slate-900 border border-slate-800 p-4 sm:p-6 rounded-3xl shadow-xl">
@@ -678,6 +716,39 @@
     </div>
 
   </main>
+
+  <!-- МОДАЛЬНЕ ОКНО: ПРЯМИЙ ЧАТ КОРИСТУВАЧА -->
+  <div id="direct-chat-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 w-full max-w-xl h-[550px] rounded-3xl shadow-2xl relative flex flex-col overflow-hidden">
+      <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
+            💬
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Прямий чат з адміністратором / агентом</h3>
+            <span class="text-[10px] text-emerald-400 font-semibold">● Оператор на зв'язку</span>
+          </div>
+        </div>
+        <button onclick="closeDirectChatModal()" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="direct-chat-messages" class="p-4 flex-grow overflow-y-auto chat-scroll space-y-3 text-xs bg-slate-950/60">
+        <div class="p-3 bg-slate-900 border border-slate-800 rounded-2xl text-slate-300">
+          Вітаємо! Напишіть своє питання, і наш агент підтримки або адміністратор відповість вам у найкоротший час.
+        </div>
+      </div>
+
+      <form onsubmit="sendUserDirectMessage(event)" class="p-3 bg-slate-950 border-t border-slate-800 flex gap-2">
+        <input type="text" id="direct-chat-input" placeholder="Введіть повідомлення..." required class="flex-grow bg-slate-900 border border-slate-700 text-white px-3.5 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <button type="submit" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition-all shadow-md">
+          Надіслати
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- МОДАЛЬНЕ ОКНО: ПРИЗНАЧЕННЯ АГЕНТА ПІДТРИМКИ -->
   <div id="assign-agent-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4">
@@ -1330,6 +1401,16 @@
           .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets' }, payload => {
             showNotification('Статус тикету змінено', `Тикет ${payload.new.id} переведено в статус: ${payload.new.status}`, 'success');
           })
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, payload => {
+            showNotification('Нове повідомлення в чаті!', `Отримано повідомлення від: ${payload.new.sender_name || 'Користувач'}`, 'success');
+            if (currentUser && currentUser.email) loadUserDirectMessages();
+            if (state.currentUser && state.admins.some(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase())) {
+              loadAdminDirectChatsList();
+              if (activeDirectChatEmail === payload.new.user_email) {
+                loadAdminChatMessages(activeDirectChatEmail);
+              }
+            }
+          })
           .subscribe();
       } catch(e) {
         console.warn("Real-time підписка недоступна в автономному режимі:", e);
@@ -1734,7 +1815,6 @@
           state.admins = filteredDbAdmins;
           localStorage.setItem('okean_admins_db', JSON.stringify(filteredDbAdmins));
         } else {
-          // Если база была пуста, отправляем дефолтных админов в Supabase
           await syncAdminsData();
         }
       } catch (e) {
@@ -1754,7 +1834,6 @@
       localStorage.setItem('okean_admins_db', JSON.stringify(state.admins));
       
       try {
-        // Подготовка чистых данных для сохранения в БД без конфликтов
         const dbReadyAdmins = state.admins.map(a => ({
           id: a.id,
           name: a.name,
@@ -1769,9 +1848,7 @@
           history: a.history || []
         }));
         await supabaseClient.from('admins').upsert(dbReadyAdmins, { onConflict: 'id' });
-      } catch(e) {
-        console.warn("Ошибка сохранения админов в Supabase:", e);
-      }
+      } catch(e) {}
     }
 
     async function syncUsersData() { 
@@ -1780,6 +1857,203 @@
 
     async function syncTicketsData() { 
       localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); 
+    }
+
+    // ==========================================
+    // 3.1. ЛОГИКА ПРЯМОГО ЧАТА (ПОЛЬЗОВАТЕЛЬ ↔ АДМИНИСТРАТОР/АГЕНТ)
+    // ==========================================
+    let activeDirectChatEmail = null;
+
+    function openDirectChatModal() {
+      if (!currentUser || !currentUser.email) {
+        openAuthModal();
+        showNotification('Потрібна авторизація', 'Увійдіть в кабінет або створіть акаунт для спілкування в прямому чаті.', 'warning');
+        return;
+      }
+      document.getElementById('direct-chat-modal').classList.remove('hidden');
+      loadUserDirectMessages();
+    }
+
+    function closeDirectChatModal() {
+      document.getElementById('direct-chat-modal').classList.add('hidden');
+    }
+
+    async function loadUserDirectMessages() {
+      if (!currentUser || !currentUser.email) return;
+      const container = document.getElementById('direct-chat-messages');
+      try {
+        const { data, error } = await supabaseClient
+          .from('direct_messages')
+          .select('*')
+          .eq('user_email', currentUser.email.toLowerCase())
+          .order('created_at', { ascending: true });
+
+        if (error || !data || data.length === 0) {
+          container.innerHTML = `
+            <div class="p-3 bg-slate-900 border border-slate-800 rounded-2xl text-slate-300">
+              Вітаємо, ${currentUser.name}! Напишіть своє питання, і наш адміністратор або агент підтримки відповість вам у прямому чаті.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.map(msg => {
+          const isUser = msg.sender_email.toLowerCase() === currentUser.email.toLowerCase();
+          return `
+            <div class="flex ${isUser ? 'justify-end' : 'justify-start'} msg-animate">
+              <div class="max-w-[85%] p-3.5 rounded-2xl ${isUser ? 'bg-sky-600 text-white rounded-tr-xs' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-xs'}">
+                <div class="text-[10px] font-bold opacity-80 mb-1">${msg.sender_name}</div>
+                <div class="leading-relaxed">${msg.message}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+      } catch (e) {
+        console.warn("Ошибка загрузки сообщений прямого чата:", e);
+      }
+    }
+
+    async function sendUserDirectMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('direct-chat-input');
+      const text = input.value.trim();
+      if (!text || !currentUser) return;
+
+      const newMsg = {
+        user_email: currentUser.email.toLowerCase(),
+        sender_email: currentUser.email.toLowerCase(),
+        sender_name: currentUser.name,
+        message: text,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        await supabaseClient.from('direct_messages').insert([newMsg]);
+      } catch (err) {}
+
+      input.value = '';
+      loadUserDirectMessages();
+    }
+
+    async function loadAdminDirectChatsList() {
+      const listContainer = document.getElementById('admin-chat-users-list');
+      if (!listContainer) return;
+
+      try {
+        const { data, error } = await supabaseClient.from('direct_messages').select('*').order('created_at', { ascending: false });
+        if (error || !data) {
+          listContainer.innerHTML = `<div class="text-xs text-slate-500 p-2">Немає активних чатів</div>`;
+          return;
+        }
+
+        // Группируем по user_email
+        const chatsMap = {};
+        data.forEach(m => {
+          if (!chatsMap[m.user_email]) {
+            chatsMap[m.user_email] = { name: m.sender_name, lastMsg: m.message, time: m.created_at };
+          }
+        });
+
+        const keys = Object.keys(chatsMap);
+        if (keys.length === 0) {
+          listContainer.innerHTML = `<div class="text-xs text-slate-500 p-2">Немає активних чатів</div>`;
+          return;
+        }
+
+        listContainer.innerHTML = keys.map(email => {
+          const chat = chatsMap[email];
+          const isSelected = activeDirectChatEmail === email;
+          return `
+            <div onclick="selectAdminDirectChat('${email}', '${chat.name}')" class="p-3 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-sky-500/20 border-sky-500/50 text-white' : 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300'}">
+              <div class="font-bold text-xs truncate">${chat.name}</div>
+              <div class="text-[10px] text-sky-400 truncate">${email}</div>
+              <div class="text-[10px] text-slate-400 truncate mt-1">${chat.lastMsg}</div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {}
+    }
+
+    async function selectAdminDirectChat(email, name) {
+      activeDirectChatEmail = email;
+      loadAdminChatMessages(email);
+      loadAdminDirectChatsList();
+
+      document.getElementById('admin-active-chat-header').innerHTML = `
+        <div>
+          <span class="font-bold text-white text-xs">Діалог з: ${name}</span>
+          <div class="text-[10px] text-sky-400">${email}</div>
+        </div>
+        <button onclick="closeAdminDirectChat('${email}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 rounded-xl text-[10px] font-bold">Закрити чат</button>
+      `;
+      document.getElementById('admin-chat-form').classList.remove('hidden');
+    }
+
+    async function loadAdminChatMessages(email) {
+      const chatBody = document.getElementById('admin-active-chat-body');
+      try {
+        const { data } = await supabaseClient
+          .from('direct_messages')
+          .select('*')
+          .eq('user_email', email)
+          .order('created_at', { ascending: true });
+
+        if (!data || data.length === 0) {
+          chatBody.innerHTML = `<div class="text-xs text-slate-500">Повідомлень немає</div>`;
+          return;
+        }
+
+        chatBody.innerHTML = data.map(msg => {
+          const isStaff = state.admins.some(a => a.email.toLowerCase() === msg.sender_email.toLowerCase()) || msg.sender_email === superAdminEmail;
+          return `
+            <div class="flex ${isStaff ? 'justify-end' : 'justify-start'} w-full">
+              <div class="max-w-[80%] p-3 rounded-2xl ${isStaff ? 'bg-emerald-600 text-white rounded-tr-xs' : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-xs'}">
+                <div class="text-[10px] font-bold opacity-75 mb-1">${msg.sender_name}</div>
+                <div>${msg.message}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        chatBody.scrollTop = chatBody.scrollHeight;
+      } catch (e) {}
+    }
+
+    async function sendAdminDirectMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('admin-chat-input');
+      const text = input.value.trim();
+      if (!text || !activeDirectChatEmail || !state.currentUser) return;
+
+      const replyMsg = {
+        user_email: activeDirectChatEmail,
+        sender_email: state.currentUser.email.toLowerCase(),
+        sender_name: state.currentUser.name + ' (Адмін)',
+        message: text,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        await supabaseClient.from('direct_messages').insert([replyMsg]);
+      } catch (err) {}
+
+      input.value = '';
+      loadAdminChatMessages(activeDirectChatEmail);
+      loadAdminDirectChatsList();
+    }
+
+    async function closeAdminDirectChat(email) {
+      if (confirm(`Закрити та очистити чат з користувачем ${email}?`)) {
+        try {
+          await supabaseClient.from('direct_messages').delete().eq('user_email', email);
+        } catch (e) {}
+        activeDirectChatEmail = null;
+        document.getElementById('admin-active-chat-header').innerHTML = `<span class="text-xs font-bold text-slate-400">Оберіть користувача зліва для початку діалогу</span>`;
+        document.getElementById('admin-active-chat-body').innerHTML = `<p>Діалог закрито</p>`;
+        document.getElementById('admin-chat-form').classList.add('hidden');
+        loadAdminDirectChatsList();
+        showNotification('Чат закрито', 'Історію діалогу успішно очищено.', 'info');
+      }
     }
 
     // ==========================================
@@ -2357,7 +2631,7 @@
       reader.onload = function(uploadEvent) {
         if (!activeCommunity.photos) activeCommunity.photos = [];
         activeCommunity.photos.unshift(uploadEvent.target.result);
-        saveCommunitiesData(); // СОХРАНЯЕМ В ПАМЯТЬ
+        saveCommunitiesData();
         renderCommunityGallery();
         closeUploadMediaModal();
         showNotification('Контент додано', 'Фото та медіа-матеріал успішно додано у спільноту!', 'success');
@@ -2373,7 +2647,7 @@
 
       if (!activeCommunity.texts) activeCommunity.texts = [];
       activeCommunity.texts.unshift({ id: Date.now(), title, body });
-      saveCommunitiesData(); // СОХРАНЯЕМ В ПАМЯТЬ
+      saveCommunitiesData();
       
       renderCommunityTexts();
       closeAddTextModal();
@@ -2385,7 +2659,7 @@
     function deleteMediaItem(idx) {
       if (confirm("Видалити цей контент/фото?")) {
         activeCommunity.photos.splice(idx, 1);
-        saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ УДАЛЕНИЯ
+        saveCommunitiesData();
         renderCommunityGallery();
         showNotification('Видалено', 'Контент спільноти успішно видалено.', 'info');
       }
@@ -2395,7 +2669,7 @@
       const newUrl = prompt("Введіть нове посилання або залиште поточне:", activeCommunity.photos[idx]);
       if (newUrl) {
         activeCommunity.photos[idx] = newUrl;
-        saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ ИЗМЕНЕНИЯ
+        saveCommunitiesData();
         renderCommunityGallery();
         showNotification('Оновлено', 'Контент спільноти змінено.', 'success');
       }
@@ -2404,7 +2678,7 @@
     function deleteTextItem(id) {
       if (confirm("Видалити цей текстовий матеріал?")) {
         activeCommunity.texts = activeCommunity.texts.filter(t => t.id !== id);
-        saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ УДАЛЕНИЯ
+        saveCommunitiesData();
         renderCommunityTexts();
         showNotification('Видалено', 'Текстовий матеріал видалено.', 'info');
       }
@@ -2417,7 +2691,7 @@
       const newBody = prompt("Змінити текст:", t.body);
       if (newTitle !== null) t.title = newTitle;
       if (newBody !== null) t.body = newBody;
-      saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ РЕДАКТИРОВАНИЯ
+      saveCommunitiesData();
       renderCommunityTexts();
       showNotification('Оновлено', 'Текстовий матеріал успішно змінено.', 'success');
     }
@@ -2521,7 +2795,7 @@
     }
 
     function switchAdminTab(tabName) {
-      ['admins', 'support-agents', 'admin-cards', 'users', 'tickets', 'roles'].forEach(t => {
+      ['admins', 'support-agents', 'direct-chats', 'admin-cards', 'users', 'tickets', 'roles'].forEach(t => {
         const panel = document.getElementById(`admin-tab-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
         if (panel) panel.classList.add('hidden');
@@ -2534,6 +2808,7 @@
       if (activeBtn) activeBtn.className = "px-4 py-2.5 bg-sky-500 text-slate-950 rounded-xl text-xs font-extrabold transition-all shadow-md flex items-center gap-2";
 
       if (tabName === 'support-agents') renderSupportAgentsTable();
+      if (tabName === 'direct-chats') loadAdminDirectChatsList();
       if (tabName === 'roles') renderRolesConfigGrid();
       if (tabName === 'admin-cards') renderAdminCardsGrid();
       if (tabName === 'users') renderRegisteredUsersList();
@@ -3004,7 +3279,7 @@
             <td class="p-3">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="px-2 py-1 rounded-lg bg-amber-500/10 text-amber-300 font-bold text-[11px] border border-amber-500/20">Попереджень: ${warnsCount}</span>
-                <span class="px-2 py-1 rounded-lg bg-rose-500/10 text-rose-300 font-bold text-[11px] border border-rose-500/20">Доган: ${bansCount}</span>
+                <span class="px-2 py-1 rounded-lg bg-rose-500/10 text-rose-300 font-bold text-[11px] border border-amber-500/20">Доган: ${bansCount}</span>
                 <button onclick="openAdminHistoryModal(${a.id})" class="text-[11px] text-sky-400 hover:underline font-semibold ml-1">Історія (${(a.history || []).length})</button>
               </div>
             </td>
