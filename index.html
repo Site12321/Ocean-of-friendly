@@ -34,14 +34,19 @@
     .chat-scroll::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
     .chat-scroll::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 4px; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
     @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     .msg-animate { animation: fadeIn 0.25s ease-out forwards; }
+    .notification-animate { animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     .slider-transition { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
     #bg-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
     .gradient-text { background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientShift 6s ease infinite; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans flex flex-col min-h-screen relative selection:bg-sky-500 selection:text-slate-950">
+
+  <!-- КОНТЕЙНЕР ДЛЯ РЕАЛ-ТАЙМ УВЕДОМЛЕНИЙ (REAL-TIME NOTIFICATIONS) -->
+  <div id="notifications-container" class="fixed top-24 right-4 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 sm:px-0"></div>
 
   <!-- АНІМОВАНИЙ КАНВАС ФОНУ -->
   <canvas id="bg-canvas"></canvas>
@@ -1150,6 +1155,81 @@
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // ==========================================
+    // 0.1. РАСШИРЕННАЯ СИСТЕМА УВЕДОМЛЕНИЙ (REAL-TIME NOTIFICATIONS)
+    // ==========================================
+    function showNotification(title, message, type = 'info') {
+      const container = document.getElementById('notifications-container');
+      if (!container) return;
+
+      const id = 'notif-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+      
+      let borderCol = 'border-sky-500/40';
+      let bgCol = 'bg-slate-900/95';
+      let iconName = 'bell';
+      let iconCol = 'text-sky-400';
+
+      if (type === 'success') {
+        borderCol = 'border-emerald-500/40';
+        iconName = 'check-circle';
+        iconCol = 'text-emerald-400';
+      } else if (type === 'warning') {
+        borderCol = 'border-amber-500/40';
+        iconName = 'alert-triangle';
+        iconCol = 'text-amber-400';
+      } else if (type === 'error' || type === 'danger') {
+        borderCol = 'border-rose-500/40';
+        iconName = 'shield-alert';
+        iconCol = 'text-rose-400';
+      }
+
+      const notifEl = document.createElement('div');
+      notifEl.id = id;
+      notifEl.className = `${bgCol} backdrop-blur-xl border ${borderCol} p-4 rounded-2xl shadow-2xl pointer-events-auto notification-animate flex items-start gap-3 text-xs w-full`;
+      notifEl.innerHTML = `
+        <div class="w-9 h-9 rounded-xl bg-slate-800/80 border border-slate-700/80 flex items-center justify-center shrink-0 ${iconCol}">
+          <i data-lucide="${iconName}" class="w-4 h-4"></i>
+        </div>
+        <div class="flex-grow">
+          <div class="font-bold text-white flex items-center justify-between">
+            <span>${title}</span>
+            <button onclick="document.getElementById('${id}').remove()" class="text-slate-400 hover:text-white p-0.5"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <p class="text-slate-300 mt-1 leading-relaxed">${message}</p>
+        </div>
+      `;
+
+      container.appendChild(notifEl);
+      lucide.createIcons();
+
+      // Автоматическое удаление через 5 секунд
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateX(50px)';
+          el.style.transition = 'all 0.3s ease';
+          setTimeout(() => el.remove(), 300);
+        }
+      }, 5000);
+    }
+
+    // Инициализация real-time подписок Supabase для мгновенных уведомлений
+    function initRealtimeNotifications() {
+      try {
+        supabaseClient.channel('realtime-all')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, payload => {
+            showNotification('Новий тикет звернення!', `Отримано нове звернення від: ${payload.new.name || 'Гість'}`, 'warning');
+          })
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets' }, payload => {
+            showNotification('Статус тикету змінено', `Тикет ${payload.new.id} переведено в статус: ${payload.new.status}`, 'success');
+          })
+          .subscribe();
+      } catch(e) {
+        console.warn("Real-time підписка недоступна в автономному режимі:", e);
+      }
+    }
+
     function toggleMobileMenu() {
       const menu = document.getElementById('mobile-menu');
       menu.classList.toggle('hidden');
@@ -1573,6 +1653,7 @@
       document.getElementById('mentor-selector-modal').classList.add('hidden');
       updateMentorUI();
       speakMentorGreeting();
+      showNotification('Супровідника обрано!', `Тепер вас супроводжує ${mentors[selectedMentorKey].name}.`, 'success');
     }
 
     function updateMentorUI() {
@@ -1615,6 +1696,7 @@
 
     window.onload = async function () {
       await loadDataFromSupabase();
+      initRealtimeNotifications();
 
       if (window.google) {
         google.accounts.id.initialize({
@@ -1649,6 +1731,7 @@
         closeAuthModal();
         syncUserAndAdminState();
         openProfileModal();
+        showNotification('Успішний вхід!', `Вітаємо, ${currentUser.name}! Ви увійшли через Google.`, 'success');
       }
     }
 
@@ -1721,6 +1804,7 @@
       closeAuthModal();
       syncUserAndAdminState();
       openProfileModal();
+      showNotification('Авторизація успішна!', `Ласкаво просимо до кабінету, ${currentUser.name}!`, 'success');
     }
 
     async function handleUserLogout() {
@@ -1741,6 +1825,7 @@
       closeProfileModal();
       syncUserAndAdminState();
       showPage('home');
+      showNotification('Вихід', 'Ви вийшли з особистого кабінету.', 'info');
     }
 
     function syncUserAndAdminState() {
@@ -1805,6 +1890,7 @@
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
         updateProfileAvatarDisplay();
         await registerUserInDatabase(currentUser);
+        showNotification('Аватар оновлено', 'Ваш новий аватар успішно збережено!', 'success');
       };
       reader.readAsDataURL(file);
     }
@@ -1881,7 +1967,7 @@
         }
 
       } else {
-        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ззвичайний користувач</span>`;
+        adminTag.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Звичайний користувач</span>`;
         adminLinkBtn.classList.add('hidden');
         adminLinkBtn.classList.remove('flex');
         adminNoticeBox.classList.add('hidden');
@@ -1910,7 +1996,7 @@
       await registerUserInDatabase(currentUser);
       updateHeaderUserUI();
       closeProfileModal();
-      alert("Зміни успішно збережено у профілі!");
+      showNotification('Профіль оновлено', 'Зміни успішно збережено у профілі!', 'success');
     }
 
     async function submitUserTicket() {
@@ -1937,7 +2023,7 @@
 
       document.getElementById('user-ticket-topic').value = '';
       document.getElementById('user-ticket-msg').value = '';
-      alert("Ваш тикет успішно надіслано адміністрації платформи!");
+      showNotification('Тикет створено!', 'Ваше звернення успішно надіслано адміністрації платформи.', 'success');
     }
 
     function updateHeaderUserUI() {
@@ -2070,7 +2156,7 @@
         saveCommunitiesData(); // СОХРАНЯЕМ В ПАМЯТЬ
         renderCommunityGallery();
         closeUploadMediaModal();
-        alert("Контент та фото успішно додано в спільноту!");
+        showNotification('Контент додано', 'Фото та медіа-матеріал успішно додано у спільноту!', 'success');
       };
       reader.readAsDataURL(file);
     }
@@ -2089,7 +2175,7 @@
       closeAddTextModal();
       document.getElementById('text-title-input').value = '';
       document.getElementById('text-body-input').value = '';
-      alert("Текст успішно додано в спільноту!");
+      showNotification('Текст опубліковано', 'Інформаційний матеріал успішно додано у спільноту!', 'success');
     }
 
     function deleteMediaItem(idx) {
@@ -2097,6 +2183,7 @@
         activeCommunity.photos.splice(idx, 1);
         saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ УДАЛЕНИЯ
         renderCommunityGallery();
+        showNotification('Видалено', 'Контент спільноти успішно видалено.', 'info');
       }
     }
 
@@ -2106,6 +2193,7 @@
         activeCommunity.photos[idx] = newUrl;
         saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ ИЗМЕНЕНИЯ
         renderCommunityGallery();
+        showNotification('Оновлено', 'Контент спільноти змінено.', 'success');
       }
     }
 
@@ -2114,6 +2202,7 @@
         activeCommunity.texts = activeCommunity.texts.filter(t => t.id !== id);
         saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ УДАЛЕНИЯ
         renderCommunityTexts();
+        showNotification('Видалено', 'Текстовий матеріал видалено.', 'info');
       }
     }
 
@@ -2126,6 +2215,7 @@
       if (newBody !== null) t.body = newBody;
       saveCommunitiesData(); // СОХРАНЯЕМ ПОСЛЕ РЕДАКТИРОВАНИЯ
       renderCommunityTexts();
+      showNotification('Оновлено', 'Текстовий матеріал успішно змінено.', 'success');
     }
 
     // ==========================================
@@ -2193,6 +2283,7 @@
         updateHeaderAuthUI();
         updateHeaderUserUI();
         renderAdminDashboard();
+        showNotification('Вхід в адмін-панель', `Вітаємо, ${foundAdmin.name}!`, 'success');
       } else {
         errorMsg.classList.remove('hidden');
       }
@@ -2210,6 +2301,7 @@
       document.getElementById('admin-dashboard').classList.add('hidden');
       updateHeaderAuthUI();
       showPage('home');
+      showNotification('Вихід', 'Ви вийшли з адмін-панелі.', 'info');
     }
 
     function updateHeaderAuthUI() {
@@ -2297,7 +2389,7 @@
       document.getElementById('new-admin-pass').value = '';
       document.getElementById('new-admin-tg').value = '';
 
-      alert(`Пошту ${email} успішно зареєстровано в системі з посадою "${role}"!`);
+      showNotification('Співробітника додано', `Пошту ${email} успішно зареєстровано в системі з посадою "${role}"!`, 'success');
       renderAdminDashboard();
     }
 
@@ -2358,7 +2450,7 @@
       closeAssignAgentModal();
       renderSupportAgentsTable();
       renderAdminDashboard();
-      alert(`Співробітника ${targetAdmin.name} успішно призначено на посаду "${agentRole}"!`);
+      showNotification('Агента призначено', `Співробітника ${targetAdmin.name} успішно призначено на посаду "${agentRole}"!`, 'success');
     }
 
     function renderSupportAgentsTable() {
@@ -2481,7 +2573,7 @@
         closeSanctionModal();
         renderAdminDashboard();
         renderSupportAgentsTable();
-        alert("Дію успішно застосовано та зафіксовано в системі!");
+        showNotification('Санкція оновлена', `Дію успішно застосовано відносно співробітника ${admin.name}.`, sancType === 'remove' ? 'success' : 'warning');
       }
     }
 
@@ -2543,6 +2635,7 @@
         await syncAdminsData();
         renderAdminDashboard();
         syncUserAndAdminState();
+        showNotification('Посаду оновлено', `Співробітнику ${admin.name} встановлено посаду: ${newRole}`, 'success');
       }
     }
 
@@ -2553,6 +2646,7 @@
         admin.permissions[permKey] = !admin.permissions[permKey];
         await syncAdminsData();
         renderAdminAdminsList();
+        showNotification('Права оновлено', `Права адміністратора ${admin.name} змінено.`, 'info');
       }
     }
 
@@ -2572,7 +2666,7 @@
         syncUserAndAdminState();
         renderAdminDashboard();
         renderSupportAgentsTable();
-        alert("Співробітника успішно знято з поста!");
+        showNotification('Знято з поста', 'Співробітника успішно знято з посади.', 'warning');
       }
     }
 
@@ -2582,6 +2676,7 @@
         try { await supabaseClient.from('users').delete().eq('email', email); } catch(e){}
         syncUsersData();
         renderRegisteredUsersList();
+        showNotification('Видалено', `Користувача ${email} видалено з системи.`, 'info');
       }
     }
 
@@ -2592,6 +2687,7 @@
         try { await supabaseClient.from('users').update({ banned: u.banned }).eq('email', email); } catch(e){}
         syncUsersData();
         renderRegisteredUsersList();
+        showNotification('Статус оновлено', `Користувач ${email} ${u.banned ? 'забанений' : 'розбанений'}.`, u.banned ? 'error' : 'success');
       }
     }
 
@@ -2602,6 +2698,7 @@
         try { await supabaseClient.from('users').update({ warns: u.warns }).eq('email', email); } catch(e){}
         syncUsersData();
         renderRegisteredUsersList();
+        showNotification('Попередження видано', `Користувачу ${email} додано попередження. Всього: ${u.warns}`, 'warning');
       }
     }
 
@@ -2612,6 +2709,7 @@
         try { await supabaseClient.from('users').update({ warns: u.warns }).eq('email', email); } catch(e){}
         syncUsersData();
         renderRegisteredUsersList();
+        showNotification('Знято попередження', `З користувача ${email} знято одне попередження.`, 'success');
       }
     }
 
@@ -2637,7 +2735,7 @@
         };
         state.admins.push(newAdmin);
         await syncAdminsData();
-        alert(`Користувачу ${u.name} успішно надано статус Агента підтримки!`);
+        showNotification('Підвищення', `Користувачу ${u.name} успішно надано статус Агента підтримки!`, 'success');
         renderAdminDashboard();
         syncUserAndAdminState();
       }
@@ -2900,6 +2998,7 @@
         } catch(e) {}
         syncTicketsData();
         filterTickets();
+        showNotification('Статус тикету оновлено', `Тикет ${ticket.id} переведено в статус: ${ticket.status}`, 'success');
       }
     }
 
@@ -3004,6 +3103,7 @@
         state.tickets.unshift(chatTicket);
         syncTicketsData();
         if (state.currentUser) renderAdminDashboard();
+        showNotification('Новий запит в чаті', 'Створено новий тикет з чату супровідника.', 'warning');
       }, 750);
     }
 
