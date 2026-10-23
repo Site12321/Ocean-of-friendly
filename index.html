@@ -211,17 +211,43 @@
             <p class="text-slate-400 mt-1">Ініціативи, які створюють реальні зміни</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
-              <h3 class="text-lg font-bold text-white mb-2">Морські леви</h3>
-              <p class="text-xs text-slate-300">Програми реабілітації та водного спорту.</p>
+            <div onclick="openProjectDetail('sea_lions')" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-sky-500/50 p-6 rounded-3xl transition-all cursor-pointer group transform hover:-translate-y-1 shadow-lg">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-2xl">🦁</span>
+                <span class="text-[10px] font-bold text-sky-400 bg-sky-500/10 px-2.5 py-1 rounded-full border border-sky-500/20">Проєкт</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">Морські леви</h3>
+              <p class="text-xs text-slate-300">Програми реабілітації, адаптації та водного спорту для наших захисників.</p>
+              <div class="mt-4 pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-400 flex items-center gap-1">Переглянути проєкт <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+                <span class="text-[10px] text-emerald-400 font-bold">Донат відкрито</span>
+              </div>
             </div>
-            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
-              <h3 class="text-lg font-bold text-white mb-2">Upgradeus Mechanicus</h3>
-              <p class="text-xs text-slate-300">Інженерно-технічний хаб та розробки.</p>
+
+            <div onclick="openProjectDetail('upgradeus')" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 p-6 rounded-3xl transition-all cursor-pointer group transform hover:-translate-y-1 shadow-lg">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-2xl">⚙️</span>
+                <span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Технічний Хаб</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">Модернізація та Механіка (Upgradeus)</h3>
+              <p class="text-xs text-slate-300">Інженерно-технічний хаб, робототехніка та новітні розробки.</p>
+              <div class="mt-4 pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-400 flex items-center gap-1">Переглянути проєкт <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+                <span class="text-[10px] text-emerald-400 font-bold">Донат відкрито</span>
+              </div>
             </div>
-            <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-3xl">
-              <h3 class="text-lg font-bold text-white mb-2">Оберіг</h3>
-              <p class="text-xs text-slate-300">Соціальна та психологічна підтримка родин.</p>
+
+            <div onclick="openProjectDetail('oberig')" class="bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 p-6 rounded-3xl transition-all cursor-pointer group transform hover:-translate-y-1 shadow-lg">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-2xl">🛡️</span>
+                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">Соціальний</span>
+              </div>
+              <h3 class="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">Оберіг</h3>
+              <p class="text-xs text-slate-300">Соціальна, психологічна та матеріальна підтримка родин військових.</p>
+              <div class="mt-4 pt-4 border-t border-slate-700/60 flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">Переглянути проєкт <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
+                <span class="text-[10px] text-emerald-400 font-bold">Донат відкрито</span>
+              </div>
             </div>
           </div>
         </div>
@@ -246,6 +272,86 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" id="communities-cards-grid"></div>
         </div>
       </section>
+    </div>
+
+    <!-- PAGE: ДЕТАЛІ ПРОЄКТУ ТА СИСТЕМА ДОНАТУ -->
+    <div id="page-project-detail" class="hidden py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <button onclick="showPage('home')" class="mb-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold rounded-2xl text-xs flex items-center gap-2 transition-all">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Назад до головної
+      </button>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+          <div class="flex items-center gap-4">
+            <div id="proj-icon-box" class="w-16 h-16 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center text-3xl shrink-0">
+              🦁
+            </div>
+            <div>
+              <h1 id="proj-title-display" class="text-2xl sm:text-3xl font-extrabold text-white">Назва Проєкту</h1>
+              <p id="proj-desc-display" class="text-xs sm:text-sm text-slate-400 mt-1">Опис проєкту та його мета.</p>
+            </div>
+          </div>
+          <button onclick="scrollToDonateSection()" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20">
+            <i data-lucide="heart" class="w-4 h-4"></i> Підтримати проєкт
+          </button>
+        </div>
+
+        <div id="proj-full-content" class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-4"></div>
+
+        <!-- СИСТЕМА ДОНАТІВ -->
+        <div id="donate-section" class="pt-8 border-t border-slate-800">
+          <div class="max-w-2xl mx-auto bg-slate-950/90 border border-emerald-500/40 p-6 sm:p-8 rounded-3xl shadow-2xl">
+            <div class="text-center mb-6">
+              <div class="w-12 h-12 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <i data-lucide="heart" class="w-6 h-6"></i>
+              </div>
+              <h3 class="text-xl font-bold text-white">Підтримати проєкт «<span id="donate-proj-title"></span>»</h3>
+              <p class="text-xs text-slate-400 mt-1">Усі кошти направляються безпосередньо на розвиток та діяльність проєкту</p>
+            </div>
+
+            <!-- ПЕРЕКЛЮЧАТЕЛЬ РЕКВИЗИТОВ -->
+            <div class="flex items-center justify-center gap-2 mb-6">
+              <button onclick="switchDonateMethod('card')" id="don-btn-card" class="px-4 py-2 bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs transition-all">
+                💳 Картка ПриватБанк
+              </button>
+              <button onclick="switchDonateMethod('crypto')" id="don-btn-crypto" class="px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold rounded-xl text-xs transition-all">
+                🪙 Крипто (Trust Wallet)
+              </button>
+            </div>
+
+            <!-- БАНКОВСКАЯ КАРТА -->
+            <div id="donate-method-card" class="space-y-4">
+              <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Номер картки ПриватБанк:</span>
+                <div class="flex items-center justify-between gap-2">
+                  <span id="donate-card-number" class="text-sm sm:text-base font-black text-sky-400 font-mono">5168752126388407</span>
+                  <button onclick="copyToClipboard('5168752126388407', 'Номер картки')" class="px-3 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 font-bold text-xs rounded-xl flex items-center gap-1 transition-all">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Скопіювати
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- КРИПТО КОШЕЛЕК -->
+            <div id="donate-method-crypto" class="hidden space-y-4">
+              <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Адреса кошелька Trust Wallet (USDT / TRX / TRC20):</span>
+                <div class="flex items-center justify-between gap-2 break-all">
+                  <span id="donate-crypto-address" class="text-xs sm:text-sm font-black text-amber-400 font-mono">TWAJdmCgc8kEbfrLepby9KjjFnDGtu8X3c</span>
+                  <button onclick="copyToClipboard('TWAJdmCgc8kEbfrLepby9KjjFnDGtu8X3c', 'Адресу кошелька')" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-xl flex items-center gap-1 transition-all shrink-0">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i> Скопіювати
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-slate-500 text-center mt-6">
+              Дякуємо за вашу підтримку! Разом ми робимо важливу справу.
+            </p>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- PAGE: ДЕТАЛІ СПІЛЬНОТИ ТА ГАЛЕРЕЯ -->
@@ -1431,6 +1537,104 @@
 
     let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || [];
 
+    // БАЗА ДАНИХ КЛЮЧОВИХ ПРОЄКТІВ
+    const projectsData = {
+      sea_lions: {
+        id: 'sea_lions',
+        icon: '🦁',
+        title: 'Морські леви',
+        subtitle: 'Програми реабілітації та водного спорту',
+        desc: 'Спеціалізована програма комплексної реабілітації через водні види спорту, адаптивне плавання та морально-психологічну підтримку ветеранів та їх родин.',
+        content: `
+          <h3 class="text-base font-bold text-white mb-2">Про ініціативу «Морські леви»</h3>
+          <p>Проєкт створений для надання оздоровчих та реабілітаційних послуг на воді. Наша мета — повернути впевненість, фізичну силу та психологічний комфорт за допомогою кваліфікованих тренерів та реабілітологів.</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 my-3">
+            <li>Індивідуальні та групові заняття у басейні</li>
+            <li>Адаптивний водний спорт та кайтінг</li>
+            <li>Психологічний супровід та реабілітаційні табори</li>
+          </ul>
+        `
+      },
+      upgradeus: {
+        id: 'upgradeus',
+        icon: '⚙️',
+        title: 'Модернізація та Механіка (Upgradeus)',
+        subtitle: 'Інженерно-технічний хаб та розробки',
+        desc: 'Сучасна технологічна лабораторія, орієнтована на розробку інженерних рішень, робототехніку, протезування та інноваційні системи взаємодопомоги.',
+        content: `
+          <h3 class="text-base font-bold text-white mb-2">Про напрямок Upgradeus Mechanicus</h3>
+          <p>Хаб об'єднує інженерів, розробників та винахідників для створення практичних технічних рішень. Ми працюємо над модернізацією обладнання, розробкою засобів реабілітації та технічною підтримкою наших партнерів.</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 my-3">
+            <li>Розробка та модифікація технічних засобів</li>
+            <li>3D-друк та швидке прототипування</li>
+            <li>Навчання молоді та ветеранів інженерним спеціальностям</li>
+          </ul>
+        `
+      },
+      oberig: {
+        id: 'oberig',
+        icon: '🛡️',
+        title: 'Оберіг',
+        subtitle: 'Соціальна та психологічна підтримка родин',
+        desc: 'Комплексна програма опіки над родинами захисників, надання гуманітарної допомоги, юридичного супроводу та психологічного відновлення.',
+        content: `
+          <h3 class="text-base font-bold text-white mb-2">Про проєкт «Оберіг»</h3>
+          <p>«Оберіг» — це надійне плече для кожної сім'ї, яка потребує турботи. Ми надаємо адресну допомогу, організовуємо дитяче дозвілля та надаємо психологічну підтримку у складних життєвих ситуаціях.</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300 my-3">
+            <li>Юридична та консультативна допомога</li>
+            <li>Психологічні групи підтримки та консультації</li>
+            <li>Гуманітарне забезпечення та адресна опіка</li>
+          </ul>
+        `
+      }
+    };
+
+    let activeProject = null;
+
+    function openProjectDetail(projKey) {
+      activeProject = projectsData[projKey];
+      if (!activeProject) return;
+
+      document.getElementById('proj-icon-box').textContent = activeProject.icon;
+      document.getElementById('proj-title-display').textContent = activeProject.title;
+      document.getElementById('proj-desc-display').textContent = activeProject.subtitle;
+      document.getElementById('proj-full-content').innerHTML = activeProject.content;
+      document.getElementById('donate-proj-title').textContent = activeProject.title;
+
+      showPage('project-detail');
+    }
+
+    function scrollToDonateSection() {
+      document.getElementById('donate-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function switchDonateMethod(method) {
+      const cardBox = document.getElementById('donate-method-card');
+      const cryptoBox = document.getElementById('donate-method-crypto');
+      const cardBtn = document.getElementById('don-btn-card');
+      const cryptoBtn = document.getElementById('don-btn-crypto');
+
+      if (method === 'card') {
+        cardBox.classList.remove('hidden');
+        cryptoBox.classList.add('hidden');
+        cardBtn.className = "px-4 py-2 bg-emerald-500 text-slate-950 font-bold rounded-xl text-xs transition-all";
+        cryptoBtn.className = "px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold rounded-xl text-xs transition-all";
+      } else {
+        cryptoBox.classList.remove('hidden');
+        cardBox.classList.add('hidden');
+        cryptoBtn.className = "px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs transition-all";
+        cardBtn.className = "px-4 py-2 bg-slate-800 text-slate-300 hover:bg-slate-700 font-bold rounded-xl text-xs transition-all";
+      }
+    }
+
+    function copyToClipboard(text, labelName) {
+      navigator.clipboard.writeText(text).then(() => {
+        showNotification('Скопійовано!', `${labelName} успішно скопійовано в буфер обміну.`, 'success');
+      }).catch(() => {
+        showNotification('Помилка', 'Не вдалося скопіювати.', 'error');
+      });
+    }
+
     // ХРАНЕНИЕ СООБЩЕСТВ С ПОДДЕРЖКОЙ СОХРАНЕНИЯ УДАЛЕНИЙ И ДОБАВЛЕНИЙ
     const defaultCommunitiesData = [
       { 
@@ -2224,6 +2428,7 @@
     function showPage(pageId) {
       document.getElementById('page-home').classList.add('hidden');
       document.getElementById('page-community-detail').classList.add('hidden');
+      document.getElementById('page-project-detail').classList.add('hidden');
       document.getElementById('page-admin').classList.add('hidden');
 
       if (pageId === 'admin') {
@@ -2246,6 +2451,8 @@
         }
       } else if (pageId === 'community-detail') {
         document.getElementById('page-community-detail').classList.remove('hidden');
+      } else if (pageId === 'project-detail') {
+        document.getElementById('page-project-detail').classList.remove('hidden');
       } else {
         document.getElementById('page-home').classList.remove('hidden');
       }
@@ -3008,7 +3215,7 @@
     const banners = [
       { tag: "Спільнота & Підтримка", title: "Знайди своїх, отримай допомогу та втілюй ідеї", desc: "Платформа взаємодопомоги та розвитку людей і громад.", btnText: "Дізнатися більше", action: "scrollToSection('projects')" },
       { tag: "Telegram Бот", title: "Миттєвий зв'язок та допомога у вашому смартфоні", desc: "Отримай персонального координатора без реєстрації.", btnText: "Перейти до Telegram", action: "openTelegramModal()" },
-      { tag: "Проєкт «Морські леви»", title: "Реабілітація та водний спорт для захисників", desc: "Відновлення сили та рівноваги через тренування.", btnText: "Підтримати проєкт", action: "openChatWithPrompt('Хочу дізнатися більше про проєкт Морські леви')" }
+      { tag: "Проєкт «Морські леви»", title: "Реабілітація та водний спорт для захисників", desc: "Відновлення сили та рівноваги через тренування.", btnText: "Підтримати проєкт", action: "openProjectDetail('sea_lions')" }
     ];
     let currentSlide = 0;
 
