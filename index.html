@@ -1949,6 +1949,12 @@
 
     async function loadUserDirectMessages() {
       if (!currentUser || !currentUser.email) return;
+      const { data: authState } = await supabaseClient.auth.getUser();
+      if (!authState?.user || String(authState.user.email || '').toLowerCase() !== String(currentUser.email).toLowerCase()) {
+        const container = document.getElementById('direct-chat-messages');
+        if (container) container.innerHTML = '<div class="p-3 text-amber-300">Для чату увійдіть через форму входу з email і паролем.</div>';
+        return;
+      }
       const container = document.getElementById('direct-chat-messages');
       try {
         const { data, error } = await supabaseClient
@@ -1988,6 +1994,10 @@
       const input = document.getElementById('direct-chat-input');
       const text = input.value.trim();
       if (!text || !currentUser) return;
+      const { data: authState } = await supabaseClient.auth.getUser();
+      if (!authState?.user || String(authState.user.email || '').toLowerCase() !== String(currentUser.email || '').toLowerCase()) {
+        showNotification('Потрібен вхід', 'Увійдіть через email і пароль, щоб надіслати повідомлення.', 'warning'); return;
+      }
 
       const newMsg = {
         user_email: currentUser.email.toLowerCase(),
@@ -2016,7 +2026,10 @@
     async function loadAdminDirectChatsList() {
       const listContainer = document.getElementById('admin-chat-users-list');
       if (!listContainer) return;
-
+      const { data: authState } = await supabaseClient.auth.getUser();
+      if (!authState?.user) { listContainer.innerHTML = '<div class="text-xs text-rose-300 p-2">Потрібен вхід співробітника.</div>'; return; }
+      const { data: roleRow } = await supabaseClient.from('support_staff').select('role').eq('user_id', authState.user.id).maybeSingle();
+      if (!roleRow || !['admin','agent'].includes(roleRow.role)) { listContainer.innerHTML = '<div class="text-xs text-rose-300 p-2">Немає доступу до чатів підтримки.</div>'; return; }
       try {
         const { data, error } = await supabaseClient.from('direct_messages').select('*').order('created_at', { ascending: false });
         if (error || !data) {
@@ -2101,6 +2114,12 @@
       const input = document.getElementById('admin-chat-input');
       const text = input.value.trim();
       if (!text || !activeDirectChatEmail || !state.currentUser) return;
+      const { data: authState } = await supabaseClient.auth.getUser();
+      if (!authState?.user || String(authState.user.email || '').toLowerCase() !== String(state.currentUser.email || '').toLowerCase()) {
+        showNotification('Потрібен вхід', 'Увійдіть через форму адміністратора перед відповіддю.', 'warning'); return;
+      }
+      const { data: roleRow } = await supabaseClient.from('support_staff').select('role').eq('user_id', authState.user.id).maybeSingle();
+      if (!roleRow || !['admin','agent'].includes(roleRow.role)) { showNotification('Доступ заборонено', 'У цього аккаунта немає ролі підтримки.', 'error'); return; }
 
       const replyMsg = {
         user_email: activeDirectChatEmail,
@@ -2128,10 +2147,7 @@
     }
 
     async function closeAdminDirectChat(email) {
-      if (confirm(`Закрити та очистити чат з користувачем ${email}?`)) {
-        try {
-          await supabaseClient.from('direct_messages').delete().eq('user_email', email);
-        } catch (e) {}
+      if (confirm(`Закрити вікно діалогу з користувачем ${email}? Історію повідомлень буде збережено.`)) {
         activeDirectChatEmail = null;
         document.getElementById('admin-active-chat-header').innerHTML = `<span class="text-xs font-bold text-slate-400">Оберіть користувача зліва для початку діалогу</span>`;
         document.getElementById('admin-active-chat-body').innerHTML = `<p>Діалог закрито</p>`;
@@ -2352,25 +2368,54 @@
     async function handleAuthSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('auth-email').value.trim().toLowerCase();
-      const pass = document.getElementById('auth-pass').value.trim();
+      const pass = document.getElementById('auth-pass').value;
       const name = document.getElementById('auth-name').value.trim();
-
-      const matchedAdmin = state.admins.find(a => a.email.toLowerCase() === email);
-
-      currentUser = currentUser || { avatar: "" };
-      currentUser.name = name || (matchedAdmin ? matchedAdmin.name : "Користувач");
-      currentUser.email = email;
-      currentUser.pass = pass;
-
-      localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-      await registerUserInDatabase(currentUser);
-      closeAuthModal();
-      syncUserAndAdminState();
-      openProfileModal();
-      showNotification('Авторизація успішна!', `Ласкаво просимо до кабінету, ${currentUser.name}!`, 'success');
+      const submitBtn = document.getElementById('auth-submit-btn');
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        let authResult;
+        if (isRegisterMode) {
+          authResult = await supabaseClient.auth.signUp({
+            email,
+            password: pass,
+            options: { data: { display_name: name || 'Користувач' } }
+          });
+          if (authResult.error) throw authResult.error;
+          if (!authResult.data.session) {
+            showNotification('Перевірте пошту', 'Supabase надіслав лист для підтвердження реєстрації. Підтвердьте email, а потім увійдіть.', 'info');
+            return;
+          }
+        } else {
+          authResult = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+          if (authResult.error) throw authResult.error;
+        }
+        const authUser = authResult.data.user;
+        if (!authUser) throw new Error('Supabase не повернув користувача після входу.');
+        const matchedAdmin = state.admins.find(a => String(a.email || '').toLowerCase() === email);
+        currentUser = {
+          ...(currentUser || {}),
+          name: name || authUser.user_metadata?.display_name || matchedAdmin?.name || 'Користувач',
+          email: authUser.email.toLowerCase(),
+          avatar: currentUser?.avatar || '',
+          phone: currentUser?.phone || '', city: currentUser?.city || 'Україна',
+          interest: currentUser?.interest || 'Реабілітація', bio: currentUser?.bio || ''
+        };
+        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+        await registerUserInDatabase(currentUser);
+        closeAuthModal();
+        syncUserAndAdminState();
+        openProfileModal();
+        showNotification('Авторизація успішна!', `Ласкаво просимо, ${currentUser.name}!`, 'success');
+      } catch (err) {
+        console.error('Supabase Auth error:', err);
+        showNotification('Не вдалося увійти', err?.message || 'Перевірте email і пароль та спробуйте ще раз.', 'error');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     }
 
     async function handleUserLogout() {
+      try { await supabaseClient.auth.signOut(); } catch (e) { console.warn('Supabase sign out:', e); }
       if (currentUser) {
         let u = state.registeredUsers.find(x => x.email.toLowerCase() === currentUser.email.toLowerCase());
         if (u) { 
@@ -2825,37 +2870,49 @@
     async function handleAdminLogin(e) {
       e.preventDefault();
       const username = document.getElementById('admin-username').value.trim().toLowerCase();
-      const password = document.getElementById('admin-password').value.trim();
+      const password = document.getElementById('admin-password').value;
       const errorMsg = document.getElementById('admin-login-error');
-
-      const foundAdmin = state.admins.find(a => a.email.trim().toLowerCase() === username && a.pass.trim() === password);
-
-      if (foundAdmin) {
-        foundAdmin.online = true;
+      const submit = e.submitter || document.querySelector('#admin-login-box button[type="submit"]');
+      if (submit) submit.disabled = true;
+      try {
+        const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({ email: username, password });
+        if (loginError) throw loginError;
+        const authUser = loginData.user;
+        if (!authUser || String(authUser.email || '').toLowerCase() !== username) throw new Error('Не удалось подтвердить аккаунт.');
+        const { data: staffRow, error: roleError } = await supabaseClient
+          .from('support_staff').select('role').eq('user_id', authUser.id).maybeSingle();
+        if (roleError) throw roleError;
+        if (!staffRow || !['admin', 'agent'].includes(staffRow.role)) {
+          await supabaseClient.auth.signOut();
+          throw new Error('У этого аккаунта нет роли сотрудника поддержки.');
+        }
+        const storedAdmin = state.admins.find(a => String(a.email || '').toLowerCase() === username);
+        const foundAdmin = {
+          ...(storedAdmin || {}), id: authUser.id,
+          name: storedAdmin?.name || authUser.user_metadata?.display_name || username,
+          email: username, role: staffRow.role === 'admin' ? 'Адміністратор' : 'Агент підтримки',
+          additionalRoles: storedAdmin?.additionalRoles || []
+        };
         state.currentUser = foundAdmin;
-        localStorage.setItem('okean_current_admin', JSON.stringify(foundAdmin));
-        
-        currentUser = currentUser || { avatar: "" };
-        currentUser.name = foundAdmin.name;
-        currentUser.email = foundAdmin.email;
-        currentUser.pass = foundAdmin.pass;
+        localStorage.setItem('okean_current_admin', JSON.stringify({ id: foundAdmin.id, name: foundAdmin.name, email: foundAdmin.email, role: foundAdmin.role }));
+        currentUser = { ...(currentUser || {}), name: foundAdmin.name, email: username, avatar: currentUser?.avatar || '' };
         localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        
-        await syncAdminsData();
-        await registerUserInDatabase(currentUser);
         errorMsg.classList.add('hidden');
         document.getElementById('admin-login-box').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
-        updateHeaderAuthUI();
-        updateHeaderUserUI();
-        renderAdminDashboard();
-        showNotification('Вхід в адмін-панель', `Вітаємо, ${foundAdmin.name}!`, 'success');
-      } else {
+        updateHeaderAuthUI(); updateHeaderUserUI(); renderAdminDashboard();
+        showNotification('Вхід у підтримку', `Вітаємо, ${foundAdmin.name}!`, 'success');
+      } catch (err) {
+        console.error('Supabase staff login error:', err);
+        errorMsg.textContent = err?.message || 'Вхід не виконано. Перевірте email, пароль і роль support_staff.';
         errorMsg.classList.remove('hidden');
+      } finally {
+        if (submit) submit.disabled = false;
       }
     }
 
     async function handleAdminLogout() {
+      try { await supabaseClient.auth.signOut(); } catch (e) { console.warn('Supabase staff sign out:', e); }
       if (state.currentUser) {
         const found = state.admins.find(a => a.id === state.currentUser.id);
         if (found) found.online = false;
