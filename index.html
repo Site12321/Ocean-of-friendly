@@ -1423,29 +1423,59 @@
       }, 5000);
     }
 
-    // Инициализация real-time подписок Supabase для мгновенных уведомлений
+    // Ініціалізація real-time підписок Supabase для миттєвого оновлення прямих чатів.
+    // Важливо: Realtime працює лише якщо direct_messages додана до publication
+    // supabase_realtime і RLS дозволяє поточному клієнту бачити відповідні рядки.
+    let realtimeNotificationsChannel = null;
     function initRealtimeNotifications() {
       try {
-        supabaseClient.channel('realtime-all')
+        if (realtimeNotificationsChannel) {
+          supabaseClient.removeChannel(realtimeNotificationsChannel);
+          realtimeNotificationsChannel = null;
+        }
+
+        realtimeNotificationsChannel = supabaseClient.channel('realtime-all')
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'tickets' }, payload => {
-            showNotification('Новий тикет звернення!', `Отримано нове звернення від: ${payload.new.name || 'Гість'}`, 'warning');
+            showNotification('Нове звернення!', `Отримано звернення від: ${payload.new?.name || 'Гість'}`, 'warning');
           })
           .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets' }, payload => {
-            showNotification('Статус тикету змінено', `Тикет ${payload.new.id} переведено в статус: ${payload.new.status}`, 'success');
+            showNotification('Статус звернення змінено', `Звернення ${payload.new?.id ?? ''} переведено в статус: ${payload.new?.status || 'оновлено'}`, 'success');
           })
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, payload => {
-            showNotification('Нове повідомлення в чаті!', `Отримано повідомлення від: ${payload.new.sender_name || 'Користувач'}`, 'success');
-            if (currentUser && currentUser.email) loadUserDirectMessages();
-            if (state.currentUser && state.admins.some(a => a.email.toLowerCase() === state.currentUser.email.toLowerCase())) {
+            const msg = payload?.new;
+            if (!msg) return;
+            const myEmail = String(currentUser?.email || '').toLowerCase();
+            const adminEmail = String(state.currentUser?.email || '').toLowerCase();
+            const isAdmin = !!adminEmail && (
+              adminEmail === String(superAdminEmail || '').toLowerCase() ||
+              (Array.isArray(state.admins) && state.admins.some(a => String(a.email || '').toLowerCase() === adminEmail))
+            );
+            const belongsToCurrentUser = myEmail && String(msg.user_email || '').toLowerCase() === myEmail;
+            const isRelevantForAdmin = isAdmin && (!activeDirectChatEmail || String(activeDirectChatEmail).toLowerCase() === String(msg.user_email || '').toLowerCase());
+
+            if (belongsToCurrentUser) {
+              loadUserDirectMessages();
+              showNotification('Нове повідомлення', `Повідомлення від: ${msg.sender_name || 'Команди підтримки'}`, 'success');
+            }
+            if (isAdmin) {
               loadAdminDirectChatsList();
-              if (activeDirectChatEmail === payload.new.user_email) {
+              if (activeDirectChatEmail && String(activeDirectChatEmail).toLowerCase() === String(msg.user_email || '').toLowerCase()) {
                 loadAdminChatMessages(activeDirectChatEmail);
+              }
+              if (!belongsToCurrentUser) {
+                showNotification('Нове повідомлення в прямому чаті', `Діалог: ${msg.user_email || 'користувач'}`, 'success');
               }
             }
           })
-          .subscribe();
-      } catch(e) {
-        console.warn("Real-time підписка недоступна в автономному режимі:", e);
+          .subscribe(status => {
+            if (status === 'SUBSCRIBED') {
+              console.info('[Supabase Realtime] Підписка активна.');
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+              console.error(`[Supabase Realtime] Статус підписки: ${status}. Перевірте publication, мережу та RLS.`);
+            }
+          });
+      } catch (e) {
+        console.error('[Supabase Realtime] Не вдалося створити підписку:', e);
       }
     }
 
@@ -1891,6 +1921,13 @@
       localStorage.setItem('okean_tickets_db', JSON.stringify(state.tickets)); 
     }
 
+    // Екранування тексту, отриманого від користувачів, перед вставленням у HTML.
+    function escapeDirectChatHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[ch]);
+    }
+
     // ==========================================
     // 3.1. ЛОГИКА ПРЯМОГО ЧАТА (ПОЛЬЗОВАТЕЛЬ ↔ АДМИНИСТРАТОР/АГЕНТ)
     // ==========================================
@@ -1934,8 +1971,8 @@
           return `
             <div class="flex ${isUser ? 'justify-end' : 'justify-start'} msg-animate">
               <div class="max-w-[85%] p-3.5 rounded-2xl ${isUser ? 'bg-sky-600 text-white rounded-tr-xs' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-xs'}">
-                <div class="text-[10px] font-bold opacity-80 mb-1">${msg.sender_name}</div>
-                <div class="leading-relaxed">${msg.message}</div>
+                <div class="text-[10px] font-bold opacity-80 mb-1">${escapeDirectChatHTML(msg.sender_name)}</div>
+                <div class="leading-relaxed whitespace-pre-wrap">${escapeDirectChatHTML(msg.message)}</div>
               </div>
             </div>
           `;
@@ -1970,7 +2007,7 @@
         showNotification('Повідомлення надіслано', 'Ваше повідомлення збережено та передано команді підтримки.', 'success');
       } catch (err) {
         console.error('Помилка надсилання повідомлення:', err);
-        showNotification('Не вдалося надіслати', 'Перевірте з’єднання та налаштування доступу до таблиці direct_messages у Supabase і спробуйте ще раз.', 'error');
+        showNotification('Не вдалося надіслати', `Supabase: ${err?.message || err?.details || 'невідома помилка'}. Перевірте RLS-політики та права INSERT для direct_messages.`, 'error');
       } finally {
         if (sendButton) sendButton.disabled = false;
       }
@@ -2005,10 +2042,10 @@
           const chat = chatsMap[email];
           const isSelected = activeDirectChatEmail === email;
           return `
-            <div onclick="selectAdminDirectChat('${email}', '${chat.name}')" class="p-3 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-sky-500/20 border-sky-500/50 text-white' : 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300'}">
-              <div class="font-bold text-xs truncate">${chat.name}</div>
-              <div class="text-[10px] text-sky-400 truncate">${email}</div>
-              <div class="text-[10px] text-slate-400 truncate mt-1">${chat.lastMsg}</div>
+            <div onclick="selectAdminDirectChat(${JSON.stringify(email).replace(/"/g, '&quot;')}, ${JSON.stringify(chat.name).replace(/"/g, '&quot;')})" class="p-3 rounded-2xl cursor-pointer transition-all border ${isSelected ? 'bg-sky-500/20 border-sky-500/50 text-white' : 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300'}">
+              <div class="font-bold text-xs truncate">${escapeDirectChatHTML(chat.name)}</div>
+              <div class="text-[10px] text-sky-400 truncate">${escapeDirectChatHTML(email)}</div>
+              <div class="text-[10px] text-slate-400 truncate mt-1">${escapeDirectChatHTML(chat.lastMsg)}</div>
             </div>
           `;
         }).join('');
@@ -2049,8 +2086,8 @@
           return `
             <div class="flex ${isStaff ? 'justify-end' : 'justify-start'} w-full">
               <div class="max-w-[80%] p-3 rounded-2xl ${isStaff ? 'bg-emerald-600 text-white rounded-tr-xs' : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tl-xs'}">
-                <div class="text-[10px] font-bold opacity-75 mb-1">${msg.sender_name}</div>
-                <div>${msg.message}</div>
+                <div class="text-[10px] font-bold opacity-75 mb-1">${escapeDirectChatHTML(msg.sender_name)}</div>
+                <div class="whitespace-pre-wrap">${escapeDirectChatHTML(msg.message)}</div>
               </div>
             </div>
           `;
@@ -2084,7 +2121,7 @@
         showNotification('Відповідь надіслано', 'Повідомлення збережено в діалозі користувача.', 'success');
       } catch (err) {
         console.error('Помилка відповіді в прямому чаті:', err);
-        showNotification('Не вдалося надіслати', 'Перевірте права доступу Supabase для direct_messages та повторіть спробу.', 'error');
+        showNotification('Не вдалося надіслати', `Supabase: ${err?.message || err?.details || 'невідома помилка'}. Перевірте RLS-політики та права INSERT для direct_messages.`, 'error');
       } finally {
         if (sendButton) sendButton.disabled = false;
       }
