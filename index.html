@@ -281,6 +281,38 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" id="communities-cards-grid"></div>
         </div>
       </section>
+
+      <!-- РОЗДІЛ: АВТОМАТИЧНІ ЧАСТІ ЗАПИТАННЯ (ЧАВО) -->
+      <section id="faq" class="py-16 bg-[#071630]/50 border-t border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="max-w-3xl mx-auto text-center mb-8">
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-400">База знань</span>
+            <h2 class="text-3xl font-extrabold text-white mt-2">Часті запитання</h2>
+            <p class="text-slate-400 mt-2">Знайдіть інструкцію самостійно або напишіть команді підтримки.</p>
+          </div>
+          <div class="max-w-3xl mx-auto">
+            <label for="faq-search" class="sr-only">Пошук у базі знань</label>
+            <div class="relative mb-5">
+              <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2"></i>
+              <input id="faq-search" type="search" oninput="renderFAQ()" placeholder="Пошук запитання або відповіді..." class="w-full pl-12 pr-4 py-3.5 bg-slate-900 border border-slate-700 rounded-2xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+            </div>
+            <div id="faq-categories" class="flex flex-wrap gap-2 justify-center mb-5">
+              <button type="button" onclick="setFAQCategory('Усі')" class="faq-category-btn px-4 py-2 rounded-xl text-xs font-bold border border-sky-500 bg-sky-500 text-slate-950">Усі теми</button>
+              <button type="button" onclick="setFAQCategory('Реабілітація')" class="faq-category-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300">Реабілітація</button>
+              <button type="button" onclick="setFAQCategory('Юридична допомога')" class="faq-category-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300">Юридична допомога</button>
+              <button type="button" onclick="setFAQCategory('Психологічна підтримка')" class="faq-category-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300">Психологічна підтримка</button>
+              <button type="button" onclick="setFAQCategory('Волонтерство')" class="faq-category-btn px-4 py-2 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-300">Волонтерство</button>
+            </div>
+            <div id="faq-results" class="space-y-3"></div>
+            <div class="text-center mt-7">
+              <p class="text-sm text-slate-400 mb-3">Не знайшли відповіді?</p>
+              <button onclick="openDirectChatModal()" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm">
+                <i data-lucide="message-circle" class="w-4 h-4"></i> Написати фахівцю
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- PAGE: ДЕТАЛІ ПРОЄКТУ ТА СИСТЕМА ДОНАТУ -->
@@ -1928,12 +1960,20 @@
         created_at: new Date().toISOString()
       };
 
+      const sendButton = input.form?.querySelector('button[type="submit"]');
+      if (sendButton) sendButton.disabled = true;
       try {
-        await supabaseClient.from('direct_messages').insert([newMsg]);
-      } catch (err) {}
-
-      input.value = '';
-      loadUserDirectMessages();
+        const { error } = await supabaseClient.from('direct_messages').insert([newMsg]);
+        if (error) throw error;
+        input.value = '';
+        await loadUserDirectMessages();
+        showNotification('Повідомлення надіслано', 'Ваше повідомлення збережено та передано команді підтримки.', 'success');
+      } catch (err) {
+        console.error('Помилка надсилання повідомлення:', err);
+        showNotification('Не вдалося надіслати', 'Перевірте з’єднання та налаштування доступу до таблиці direct_messages у Supabase і спробуйте ще раз.', 'error');
+      } finally {
+        if (sendButton) sendButton.disabled = false;
+      }
     }
 
     async function loadAdminDirectChatsList() {
@@ -2033,13 +2073,21 @@
         created_at: new Date().toISOString()
       };
 
+      const sendButton = input.form?.querySelector('button[type="submit"]');
+      if (sendButton) sendButton.disabled = true;
       try {
-        await supabaseClient.from('direct_messages').insert([replyMsg]);
-      } catch (err) {}
-
-      input.value = '';
-      loadAdminChatMessages(activeDirectChatEmail);
-      loadAdminDirectChatsList();
+        const { error } = await supabaseClient.from('direct_messages').insert([replyMsg]);
+        if (error) throw error;
+        input.value = '';
+        await loadAdminChatMessages(activeDirectChatEmail);
+        await loadAdminDirectChatsList();
+        showNotification('Відповідь надіслано', 'Повідомлення збережено в діалозі користувача.', 'success');
+      } catch (err) {
+        console.error('Помилка відповіді в прямому чаті:', err);
+        showNotification('Не вдалося надіслати', 'Перевірте права доступу Supabase для direct_messages та повторіть спробу.', 'error');
+      } finally {
+        if (sendButton) sendButton.disabled = false;
+      }
     }
 
     async function closeAdminDirectChat(email) {
@@ -3624,7 +3672,78 @@
     function openTelegramModal() { document.getElementById('telegram-modal').classList.remove('hidden'); }
     function closeTelegramModal() { document.getElementById('telegram-modal').classList.add('hidden'); }
 
+
+    // ==========================================
+    // FAQ / БАЗА ЗНАНЬ: ПОШУК І ФІЛЬТРАЦІЯ
+    // ==========================================
+    const faqEntries = [
+      {category:'Реабілітація', q:'Як знайти програму реабілітації?', a:'Опишіть потребу через прямий чат або зверніться до команди підтримки. Під час звернення вкажіть бажаний напрям реабілітації, населений пункт і зручний спосіб зв’язку. Команда допоможе зорієнтуватися щодо доступних варіантів.'},
+      {category:'Реабілітація', q:'Які дані підготувати для першого звернення?', a:'Підготуйте короткий опис потреби, бажане місце отримання допомоги та контакт для відповіді. Медичні документи надсилайте лише тоді, коли їх запитав уповноважений фахівець і ви впевнені в безпечності каналу.'},
+      {category:'Реабілітація', q:'Чи можна отримати допомогу для члена родини?', a:'Так, зверніться до команди підтримки та поясніть, кому саме потрібна допомога. Не публікуйте зайві персональні чи медичні дані у відкритих повідомленнях.'},
+      {category:'Юридична допомога', q:'Як звернутися по юридичну консультацію?', a:'Напишіть у прямий чат, оберіть тему звернення та стисло опишіть ситуацію. За можливості зазначте регіон і строки, якщо питання термінове. Не надсилайте паролі, дані банківських карток або оригінали документів.'},
+      {category:'Юридична допомога', q:'Чи замінює інформація з бази консультацію юриста?', a:'Ні. Матеріали бази знань мають загальний інформаційний характер і не замінюють індивідуальної юридичної консультації. Для оцінки конкретних обставин зверніться до кваліфікованого фахівця.'},
+      {category:'Юридична допомога', q:'Що робити, якщо питання має терміновий строк?', a:'У повідомленні зазначте кінцеву дату та суть питання. Не відкладайте звернення до останнього дня: команда платформи може потребувати часу для відповіді, а доступність фахівців не гарантується.'},
+      {category:'Психологічна підтримка', q:'Як отримати психологічну підтримку?', a:'Напишіть команді через прямий чат і повідомте, який формат підтримки вам потрібен. Можна описати ситуацію загальними словами — ділитися подробицями ви не зобов’язані.'},
+      {category:'Психологічна підтримка', q:'Чи потрібно детально розповідати про свій стан?', a:'Ні. Почніть із того, що вам комфортно повідомити, і вкажіть бажаний спосіб зв’язку. Ви можете поставити запитання перед тим, як погодитися на консультацію.'},
+      {category:'Психологічна підтримка', q:'Що робити у випадку безпосередньої небезпеки?', a:'Ця платформа не є службою екстреної допомоги. Якщо вам або іншій людині загрожує безпосередня небезпека, зверніться до місцевих екстрених служб або до людини, яка може негайно допомогти.'},
+      {category:'Волонтерство', q:'Як долучитися до волонтерства?', a:'Напишіть у прямий чат, коротко розкажіть про свої навички, доступний час і регіон. Не надсилайте документи чи чутливі дані, доки не перевірите, кому саме їх передаєте.'},
+      {category:'Волонтерство', q:'Чи можна запропонувати власну ініціативу?', a:'Так. Опишіть мету ініціативи, кому вона допоможе, які ресурси потрібні та як із вами зв’язатися. Команда зможе уточнити деталі й повідомити про можливі наступні кроки.'},
+      {category:'Волонтерство', q:'Як дізнатися про актуальні потреби?', a:'Зверніться до команди підтримки та вкажіть напрям, у якому хочете допомагати. Перелік потреб і можливостей може змінюватися, тому підтверджуйте актуальність інформації перед тим, як планувати участь.'}
+    ];
+    let activeFAQCategory = 'Усі';
+    function setFAQCategory(category) {
+      activeFAQCategory = category;
+      document.querySelectorAll('.faq-category-btn').forEach(btn => {
+        const active = (category === 'Усі' && btn.textContent.trim() === 'Усі теми') || btn.textContent.trim() === category;
+        btn.className = `faq-category-btn px-4 py-2 rounded-xl text-xs font-bold border ${active ? 'border-sky-500 bg-sky-500 text-slate-950' : 'border-slate-700 bg-slate-900 text-slate-300'}`;
+      });
+      renderFAQ();
+    }
+    function renderFAQ() {
+      const results = document.getElementById('faq-results');
+      if (!results) return;
+      const query = (document.getElementById('faq-search')?.value || '').trim().toLocaleLowerCase('uk');
+      const filtered = faqEntries.filter(item =>
+        (activeFAQCategory === 'Усі' || item.category === activeFAQCategory) &&
+        (!query || `${item.category} ${item.q} ${item.a}`.toLocaleLowerCase('uk').includes(query))
+      );
+      results.replaceChildren();
+      if (!filtered.length) {
+        const empty = document.createElement('div');
+        empty.className = 'p-5 text-center text-sm text-slate-400 bg-slate-900 border border-slate-800 rounded-2xl';
+        empty.textContent = 'За вашим запитом нічого не знайдено. Спробуйте інші слова або напишіть команді підтримки.';
+        results.appendChild(empty);
+        return;
+      }
+      filtered.forEach((item, index) => {
+        const details = document.createElement('details');
+        details.className = 'group bg-slate-900/90 border border-slate-800 hover:border-sky-500/40 rounded-2xl overflow-hidden';
+        const summary = document.createElement('summary');
+        summary.className = 'list-none cursor-pointer p-4 flex items-start gap-3 text-sm font-bold text-white';
+        const icon = document.createElement('span');
+        icon.className = 'text-sky-400 mt-0.5';
+        icon.textContent = '+';
+        const title = document.createElement('span');
+        title.className = 'flex-1';
+        title.textContent = item.q;
+        const category = document.createElement('span');
+        category.className = 'text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg';
+        category.textContent = item.category;
+        summary.append(icon, title, category);
+        const answer = document.createElement('div');
+        answer.className = 'px-4 pb-4 pl-11 text-sm leading-relaxed text-slate-300';
+        answer.textContent = item.a;
+        details.append(summary, answer);
+        details.addEventListener('toggle', () => { icon.textContent = details.open ? '−' : '+'; });
+        results.appendChild(details);
+      });
+    }
+
+    // Повторно оновлюємо активний діалог після появи повідомлення в реальному часі.
+    // Повідомлення зберігаються у Supabase; підписка працює за умови ввімкненого Realtime та RLS-політик.
+
     renderBanner();
+    renderFAQ();
     syncUserAndAdminState();
     renderCatalog();
     setMentorLanguage(currentLang);
