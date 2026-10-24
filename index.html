@@ -2381,10 +2381,34 @@
             options: { data: { display_name: name || 'Користувач' } }
           });
           if (authResult.error) throw authResult.error;
-          if (!authResult.data.session) {
-            showNotification('Перевірте пошту', 'Supabase надіслав лист для підтвердження реєстрації. Підтвердьте email, а потім увійдіть.', 'info');
-            return;
-          }
+         
+if (!authResult.data.session) {
+  showNotification(
+    'Перевірте пошту',
+    'Supabase надіслав лист для підтвердження реєстрації. Якщо лист не прийшов, натисніть «Надіслати лист повторно».',
+    'info'
+  );
+
+  const resend = confirm('Надіслати лист підтвердження на ' + email + ' ще раз?');
+
+  if (resend) {
+    const resendResult = await supabaseClient.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: 'https://okean-friendly.github.io/Ocean-of-friendly/'
+      }
+    });
+
+    if (resendResult.error) {
+      showNotification('Помилка', resendResult.error.message, 'error');
+    } else {
+      showNotification('Лист надіслано', 'Перевірте пошту та папку «Спам».', 'success');
+    }
+  }
+
+  return;
+} 
         } else {
           authResult = await supabaseClient.auth.signInWithPassword({ email, password: pass });
           if (authResult.error) throw authResult.error;
