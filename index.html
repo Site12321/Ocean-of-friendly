@@ -1010,17 +1010,24 @@
       <form onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div id="name-field-box">
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Ваше ім'я</label>
-          <input type="text" id="auth-name" placeholder="Океан Дружніх" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="text" id="auth-name" autocomplete="name" maxlength="80" placeholder="Океан Дружніх" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Email (пошта)</label>
-          <input type="email" id="auth-email" required placeholder="okeandruznih@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="email" id="auth-email" autocomplete="email" required placeholder="okeandruznih@gmail.com" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Пароль</label>
-          <input type="password" id="auth-pass" required placeholder="••••••••" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <input type="password" id="auth-pass" autocomplete="new-password" required placeholder="Мінімум 8 символів" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+        <div id="auth-confirm-box">
+          <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Повторіть пароль</label>
+          <input type="password" id="auth-confirm-pass" autocomplete="new-password" required placeholder="Введіть пароль ще раз" class="w-full px-4 py-3 text-xs bg-slate-800 border border-slate-700 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
         <div id="auth-error" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20"></div>
+        <button type="button" id="auth-resend-btn" onclick="handleResendConfirmation()" class="hidden w-full py-2.5 text-xs font-bold text-sky-300 border border-sky-500/30 hover:bg-sky-500/10 rounded-xl transition-all">
+          Надіслати лист підтвердження повторно
+        </button>
 
         <button type="submit" id="auth-submit-btn" class="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold rounded-2xl text-xs transition-all shadow-lg">
           Зареєструватися
@@ -1029,7 +1036,7 @@
 
       <div class="mt-5 text-center text-xs text-slate-400">
         <span id="auth-switch-text">Вже є акаунт?</span>
-        <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-sky-400 font-bold ml-1 hover:underline">Увійти</button>
+        <button type="button" onclick="toggleAuthMode()" id="auth-switch-btn" class="text-sky-400 font-bold ml-1 hover:underline">Увійти</button>
       </div>
     </div>
   </div>
@@ -1360,9 +1367,16 @@
     // 0. SUPABASE CONFIGURATION
     // ==========================================
     const SUPABASE_URL = 'https://dwlsbihtzmqqqxpuhvqh.supabase.co'; 
+    // Вставте publishable-ключ із налаштувань Supabase у власну локальну копію файлу.
     const SUPABASE_KEY = 'sb_publishable_xxeca8IKqbCAn1K_zzjWUQ_E9klBWWh';
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
 
     // ==========================================
     // 0.1. РАСШИРЕННАЯ СИСТЕМА УВЕДОМЛЕНИЙ (REAL-TIME NOTIFICATIONS)
@@ -1620,7 +1634,6 @@
         id: 1,
         name: "Океан Дружніх",
         email: "okeandruznih@gmail.com",
-        pass: "admin123",
         role: "Супер Адміністратор",
         subrole: "Керівник платформи",
         additionalRoles: ["Агент підтримки"],
@@ -1635,7 +1648,6 @@
         id: 2,
         name: "Максим Копенко",
         email: "maksimkopenko123@gmail.com",
-        pass: "admin123",
         role: "Головний Адміністратор",
         subrole: "Головний куратор проектів",
         additionalRoles: [],
@@ -1648,7 +1660,6 @@
         id: 3,
         name: "Віктор Мастега",
         email: "mastega@gmail.com",
-        pass: "123456",
         role: "Головний агент підтримки",
         subrole: "Куратор проєкту «Морські леви»",
         additionalRoles: [],
@@ -1670,6 +1681,8 @@
     let savedAdmins = loadedAdmins || defaultAdmins;
 
     savedAdmins.forEach(a => {
+      // Старі локальні записи могли містити пароль у відкритому вигляді.
+      if (Object.prototype.hasOwnProperty.call(a, 'pass')) delete a.pass;
       if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
         a.role = "Супер Адміністратор";
         if (!a.additionalRoles) a.additionalRoles = ["Агент підтримки"];
@@ -1677,6 +1690,7 @@
       }
       if (!a.additionalRoles) a.additionalRoles = [];
     });
+    localStorage.setItem('okean_admins_db', JSON.stringify(savedAdmins));
 
     let savedUsers = JSON.parse(localStorage.getItem('okean_registered_users')) || [];
 
@@ -1839,7 +1853,7 @@
     let activeCommunity = null;
 
     const state = {
-      currentUser: JSON.parse(localStorage.getItem('okean_current_admin')) || null,
+      currentUser: null,
       admins: savedAdmins,
       registeredUsers: savedUsers,
       organizations: [
@@ -1864,10 +1878,13 @@
           localStorage.setItem('okean_tickets_db', JSON.stringify(dbTickets));
         }
 
-        const { data: dbAdmins } = await supabaseClient.from('admins').select('*');
+        const { data: dbAdmins } = await supabaseClient
+          .from('admins')
+          .select('id,name,email,role,subrole,additionalRoles,telegram,online,permissions,history');
         if (dbAdmins && dbAdmins.length > 0) {
           const filteredDbAdmins = dbAdmins.filter(a => a.email.toLowerCase() !== 'andreyromanov245@gmail.com');
           filteredDbAdmins.forEach(a => {
+            if (Object.prototype.hasOwnProperty.call(a, 'pass')) delete a.pass;
             if (a.email.toLowerCase() === superAdminEmail.toLowerCase()) {
               a.role = "Супер Адміністратор";
               if (!a.additionalRoles) a.additionalRoles = ["Агент підтримки"];
@@ -1900,7 +1917,6 @@
           id: a.id,
           name: a.name,
           email: a.email.toLowerCase(),
-          pass: a.pass || 'admin123',
           role: a.role,
           subrole: a.subrole || '',
           additionalRoles: a.additionalRoles || [],
@@ -2264,17 +2280,12 @@
     // 5. АВТОРИЗАЦІЯ ТА КОРИСТУВАЧІ
     // ==========================================
     let isRegisterMode = true;
-    let currentUser = JSON.parse(localStorage.getItem('okean_logged_user')) || {
-      name: "Океан Дружніх",
-      email: "okeandruznih@gmail.com",
-      phone: "",
-      city: "Україна",
-      interest: "Реабілітація та спорт",
-      bio: "Авторизовано через систему."
-    };
+    // Вважаємо користувача авторизованим лише після перевірки Supabase-сесії.
+    let currentUser = null;
 
     window.onload = async function () {
       await loadDataFromSupabase();
+      await initializeAuthSession();
       initRealtimeNotifications();
 
       if (window.google) {
@@ -2288,7 +2299,6 @@
         );
       }
       populateRoleSelects();
-      await registerUserInDatabase(currentUser);
       syncUserAndAdminState();
       renderCommunitiesCards();
     };
@@ -2302,15 +2312,222 @@
     }
 
     async function handleGoogleSignInResponse(response) {
-      const payload = parseJwt(response.credential);
-      if (payload) {
-        currentUser = { name: payload.name, email: payload.email, avatar: payload.picture || "", phone: "", city: "Україна", interest: "Реабілітація та спорт", bio: "Авторизовано через Google-акаунт." };
-        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        await registerUserInDatabase(currentUser);
+      try {
+        if (!response?.credential) throw new Error('Google не повернув облікові дані для входу.');
+        const { data, error } = await supabaseClient.auth.signInWithIdToken({
+          provider: 'google',
+          token: response.credential
+        });
+        if (error) throw error;
+        if (!data?.user || !data?.session) throw new Error('Не вдалося створити захищену сесію. Спробуйте ще раз.');
+        await setAuthenticatedUser(data.user);
         closeAuthModal();
-        syncUserAndAdminState();
         openProfileModal();
         showNotification('Успішний вхід!', `Вітаємо, ${currentUser.name}! Ви увійшли через Google.`, 'success');
+      } catch (err) {
+        console.error('Google/Supabase Auth error:', err);
+        showNotification('Не вдалося увійти через Google', getAuthErrorMessage(err), 'error');
+      }
+    }
+
+    function getAuthRedirectUrl() {
+      // Повертаємо користувача на ту саму сторінку без параметрів/токенів callback.
+      return `${window.location.origin}${window.location.pathname}`;
+    }
+
+    function clearAuthCallbackFromUrl() {
+      const url = new URL(window.location.href);
+      const hashParams = new URLSearchParams(url.hash.replace(/^#/, ''));
+      const hasCallback = url.searchParams.has('code') ||
+        url.searchParams.has('error') ||
+        url.searchParams.has('error_description') ||
+        url.searchParams.has('token_hash') ||
+        ['signup', 'recovery', 'magiclink', 'email_change'].includes(url.searchParams.get('type')) ||
+        hashParams.has('access_token') ||
+        hashParams.has('refresh_token') ||
+        hashParams.has('token_hash') ||
+        ['signup', 'recovery', 'magiclink', 'email_change'].includes(hashParams.get('type')) ||
+        hashParams.has('error') ||
+        hashParams.has('error_description');
+      if (!hasCallback) return false;
+
+      url.searchParams.delete('code');
+      url.searchParams.delete('error');
+      url.searchParams.delete('error_description');
+      url.searchParams.delete('error_code');
+      url.searchParams.delete('token_hash');
+      url.searchParams.delete('type');
+      url.hash = '';
+      window.history.replaceState(window.history.state, document.title, url.toString());
+      return true;
+    }
+
+    function getAuthErrorMessage(err) {
+      const rawMessage = String(err?.message || err?.msg || '');
+      const message = rawMessage.toLowerCase();
+      if (message.includes('email not confirmed') || message.includes('email_not_confirmed')) {
+        const resendButton = document.getElementById('auth-resend-btn');
+        if (resendButton) resendButton.classList.remove('hidden');
+        return 'Спочатку підтвердіть пошту за посиланням із листа. Якщо листа немає, надішліть його повторно нижче.';
+      }
+      if (message.includes('invalid login credentials') || message.includes('invalid email or password')) {
+        return 'Неправильна пошта або пароль. Перевірте дані чи створіть акаунт.';
+      }
+      if (message.includes('user already registered') || message.includes('already registered')) {
+        return 'Ця пошта вже зареєстрована. Перейдіть до входу або використайте відновлення доступу.';
+      }
+      if (message.includes('password should be at least') || message.includes('password is too short')) {
+        return 'Пароль надто короткий. Використайте щонайменше 8 символів.';
+      }
+      if (message.includes('rate limit') || message.includes('too many requests')) {
+        return 'Забагато спроб за короткий час. Зачекайте трохи й спробуйте знову.';
+      }
+      return rawMessage || 'Спробуйте ще раз. Якщо помилка повториться, перевірте налаштування Supabase Auth.';
+    }
+
+    function setAuthFeedback(message, type = 'error') {
+      const box = document.getElementById('auth-error');
+      if (!box) return;
+      box.textContent = message;
+      box.classList.remove(
+        'hidden',
+        'text-rose-400', 'bg-rose-500/10', 'border-rose-500/20',
+        'text-emerald-300', 'bg-emerald-500/10', 'border-emerald-500/20'
+      );
+      if (type === 'success') {
+        box.classList.add('text-emerald-300', 'bg-emerald-500/10', 'border-emerald-500/20');
+      } else {
+        box.classList.add('text-rose-400', 'bg-rose-500/10', 'border-rose-500/20');
+      }
+    }
+
+    function clearAuthFeedback() {
+      const box = document.getElementById('auth-error');
+      if (box) {
+        box.textContent = '';
+        box.classList.add('hidden');
+        box.classList.remove('text-emerald-300', 'bg-emerald-500/10', 'border-emerald-500/20');
+        box.classList.add('text-rose-400', 'bg-rose-500/10', 'border-rose-500/20');
+      }
+      document.getElementById('auth-resend-btn')?.classList.add('hidden');
+    }
+
+    async function setAuthenticatedUser(authUser) {
+      const email = String(authUser?.email || '').trim().toLowerCase();
+      if (!email) throw new Error('У підтвердженому акаунті відсутня адреса пошти.');
+
+      let savedProfile = {};
+      try {
+        const parsed = JSON.parse(localStorage.getItem('okean_logged_user') || 'null');
+        if (parsed && String(parsed.email || '').trim().toLowerCase() === email) savedProfile = parsed;
+      } catch (e) {
+        console.warn('Не вдалося прочитати збережений профіль користувача:', e);
+      }
+
+      const metadata = authUser.user_metadata || {};
+      const displayName = savedProfile.name || metadata.display_name || metadata.full_name || email.split('@')[0];
+      currentUser = {
+        ...savedProfile,
+        name: String(displayName).trim().slice(0, 80) || 'Користувач',
+        email,
+        avatar: savedProfile.avatar || metadata.avatar_url || metadata.picture || '',
+        phone: savedProfile.phone || '',
+        city: savedProfile.city || 'Україна',
+        interest: savedProfile.interest || 'Реабілітація',
+        bio: savedProfile.bio || ''
+      };
+      localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
+      await registerUserInDatabase(currentUser);
+      syncUserAndAdminState();
+      await restoreSupportStaffRole(authUser);
+      return currentUser;
+    }
+
+    async function restoreSupportStaffRole(authUser) {
+      try {
+        const { data: staffRow, error } = await supabaseClient
+          .from('support_staff')
+          .select('role')
+          .eq('user_id', authUser.id)
+          .maybeSingle();
+        if (error) throw error;
+        if (!staffRow || !['admin', 'agent'].includes(staffRow.role)) return;
+
+        const email = String(authUser.email || '').toLowerCase();
+        const storedAdmin = state.admins.find(a => String(a.email || '').toLowerCase() === email);
+        const staffUser = {
+          ...(storedAdmin || {}),
+          id: authUser.id,
+          name: storedAdmin?.name || authUser.user_metadata?.display_name || email,
+          email,
+          role: staffRow.role === 'admin' ? 'Адміністратор' : 'Агент підтримки',
+          additionalRoles: storedAdmin?.additionalRoles || []
+        };
+        state.currentUser = staffUser;
+        localStorage.setItem('okean_current_admin', JSON.stringify({
+          id: staffUser.id, name: staffUser.name, email: staffUser.email, role: staffUser.role
+        }));
+        updateHeaderAuthUI();
+        updateHeaderUserUI();
+      } catch (err) {
+        // Відсутність доступу до таблиці ролей не має ламати звичайний вхід користувача.
+        console.warn('Не вдалося відновити роль співробітника:', err?.message || err);
+      }
+    }
+
+    async function initializeAuthSession() {
+      const pageUrl = new URL(window.location.href);
+      const hashParams = new URLSearchParams(pageUrl.hash.replace(/^#/, ''));
+      const callbackError = pageUrl.searchParams.get('error_description') ||
+        pageUrl.searchParams.get('error') ||
+        hashParams.get('error_description') ||
+        hashParams.get('error');
+      const isCallback = pageUrl.searchParams.has('code') ||
+        pageUrl.searchParams.has('error') ||
+        pageUrl.searchParams.has('error_description') ||
+        pageUrl.searchParams.has('token_hash') ||
+        ['signup', 'recovery', 'magiclink', 'email_change'].includes(pageUrl.searchParams.get('type')) ||
+        hashParams.has('access_token') ||
+        hashParams.has('refresh_token') ||
+        hashParams.has('token_hash') ||
+        ['signup', 'recovery', 'magiclink', 'email_change'].includes(hashParams.get('type')) ||
+        hashParams.has('error');
+
+      try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+
+        if (data?.session?.user) {
+          await setAuthenticatedUser(data.session.user);
+          if (isCallback && !callbackError) {
+            showNotification('Пошту підтверджено', 'Ви увійшли до свого акаунта.', 'success');
+          }
+        } else {
+          currentUser = null;
+          state.currentUser = null;
+          localStorage.removeItem('okean_logged_user');
+          localStorage.removeItem('okean_current_admin');
+          syncUserAndAdminState();
+          if (isCallback && callbackError) {
+            openAuthModal();
+            setAuthFeedback(`Не вдалося підтвердити пошту: ${callbackError}. Запросіть новий лист і скористайтеся найсвіжішим посиланням.`);
+          } else if (isCallback) {
+            showNotification('Підтвердження пошти', 'Пошту підтверджено. Тепер увійдіть у свій акаунт.', 'success');
+          }
+        }
+      } catch (err) {
+        console.error('Supabase session initialization error:', err);
+        currentUser = null;
+        state.currentUser = null;
+        localStorage.removeItem('okean_logged_user');
+        localStorage.removeItem('okean_current_admin');
+        syncUserAndAdminState();
+        if (isCallback) {
+          openAuthModal();
+          setAuthFeedback(getAuthErrorMessage(err));
+        }
+      } finally {
+        if (isCallback) clearAuthCallbackFromUrl();
       }
     }
 
@@ -2346,21 +2563,33 @@
       syncUsersData();
     }
 
-    function openAuthModal() { isRegisterMode = true; updateAuthModalUI(); document.getElementById('auth-modal').classList.remove('hidden'); }
+    function openAuthModal() { isRegisterMode = true; clearAuthFeedback(); updateAuthModalUI(); document.getElementById('auth-modal').classList.remove('hidden'); }
     function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-    function toggleAuthMode() { isRegisterMode = !isRegisterMode; updateAuthModalUI(); }
+    function toggleAuthMode() { isRegisterMode = !isRegisterMode; clearAuthFeedback(); updateAuthModalUI(); }
 
     function updateAuthModalUI() {
       const title = document.getElementById('auth-title');
       const nameBox = document.getElementById('name-field-box');
+      const confirmBox = document.getElementById('auth-confirm-box');
+      const confirmPass = document.getElementById('auth-confirm-pass');
+      const passwordInput = document.getElementById('auth-pass');
       const submitBtn = document.getElementById('auth-submit-btn');
       if (isRegisterMode) {
         title.textContent = "Реєстрація в кабінеті";
         nameBox.style.display = "block";
+        confirmBox.style.display = "block";
+        confirmPass.required = true;
+        passwordInput.autocomplete = 'new-password';
+        passwordInput.placeholder = 'Мінімум 8 символів';
         submitBtn.textContent = "Зареєструватися";
       } else {
         title.textContent = "Вхід до кабінету";
         nameBox.style.display = "none";
+        confirmBox.style.display = "none";
+        confirmPass.required = false;
+        confirmPass.value = '';
+        passwordInput.autocomplete = 'current-password';
+        passwordInput.placeholder = 'Введіть пароль';
         submitBtn.textContent = "Увійти до акаунта";
       }
     }
@@ -2370,71 +2599,96 @@
       const email = document.getElementById('auth-email').value.trim().toLowerCase();
       const pass = document.getElementById('auth-pass').value;
       const name = document.getElementById('auth-name').value.trim();
+      const confirmPass = document.getElementById('auth-confirm-pass').value;
       const submitBtn = document.getElementById('auth-submit-btn');
-      if (submitBtn) submitBtn.disabled = true;
+      clearAuthFeedback();
+
+      if (isRegisterMode && pass.length < 8) {
+        setAuthFeedback('Пароль має містити щонайменше 8 символів.');
+        return;
+      }
+      if (isRegisterMode && pass !== confirmPass) {
+        setAuthFeedback('Паролі не збігаються. Перевірте обидва поля.');
+        return;
+      }
+      if (isRegisterMode && name.length > 80) {
+        setAuthFeedback('Ім’я має містити не більше 80 символів.');
+        return;
+      }
+
+      const originalButtonText = submitBtn?.textContent || '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = isRegisterMode ? 'Створюємо акаунт…' : 'Входимо…';
+      }
       try {
         let authResult;
         if (isRegisterMode) {
           authResult = await supabaseClient.auth.signUp({
             email,
             password: pass,
-            options: { data: { display_name: name || 'Користувач' } }
+            options: {
+              data: { display_name: name || 'Користувач' },
+              emailRedirectTo: getAuthRedirectUrl()
+            }
           });
           if (authResult.error) throw authResult.error;
-         
-if (!authResult.data.session) {
-  showNotification(
-    'Перевірте пошту',
-    'Supabase надіслав лист для підтвердження реєстрації. Якщо лист не прийшов, натисніть «Надіслати лист повторно».',
-    'info'
-  );
-
-  const resend = confirm('Надіслати лист підтвердження на ' + email + ' ще раз?');
-
-  if (resend) {
-    const resendResult = await supabaseClient.auth.resend({
-      type: 'signup',
-      email: email,
-      options: {
-        emailRedirectTo: 'https://okean-friendly.github.io/Ocean-of-friendly/'
-      }
-    });
-
-    if (resendResult.error) {
-      showNotification('Помилка', resendResult.error.message, 'error');
-    } else {
-      showNotification('Лист надіслано', 'Перевірте пошту та папку «Спам».', 'success');
-    }
-  }
-
-  return;
-} 
+          if (!authResult.data?.session) {
+            setAuthFeedback(`Акаунт створено. Перевірте пошту ${email} та підтвердьте адресу за посиланням у листі. Якщо листа немає, перевірте «Спам» або надішліть його повторно кнопкою нижче.`, 'success');
+            document.getElementById('auth-resend-btn')?.classList.remove('hidden');
+            return;
+          }
         } else {
           authResult = await supabaseClient.auth.signInWithPassword({ email, password: pass });
           if (authResult.error) throw authResult.error;
         }
-        const authUser = authResult.data.user;
-        if (!authUser) throw new Error('Supabase не повернув користувача після входу.');
-        const matchedAdmin = state.admins.find(a => String(a.email || '').toLowerCase() === email);
-        currentUser = {
-          ...(currentUser || {}),
-          name: name || authUser.user_metadata?.display_name || matchedAdmin?.name || 'Користувач',
-          email: authUser.email.toLowerCase(),
-          avatar: currentUser?.avatar || '',
-          phone: currentUser?.phone || '', city: currentUser?.city || 'Україна',
-          interest: currentUser?.interest || 'Реабілітація', bio: currentUser?.bio || ''
-        };
-        localStorage.setItem('okean_logged_user', JSON.stringify(currentUser));
-        await registerUserInDatabase(currentUser);
+        const authUser = authResult.data?.user;
+        if (!authUser || !authResult.data?.session) throw new Error('Supabase не повернув активну сесію. Якщо ви щойно зареєструвалися, спочатку підтвердьте пошту.');
+        await setAuthenticatedUser(authUser);
         closeAuthModal();
-        syncUserAndAdminState();
         openProfileModal();
-        showNotification('Авторизація успішна!', `Ласкаво просимо, ${currentUser.name}!`, 'success');
+        showNotification(isRegisterMode ? 'Реєстрацію завершено!' : 'Авторизація успішна!', `Ласкаво просимо, ${currentUser.name}!`, 'success');
       } catch (err) {
         console.error('Supabase Auth error:', err);
-        showNotification('Не вдалося увійти', err?.message || 'Перевірте email і пароль та спробуйте ще раз.', 'error');
+        setAuthFeedback(getAuthErrorMessage(err));
       } finally {
-        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalButtonText || (isRegisterMode ? 'Зареєструватися' : 'Увійти до акаунта');
+        }
+      }
+    }
+
+    async function handleResendConfirmation() {
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const resendButton = document.getElementById('auth-resend-btn');
+      if (!email) {
+        setAuthFeedback('Спочатку введіть адресу пошти, на яку потрібно надіслати лист.');
+        document.getElementById('auth-email').focus();
+        return;
+      }
+
+      const originalText = resendButton?.textContent || '';
+      if (resendButton) {
+        resendButton.disabled = true;
+        resendButton.textContent = 'Надсилаємо…';
+      }
+      try {
+        const { error } = await supabaseClient.auth.resend({
+          type: 'signup',
+          email,
+          options: { emailRedirectTo: getAuthRedirectUrl() }
+        });
+        if (error) throw error;
+        setAuthFeedback(`Лист підтвердження надіслано на ${email}. Перевірте папку «Спам», якщо він не з’явиться у вхідних.`, 'success');
+      } catch (err) {
+        console.error('Supabase resend confirmation error:', err);
+        setAuthFeedback(getAuthErrorMessage(err));
+      } finally {
+        if (resendButton) {
+          resendButton.disabled = false;
+          resendButton.textContent = originalText || 'Надіслати лист підтвердження повторно';
+        }
       }
     }
 
@@ -2471,7 +2725,6 @@ if (!authResult.data.session) {
               id: 1,
               name: currentUser.name || "Океан Дружніх",
               email: superAdminEmail,
-              pass: "admin123",
               role: "Супер Адміністратор",
               subrole: "Керівник платформи",
               additionalRoles: ["Агент підтримки"],
@@ -3082,7 +3335,6 @@ if (!authResult.data.session) {
           id: Date.now(),
           name: u.name,
           email: u.email,
-          pass: "admin123",
           role: agentRole,
           subrole: subrole,
           additionalRoles: [],
@@ -3372,7 +3624,6 @@ if (!authResult.data.session) {
           id: Date.now(),
           name: u.name,
           email: u.email,
-          pass: "admin123",
           role: "Агент підтримки",
           subrole: "Загальна підтримка",
           additionalRoles: [],
